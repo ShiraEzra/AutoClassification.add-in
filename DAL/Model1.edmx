@@ -1,0 +1,591 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="AutomaticClassificationDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Category_tbl">
+          <Key>
+            <PropertyRef Name="ID_category" />
+          </Key>
+          <Property Name="ID_category" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name_category" Type="nchar" MaxLength="25" Nullable="false" />
+          <Property Name="Mail_category" Type="nchar" MaxLength="25" />
+          <Property Name="FolderPath_category" Type="nchar" MaxLength="100" />
+          <Property Name="Descriptiopn_category" Type="nchar" MaxLength="50" />
+          <Property Name="ManagerID_category" Type="nchar" MaxLength="9" />
+          <Property Name="ManagerName_category" Type="nchar" MaxLength="25" />
+        </EntityType>
+        <EntityType Name="EmailRequest_tbl">
+          <Key>
+            <PropertyRef Name="ID_emailRequest" />
+          </Key>
+          <Property Name="ID_emailRequest" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="EmailSubject" Type="nchar" MaxLength="50" />
+          <Property Name="EmailContent" Type="nchar" MaxLength="150" />
+          <Property Name="SenderEmail" Type="nchar" MaxLength="25" />
+          <Property Name="Date" Type="date" />
+        </EntityType>
+        <EntityType Name="PermissionLevel_tbl">
+          <Key>
+            <PropertyRef Name="ID_permissionLevel" />
+          </Key>
+          <Property Name="ID_permissionLevel" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Value_pl" Type="nchar" MaxLength="20" Nullable="false" />
+        </EntityType>
+        <EntityType Name="SendingAdjustmentStatus_tbl">
+          <Key>
+            <PropertyRef Name="ID_SendingAdjustmentStatus" />
+          </Key>
+          <Property Name="ID_SendingAdjustmentStatus" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Value_SAStatus" Type="nchar" MaxLength="30" Nullable="false" />
+        </EntityType>
+        <EntityType Name="SendingHistory_tbl">
+          <Key>
+            <PropertyRef Name="ID_sendingHistory" />
+          </Key>
+          <Property Name="ID_sendingHistory" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ID_category" Type="int" Nullable="false" />
+          <Property Name="ID_emailRequest" Type="int" Nullable="false" />
+          <Property Name="Date" Type="date" Nullable="false" />
+          <Property Name="ID_sendingAdjustmentStatus" Type="int" Nullable="false" />
+          <Property Name="IsSentAutomat" Type="bit" Nullable="false" />
+          <Property Name="SentFrom" Type="int" />
+          <Property Name="Precision" Type="real" />
+        </EntityType>
+        <EntityType Name="User_tbl">
+          <Key>
+            <PropertyRef Name="ID_user" />
+          </Key>
+          <Property Name="ID_user" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name_user" Type="nchar" MaxLength="30" Nullable="false" />
+          <Property Name="ID_premissionLevel" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Word_tbl">
+          <Key>
+            <PropertyRef Name="ID_word" />
+          </Key>
+          <Property Name="ID_word" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Value_word" Type="nchar" MaxLength="20" Nullable="false" />
+          <Property Name="ID_wordType" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="WordPerCategory_tbl">
+          <Key>
+            <PropertyRef Name="ID_wordPerCategory" />
+          </Key>
+          <Property Name="ID_wordPerCategory" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ID_word" Type="int" Nullable="false" />
+          <Property Name="ID_category" Type="int" Nullable="false" />
+          <Property Name="AmountOfUse" Type="int" />
+          <Property Name="MatchPercentage" Type="real" />
+        </EntityType>
+        <EntityType Name="WordType_tbl">
+          <Key>
+            <PropertyRef Name="ID_wordType" />
+          </Key>
+          <Property Name="ID_wordType" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Description" Type="nchar" MaxLength="25" Nullable="false" />
+        </EntityType>
+        <Association Name="FK_SendingHistory_Category_tbl">
+          <End Role="Category_tbl" Type="Self.Category_tbl" Multiplicity="1" />
+          <End Role="SendingHistory_tbl" Type="Self.SendingHistory_tbl" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Category_tbl">
+              <PropertyRef Name="ID_category" />
+            </Principal>
+            <Dependent Role="SendingHistory_tbl">
+              <PropertyRef Name="ID_category" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SendingHistory_Category_tbl1">
+          <End Role="Category_tbl" Type="Self.Category_tbl" Multiplicity="0..1" />
+          <End Role="SendingHistory_tbl" Type="Self.SendingHistory_tbl" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Category_tbl">
+              <PropertyRef Name="ID_category" />
+            </Principal>
+            <Dependent Role="SendingHistory_tbl">
+              <PropertyRef Name="SentFrom" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SendingHistory_EmailRequest_tbl">
+          <End Role="EmailRequest_tbl" Type="Self.EmailRequest_tbl" Multiplicity="1" />
+          <End Role="SendingHistory_tbl" Type="Self.SendingHistory_tbl" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="EmailRequest_tbl">
+              <PropertyRef Name="ID_emailRequest" />
+            </Principal>
+            <Dependent Role="SendingHistory_tbl">
+              <PropertyRef Name="ID_emailRequest" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SendingHistory_SendingAdjustmentStatus_tbl">
+          <End Role="SendingAdjustmentStatus_tbl" Type="Self.SendingAdjustmentStatus_tbl" Multiplicity="1" />
+          <End Role="SendingHistory_tbl" Type="Self.SendingHistory_tbl" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SendingAdjustmentStatus_tbl">
+              <PropertyRef Name="ID_SendingAdjustmentStatus" />
+            </Principal>
+            <Dependent Role="SendingHistory_tbl">
+              <PropertyRef Name="ID_sendingAdjustmentStatus" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_User_tbl_PermissionLevel_tbl">
+          <End Role="PermissionLevel_tbl" Type="Self.PermissionLevel_tbl" Multiplicity="1" />
+          <End Role="User_tbl" Type="Self.User_tbl" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PermissionLevel_tbl">
+              <PropertyRef Name="ID_permissionLevel" />
+            </Principal>
+            <Dependent Role="User_tbl">
+              <PropertyRef Name="ID_premissionLevel" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Word_tbl_WordType_tbl">
+          <End Role="WordType_tbl" Type="Self.WordType_tbl" Multiplicity="1" />
+          <End Role="Word_tbl" Type="Self.Word_tbl" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="WordType_tbl">
+              <PropertyRef Name="ID_wordType" />
+            </Principal>
+            <Dependent Role="Word_tbl">
+              <PropertyRef Name="ID_wordType" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_WordPerCategory_Category_tbl">
+          <End Role="Category_tbl" Type="Self.Category_tbl" Multiplicity="1" />
+          <End Role="WordPerCategory_tbl" Type="Self.WordPerCategory_tbl" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Category_tbl">
+              <PropertyRef Name="ID_category" />
+            </Principal>
+            <Dependent Role="WordPerCategory_tbl">
+              <PropertyRef Name="ID_category" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_WordPerCategory_Word">
+          <End Role="Word_tbl" Type="Self.Word_tbl" Multiplicity="1" />
+          <End Role="WordPerCategory_tbl" Type="Self.WordPerCategory_tbl" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Word_tbl">
+              <PropertyRef Name="ID_word" />
+            </Principal>
+            <Dependent Role="WordPerCategory_tbl">
+              <PropertyRef Name="ID_word" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="AutomaticClassificationDBModelStoreContainer">
+          <EntitySet Name="Category_tbl" EntityType="Self.Category_tbl" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="EmailRequest_tbl" EntityType="Self.EmailRequest_tbl" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PermissionLevel_tbl" EntityType="Self.PermissionLevel_tbl" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="SendingAdjustmentStatus_tbl" EntityType="Self.SendingAdjustmentStatus_tbl" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="SendingHistory_tbl" EntityType="Self.SendingHistory_tbl" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="User_tbl" EntityType="Self.User_tbl" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Word_tbl" EntityType="Self.Word_tbl" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="WordPerCategory_tbl" EntityType="Self.WordPerCategory_tbl" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="WordType_tbl" EntityType="Self.WordType_tbl" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_SendingHistory_Category_tbl" Association="Self.FK_SendingHistory_Category_tbl">
+            <End Role="Category_tbl" EntitySet="Category_tbl" />
+            <End Role="SendingHistory_tbl" EntitySet="SendingHistory_tbl" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SendingHistory_Category_tbl1" Association="Self.FK_SendingHistory_Category_tbl1">
+            <End Role="Category_tbl" EntitySet="Category_tbl" />
+            <End Role="SendingHistory_tbl" EntitySet="SendingHistory_tbl" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SendingHistory_EmailRequest_tbl" Association="Self.FK_SendingHistory_EmailRequest_tbl">
+            <End Role="EmailRequest_tbl" EntitySet="EmailRequest_tbl" />
+            <End Role="SendingHistory_tbl" EntitySet="SendingHistory_tbl" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SendingHistory_SendingAdjustmentStatus_tbl" Association="Self.FK_SendingHistory_SendingAdjustmentStatus_tbl">
+            <End Role="SendingAdjustmentStatus_tbl" EntitySet="SendingAdjustmentStatus_tbl" />
+            <End Role="SendingHistory_tbl" EntitySet="SendingHistory_tbl" />
+          </AssociationSet>
+          <AssociationSet Name="FK_User_tbl_PermissionLevel_tbl" Association="Self.FK_User_tbl_PermissionLevel_tbl">
+            <End Role="PermissionLevel_tbl" EntitySet="PermissionLevel_tbl" />
+            <End Role="User_tbl" EntitySet="User_tbl" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Word_tbl_WordType_tbl" Association="Self.FK_Word_tbl_WordType_tbl">
+            <End Role="WordType_tbl" EntitySet="WordType_tbl" />
+            <End Role="Word_tbl" EntitySet="Word_tbl" />
+          </AssociationSet>
+          <AssociationSet Name="FK_WordPerCategory_Category_tbl" Association="Self.FK_WordPerCategory_Category_tbl">
+            <End Role="Category_tbl" EntitySet="Category_tbl" />
+            <End Role="WordPerCategory_tbl" EntitySet="WordPerCategory_tbl" />
+          </AssociationSet>
+          <AssociationSet Name="FK_WordPerCategory_Word" Association="Self.FK_WordPerCategory_Word">
+            <End Role="Word_tbl" EntitySet="Word_tbl" />
+            <End Role="WordPerCategory_tbl" EntitySet="WordPerCategory_tbl" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="AutomaticClassificationDBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Category_tbl">
+          <Key>
+            <PropertyRef Name="ID_category" />
+          </Key>
+          <Property Name="ID_category" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name_category" Type="String" MaxLength="25" FixedLength="true" Unicode="true" Nullable="false" />
+          <Property Name="Mail_category" Type="String" MaxLength="25" FixedLength="true" Unicode="true" />
+          <Property Name="FolderPath_category" Type="String" MaxLength="100" FixedLength="true" Unicode="true" />
+          <Property Name="Descriptiopn_category" Type="String" MaxLength="50" FixedLength="true" Unicode="true" />
+          <Property Name="ManagerID_category" Type="String" MaxLength="9" FixedLength="true" Unicode="true" />
+          <Property Name="ManagerName_category" Type="String" MaxLength="25" FixedLength="true" Unicode="true" />
+          <NavigationProperty Name="SendingHistory_tbl" Relationship="Self.FK_SendingHistory_Category_tbl" FromRole="Category_tbl" ToRole="SendingHistory_tbl" />
+          <NavigationProperty Name="SendingHistory_tbl1" Relationship="Self.FK_SendingHistory_Category_tbl1" FromRole="Category_tbl" ToRole="SendingHistory_tbl" />
+          <NavigationProperty Name="WordPerCategory_tbl" Relationship="Self.FK_WordPerCategory_Category_tbl" FromRole="Category_tbl" ToRole="WordPerCategory_tbl" />
+        </EntityType>
+        <EntityType Name="EmailRequest_tbl">
+          <Key>
+            <PropertyRef Name="ID_emailRequest" />
+          </Key>
+          <Property Name="ID_emailRequest" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="EmailSubject" Type="String" MaxLength="50" FixedLength="true" Unicode="true" />
+          <Property Name="EmailContent" Type="String" MaxLength="150" FixedLength="true" Unicode="true" />
+          <Property Name="SenderEmail" Type="String" MaxLength="25" FixedLength="true" Unicode="true" />
+          <Property Name="Date" Type="DateTime" Precision="0" />
+          <NavigationProperty Name="SendingHistory_tbl" Relationship="Self.FK_SendingHistory_EmailRequest_tbl" FromRole="EmailRequest_tbl" ToRole="SendingHistory_tbl" />
+        </EntityType>
+        <EntityType Name="PermissionLevel_tbl">
+          <Key>
+            <PropertyRef Name="ID_permissionLevel" />
+          </Key>
+          <Property Name="ID_permissionLevel" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Value_pl" Type="String" MaxLength="20" FixedLength="true" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="User_tbl" Relationship="Self.FK_User_tbl_PermissionLevel_tbl" FromRole="PermissionLevel_tbl" ToRole="User_tbl" />
+        </EntityType>
+        <EntityType Name="SendingAdjustmentStatus_tbl">
+          <Key>
+            <PropertyRef Name="ID_SendingAdjustmentStatus" />
+          </Key>
+          <Property Name="ID_SendingAdjustmentStatus" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Value_SAStatus" Type="String" MaxLength="30" FixedLength="true" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="SendingHistory_tbl" Relationship="Self.FK_SendingHistory_SendingAdjustmentStatus_tbl" FromRole="SendingAdjustmentStatus_tbl" ToRole="SendingHistory_tbl" />
+        </EntityType>
+        <EntityType Name="SendingHistory_tbl">
+          <Key>
+            <PropertyRef Name="ID_sendingHistory" />
+          </Key>
+          <Property Name="ID_sendingHistory" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ID_category" Type="Int32" Nullable="false" />
+          <Property Name="ID_emailRequest" Type="Int32" Nullable="false" />
+          <Property Name="Date" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="ID_sendingAdjustmentStatus" Type="Int32" Nullable="false" />
+          <Property Name="IsSentAutomat" Type="Boolean" Nullable="false" />
+          <Property Name="SentFrom" Type="Int32" />
+          <Property Name="Precision" Type="Single" />
+          <NavigationProperty Name="Category_tbl" Relationship="Self.FK_SendingHistory_Category_tbl" FromRole="SendingHistory_tbl" ToRole="Category_tbl" />
+          <NavigationProperty Name="Category_tbl1" Relationship="Self.FK_SendingHistory_Category_tbl1" FromRole="SendingHistory_tbl" ToRole="Category_tbl" />
+          <NavigationProperty Name="EmailRequest_tbl" Relationship="Self.FK_SendingHistory_EmailRequest_tbl" FromRole="SendingHistory_tbl" ToRole="EmailRequest_tbl" />
+          <NavigationProperty Name="SendingAdjustmentStatus_tbl" Relationship="Self.FK_SendingHistory_SendingAdjustmentStatus_tbl" FromRole="SendingHistory_tbl" ToRole="SendingAdjustmentStatus_tbl" />
+        </EntityType>
+        <EntityType Name="User_tbl">
+          <Key>
+            <PropertyRef Name="ID_user" />
+          </Key>
+          <Property Name="ID_user" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name_user" Type="String" MaxLength="30" FixedLength="true" Unicode="true" Nullable="false" />
+          <Property Name="ID_premissionLevel" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="PermissionLevel_tbl" Relationship="Self.FK_User_tbl_PermissionLevel_tbl" FromRole="User_tbl" ToRole="PermissionLevel_tbl" />
+        </EntityType>
+        <EntityType Name="Word_tbl">
+          <Key>
+            <PropertyRef Name="ID_word" />
+          </Key>
+          <Property Name="ID_word" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Value_word" Type="String" MaxLength="20" FixedLength="true" Unicode="true" Nullable="false" />
+          <Property Name="ID_wordType" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="WordType_tbl" Relationship="Self.FK_Word_tbl_WordType_tbl" FromRole="Word_tbl" ToRole="WordType_tbl" />
+          <NavigationProperty Name="WordPerCategory_tbl" Relationship="Self.FK_WordPerCategory_Word" FromRole="Word_tbl" ToRole="WordPerCategory_tbl" />
+        </EntityType>
+        <EntityType Name="WordPerCategory_tbl">
+          <Key>
+            <PropertyRef Name="ID_wordPerCategory" />
+          </Key>
+          <Property Name="ID_wordPerCategory" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ID_word" Type="Int32" Nullable="false" />
+          <Property Name="ID_category" Type="Int32" Nullable="false" />
+          <Property Name="AmountOfUse" Type="Int32" />
+          <Property Name="MatchPercentage" Type="Single" />
+          <NavigationProperty Name="Category_tbl" Relationship="Self.FK_WordPerCategory_Category_tbl" FromRole="WordPerCategory_tbl" ToRole="Category_tbl" />
+          <NavigationProperty Name="Word_tbl" Relationship="Self.FK_WordPerCategory_Word" FromRole="WordPerCategory_tbl" ToRole="Word_tbl" />
+        </EntityType>
+        <EntityType Name="WordType_tbl">
+          <Key>
+            <PropertyRef Name="ID_wordType" />
+          </Key>
+          <Property Name="ID_wordType" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Description" Type="String" MaxLength="25" FixedLength="true" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="Word_tbl" Relationship="Self.FK_Word_tbl_WordType_tbl" FromRole="WordType_tbl" ToRole="Word_tbl" />
+        </EntityType>
+        <Association Name="FK_SendingHistory_Category_tbl">
+          <End Role="Category_tbl" Type="Self.Category_tbl" Multiplicity="1" />
+          <End Role="SendingHistory_tbl" Type="Self.SendingHistory_tbl" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Category_tbl">
+              <PropertyRef Name="ID_category" />
+            </Principal>
+            <Dependent Role="SendingHistory_tbl">
+              <PropertyRef Name="ID_category" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SendingHistory_Category_tbl1">
+          <End Role="Category_tbl" Type="Self.Category_tbl" Multiplicity="0..1" />
+          <End Role="SendingHistory_tbl" Type="Self.SendingHistory_tbl" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Category_tbl">
+              <PropertyRef Name="ID_category" />
+            </Principal>
+            <Dependent Role="SendingHistory_tbl">
+              <PropertyRef Name="SentFrom" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_WordPerCategory_Category_tbl">
+          <End Role="Category_tbl" Type="Self.Category_tbl" Multiplicity="1" />
+          <End Role="WordPerCategory_tbl" Type="Self.WordPerCategory_tbl" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Category_tbl">
+              <PropertyRef Name="ID_category" />
+            </Principal>
+            <Dependent Role="WordPerCategory_tbl">
+              <PropertyRef Name="ID_category" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SendingHistory_EmailRequest_tbl">
+          <End Role="EmailRequest_tbl" Type="Self.EmailRequest_tbl" Multiplicity="1" />
+          <End Role="SendingHistory_tbl" Type="Self.SendingHistory_tbl" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="EmailRequest_tbl">
+              <PropertyRef Name="ID_emailRequest" />
+            </Principal>
+            <Dependent Role="SendingHistory_tbl">
+              <PropertyRef Name="ID_emailRequest" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_User_tbl_PermissionLevel_tbl">
+          <End Role="PermissionLevel_tbl" Type="Self.PermissionLevel_tbl" Multiplicity="1" />
+          <End Role="User_tbl" Type="Self.User_tbl" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PermissionLevel_tbl">
+              <PropertyRef Name="ID_permissionLevel" />
+            </Principal>
+            <Dependent Role="User_tbl">
+              <PropertyRef Name="ID_premissionLevel" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SendingHistory_SendingAdjustmentStatus_tbl">
+          <End Role="SendingAdjustmentStatus_tbl" Type="Self.SendingAdjustmentStatus_tbl" Multiplicity="1" />
+          <End Role="SendingHistory_tbl" Type="Self.SendingHistory_tbl" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SendingAdjustmentStatus_tbl">
+              <PropertyRef Name="ID_SendingAdjustmentStatus" />
+            </Principal>
+            <Dependent Role="SendingHistory_tbl">
+              <PropertyRef Name="ID_sendingAdjustmentStatus" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Word_tbl_WordType_tbl">
+          <End Role="WordType_tbl" Type="Self.WordType_tbl" Multiplicity="1" />
+          <End Role="Word_tbl" Type="Self.Word_tbl" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="WordType_tbl">
+              <PropertyRef Name="ID_wordType" />
+            </Principal>
+            <Dependent Role="Word_tbl">
+              <PropertyRef Name="ID_wordType" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_WordPerCategory_Word">
+          <End Role="Word_tbl" Type="Self.Word_tbl" Multiplicity="1" />
+          <End Role="WordPerCategory_tbl" Type="Self.WordPerCategory_tbl" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Word_tbl">
+              <PropertyRef Name="ID_word" />
+            </Principal>
+            <Dependent Role="WordPerCategory_tbl">
+              <PropertyRef Name="ID_word" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="AutomaticClassificationDBEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Category_tbl" EntityType="Self.Category_tbl" />
+          <EntitySet Name="EmailRequest_tbl" EntityType="Self.EmailRequest_tbl" />
+          <EntitySet Name="PermissionLevel_tbl" EntityType="Self.PermissionLevel_tbl" />
+          <EntitySet Name="SendingAdjustmentStatus_tbl" EntityType="Self.SendingAdjustmentStatus_tbl" />
+          <EntitySet Name="SendingHistory_tbl" EntityType="Self.SendingHistory_tbl" />
+          <EntitySet Name="User_tbl" EntityType="Self.User_tbl" />
+          <EntitySet Name="Word_tbl" EntityType="Self.Word_tbl" />
+          <EntitySet Name="WordPerCategory_tbl" EntityType="Self.WordPerCategory_tbl" />
+          <EntitySet Name="WordType_tbl" EntityType="Self.WordType_tbl" />
+          <AssociationSet Name="FK_SendingHistory_Category_tbl" Association="Self.FK_SendingHistory_Category_tbl">
+            <End Role="Category_tbl" EntitySet="Category_tbl" />
+            <End Role="SendingHistory_tbl" EntitySet="SendingHistory_tbl" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SendingHistory_Category_tbl1" Association="Self.FK_SendingHistory_Category_tbl1">
+            <End Role="Category_tbl" EntitySet="Category_tbl" />
+            <End Role="SendingHistory_tbl" EntitySet="SendingHistory_tbl" />
+          </AssociationSet>
+          <AssociationSet Name="FK_WordPerCategory_Category_tbl" Association="Self.FK_WordPerCategory_Category_tbl">
+            <End Role="Category_tbl" EntitySet="Category_tbl" />
+            <End Role="WordPerCategory_tbl" EntitySet="WordPerCategory_tbl" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SendingHistory_EmailRequest_tbl" Association="Self.FK_SendingHistory_EmailRequest_tbl">
+            <End Role="EmailRequest_tbl" EntitySet="EmailRequest_tbl" />
+            <End Role="SendingHistory_tbl" EntitySet="SendingHistory_tbl" />
+          </AssociationSet>
+          <AssociationSet Name="FK_User_tbl_PermissionLevel_tbl" Association="Self.FK_User_tbl_PermissionLevel_tbl">
+            <End Role="PermissionLevel_tbl" EntitySet="PermissionLevel_tbl" />
+            <End Role="User_tbl" EntitySet="User_tbl" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SendingHistory_SendingAdjustmentStatus_tbl" Association="Self.FK_SendingHistory_SendingAdjustmentStatus_tbl">
+            <End Role="SendingAdjustmentStatus_tbl" EntitySet="SendingAdjustmentStatus_tbl" />
+            <End Role="SendingHistory_tbl" EntitySet="SendingHistory_tbl" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Word_tbl_WordType_tbl" Association="Self.FK_Word_tbl_WordType_tbl">
+            <End Role="WordType_tbl" EntitySet="WordType_tbl" />
+            <End Role="Word_tbl" EntitySet="Word_tbl" />
+          </AssociationSet>
+          <AssociationSet Name="FK_WordPerCategory_Word" Association="Self.FK_WordPerCategory_Word">
+            <End Role="Word_tbl" EntitySet="Word_tbl" />
+            <End Role="WordPerCategory_tbl" EntitySet="WordPerCategory_tbl" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="AutomaticClassificationDBModelStoreContainer" CdmEntityContainer="AutomaticClassificationDBEntities">
+          <EntitySetMapping Name="Category_tbl">
+            <EntityTypeMapping TypeName="AutomaticClassificationDBModel.Category_tbl">
+              <MappingFragment StoreEntitySet="Category_tbl">
+                <ScalarProperty Name="ID_category" ColumnName="ID_category" />
+                <ScalarProperty Name="Name_category" ColumnName="Name_category" />
+                <ScalarProperty Name="Mail_category" ColumnName="Mail_category" />
+                <ScalarProperty Name="FolderPath_category" ColumnName="FolderPath_category" />
+                <ScalarProperty Name="Descriptiopn_category" ColumnName="Descriptiopn_category" />
+                <ScalarProperty Name="ManagerID_category" ColumnName="ManagerID_category" />
+                <ScalarProperty Name="ManagerName_category" ColumnName="ManagerName_category" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="EmailRequest_tbl">
+            <EntityTypeMapping TypeName="AutomaticClassificationDBModel.EmailRequest_tbl">
+              <MappingFragment StoreEntitySet="EmailRequest_tbl">
+                <ScalarProperty Name="ID_emailRequest" ColumnName="ID_emailRequest" />
+                <ScalarProperty Name="EmailSubject" ColumnName="EmailSubject" />
+                <ScalarProperty Name="EmailContent" ColumnName="EmailContent" />
+                <ScalarProperty Name="SenderEmail" ColumnName="SenderEmail" />
+                <ScalarProperty Name="Date" ColumnName="Date" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PermissionLevel_tbl">
+            <EntityTypeMapping TypeName="AutomaticClassificationDBModel.PermissionLevel_tbl">
+              <MappingFragment StoreEntitySet="PermissionLevel_tbl">
+                <ScalarProperty Name="ID_permissionLevel" ColumnName="ID_permissionLevel" />
+                <ScalarProperty Name="Value_pl" ColumnName="Value_pl" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="SendingAdjustmentStatus_tbl">
+            <EntityTypeMapping TypeName="AutomaticClassificationDBModel.SendingAdjustmentStatus_tbl">
+              <MappingFragment StoreEntitySet="SendingAdjustmentStatus_tbl">
+                <ScalarProperty Name="ID_SendingAdjustmentStatus" ColumnName="ID_SendingAdjustmentStatus" />
+                <ScalarProperty Name="Value_SAStatus" ColumnName="Value_SAStatus" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="SendingHistory_tbl">
+            <EntityTypeMapping TypeName="AutomaticClassificationDBModel.SendingHistory_tbl">
+              <MappingFragment StoreEntitySet="SendingHistory_tbl">
+                <ScalarProperty Name="ID_sendingHistory" ColumnName="ID_sendingHistory" />
+                <ScalarProperty Name="ID_category" ColumnName="ID_category" />
+                <ScalarProperty Name="ID_emailRequest" ColumnName="ID_emailRequest" />
+                <ScalarProperty Name="Date" ColumnName="Date" />
+                <ScalarProperty Name="ID_sendingAdjustmentStatus" ColumnName="ID_sendingAdjustmentStatus" />
+                <ScalarProperty Name="IsSentAutomat" ColumnName="IsSentAutomat" />
+                <ScalarProperty Name="SentFrom" ColumnName="SentFrom" />
+                <ScalarProperty Name="Precision" ColumnName="Precision" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="User_tbl">
+            <EntityTypeMapping TypeName="AutomaticClassificationDBModel.User_tbl">
+              <MappingFragment StoreEntitySet="User_tbl">
+                <ScalarProperty Name="ID_user" ColumnName="ID_user" />
+                <ScalarProperty Name="Name_user" ColumnName="Name_user" />
+                <ScalarProperty Name="ID_premissionLevel" ColumnName="ID_premissionLevel" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Word_tbl">
+            <EntityTypeMapping TypeName="AutomaticClassificationDBModel.Word_tbl">
+              <MappingFragment StoreEntitySet="Word_tbl">
+                <ScalarProperty Name="ID_word" ColumnName="ID_word" />
+                <ScalarProperty Name="Value_word" ColumnName="Value_word" />
+                <ScalarProperty Name="ID_wordType" ColumnName="ID_wordType" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="WordPerCategory_tbl">
+            <EntityTypeMapping TypeName="AutomaticClassificationDBModel.WordPerCategory_tbl">
+              <MappingFragment StoreEntitySet="WordPerCategory_tbl">
+                <ScalarProperty Name="ID_wordPerCategory" ColumnName="ID_wordPerCategory" />
+                <ScalarProperty Name="ID_word" ColumnName="ID_word" />
+                <ScalarProperty Name="ID_category" ColumnName="ID_category" />
+                <ScalarProperty Name="AmountOfUse" ColumnName="AmountOfUse" />
+                <ScalarProperty Name="MatchPercentage" ColumnName="MatchPercentage" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="WordType_tbl">
+            <EntityTypeMapping TypeName="AutomaticClassificationDBModel.WordType_tbl">
+              <MappingFragment StoreEntitySet="WordType_tbl">
+                <ScalarProperty Name="ID_wordType" ColumnName="ID_wordType" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="false" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>
