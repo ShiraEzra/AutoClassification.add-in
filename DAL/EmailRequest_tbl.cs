@@ -24,9 +24,11 @@ namespace DAL
         public string EmailSubject { get; set; }
         public string EmailContent { get; set; }
         public string SenderEmail { get; set; }
-        public Nullable<System.DateTime> Date { get; set; }
+        public System.DateTime Date { get; set; }
+        public Nullable<int> ID_category { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SendingHistory_tbl> SendingHistory_tbl { get; set; }
+        public virtual Category_tbl Category_tbl { get; set; }
     }
 }

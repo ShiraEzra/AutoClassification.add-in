@@ -21,7 +21,7 @@ namespace DebugTrying
         private void btn_invokeFuncGetNewMail_Click(object sender, EventArgs e)
         {
             Algorithm algorithm = new Algorithm();
-            algorithm.NewEmailRequest("רועי ספק - מעוניין לדבר עם אסתי רכש בהקדם", "");
+            algorithm.NewEmailRequest("", "רועי ספק - מעוניין לדבר עם אסתי רכש בהקדם", "shira0556791045@gmail.com", DateTime.Now);
         }
     }
 }

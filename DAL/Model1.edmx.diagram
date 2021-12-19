@@ -5,7 +5,7 @@
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
       <Diagram DiagramId="01e219669adf4686b3ed8f271f466ac7" Name="Diagram1">
-        <EntityTypeShape EntityType="AutomaticClassificationDBModel.Category_tbl" Width="1.5" PointX="0.5" PointY="3.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="AutomaticClassificationDBModel.Category_tbl" Width="1.5" PointX="0.5" PointY="3.5" IsExpanded="true" />
         <EntityTypeShape EntityType="AutomaticClassificationDBModel.EmailRequest_tbl" Width="1.5" PointX="0.5" PointY="0.5" IsExpanded="true" />
         <EntityTypeShape EntityType="AutomaticClassificationDBModel.PermissionLevel_tbl" Width="1.5" PointX="8" PointY="3.625" IsExpanded="true" />
         <EntityTypeShape EntityType="AutomaticClassificationDBModel.SendingAdjustmentStatus_tbl" Width="1.5" PointX="3.25" PointY="5" IsExpanded="true" />
@@ -22,6 +22,7 @@
         <AssociationConnector Association="AutomaticClassificationDBModel.FK_SendingHistory_SendingAdjustmentStatus_tbl" ManuallyRouted="false" />
         <AssociationConnector Association="AutomaticClassificationDBModel.FK_Word_tbl_WordType_tbl" ManuallyRouted="false" />
         <AssociationConnector Association="AutomaticClassificationDBModel.FK_WordPerCategory_Word" ManuallyRouted="false" />
+        <AssociationConnector Association="AutomaticClassificationDBModel.FK_EmailRequest_tbl_Category_tbl" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

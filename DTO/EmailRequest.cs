@@ -15,6 +15,9 @@ namespace DTO
         public string EmailContent { get; set; }
         public string SenderEmail { get; set; }
         public Nullable<System.DateTime> Date { get; set; }
+        public Nullable<int> ID_category { get; set; }
+
+
 
         public EmailRequest(string subject, string body, string sender, DateTime date)
         {
