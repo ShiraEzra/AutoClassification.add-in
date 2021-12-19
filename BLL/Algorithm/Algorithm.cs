@@ -1,4 +1,5 @@
 ﻿using DAL;
+using DTO;
 using HebrewNLP.Morphology;
 using HebrewNLP.Names;
 using System;
@@ -15,21 +16,40 @@ namespace BLL
         AutomaticClassificationDBEntities db = new AutomaticClassificationDBEntities();
 
         float[,] naiveBaseMat;
-        public  void NewEmailRequest(string subject, string body/*, string sender, DateTime date*/)
-        {
-            string [] subject_withOutIrrelevnt = RemovingIrrelevantCharacters(subject);
-            string [] body_withOutIrrelevnt = RemovingIrrelevantCharacters(body);
-            //להתייחס לשמות של אנשים
-            string[] namesInSubject = NameRecognition(subject_withOutIrrelevnt);
-            string[] namesInBody = NameRecognition(body_withOutIrrelevnt);
-            List<string> normalizedSubjectWords = NormalizeWordsByHebrewNLP(subject_withOutIrrelevnt);
-            List<string> normalizedBodyWords = NormalizeWordsByHebrewNLP(body_withOutIrrelevnt);
 
-            BuildMatrix();
+        /// <summary>
+        /// Get new email request, call functions that calculate which category belongs this request
+        /// </summary>
+        /// <param name="subject">subject of the email</param>
+        /// <param name="body">body of the email</param>
+        //public  void NewEmailRequest(string subject, string body/*, string sender, DateTime date*/)
+        //{
+        //    string [] subject_withOutIrrelevnt = RemovingIrrelevantCharacters(subject);
+        //    string [] body_withOutIrrelevnt = RemovingIrrelevantCharacters(body);
+        //    //להתייחס לשמות של אנשים
+        //    string[] namesInSubject = NameRecognition(subject_withOutIrrelevnt);
+        //    string[] namesInBody = NameRecognition(body_withOutIrrelevnt);
+        //    List<string> normalizedSubjectWords = NormalizeWordsByHebrewNLP(subject_withOutIrrelevnt);
+        //    List<string> normalizedBodyWords = NormalizeWordsByHebrewNLP(body_withOutIrrelevnt);
+        //    BuildMatrix();
+        //}
+
+
+        public void NewEmailRequest(string subject, string body, string sender, DateTime date)
+        {
+            EmailRequest request = new EmailRequest(subject,body,sender,date);
+            //הכנסת הפנייה לדטה-בייס
 
         }
+            
 
-        public string [] RemovingIrrelevantCharacters(string sentence)   //A function that removes characters and spaces from the content.
+
+        /// <summary>
+        /// Removes characters and spaces from the content.
+        /// </summary>
+        /// <param name="sentence">content</param>
+        /// <returns></returns>
+        public string [] RemovingIrrelevantCharacters(string sentence)   
         {
             string result = Regex.Replace(sentence, @"[!-@, [-`, {-~]", " "); // delete every char that suitable to the condition.
             char[] separators =new char[] { ' ', '\n', '\t', '\r' };

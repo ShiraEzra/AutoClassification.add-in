@@ -16,6 +16,14 @@ namespace DTO
         public string SenderEmail { get; set; }
         public Nullable<System.DateTime> Date { get; set; }
 
+        public EmailRequest(string subject, string body, string sender, DateTime date)
+        {
+            this.EmailSubject = subject;
+            this.EmailContent = body;
+            this.SenderEmail = sender;
+            this.Date = date;
+        }
+
         public EmailRequest_tbl DtoTODal()
         {
             var config = new MapperConfiguration(cfg =>
