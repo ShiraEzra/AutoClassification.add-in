@@ -8,15 +8,15 @@ namespace BLL
 {
     class BodyContent
     {
-        public List<string> namesInBody { get; set; }
-        public List<string> normalizedBodyWords { get; set; }
-        public float[] categoryProbability { get; set; }
+        public List<string> NamesInBody { get; set; }
+        public List<string> NormalizedBodyWords { get; set; }
+        public float[] ProbabilitybSentenceForCategory { get; set; }
 
         public BodyContent(int numCategories)
         {
-            this.namesInBody = new List<string>();
-            this.normalizedBodyWords = new List<string>();
-            this.categoryProbability = new float[numCategories];
+            this.NamesInBody = new List<string>();
+            this.NormalizedBodyWords = new List<string>();
+            this.ProbabilitybSentenceForCategory = new float[numCategories];
         }
     }
 }

@@ -47,5 +47,24 @@ namespace BLL
                 str += item + " ";
             return str;
         }
+
+        /// <summary>
+        /// get a dictionary & value, return is key.
+        /// </summary>
+        /// <param name="word_dictionary"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public int FindKeyByValue(Dictionary<int, string> word_dictionary, String value)  
+        {
+            if (word_dictionary.ContainsValue(value))
+            {
+                foreach (int key in word_dictionary.Keys)
+                {
+                    if (word_dictionary[key].Equals(value))
+                        return key;
+                }
+            }
+            return -1;
+        }
     }
 }
