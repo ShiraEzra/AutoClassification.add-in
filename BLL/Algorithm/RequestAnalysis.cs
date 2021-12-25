@@ -15,8 +15,6 @@ namespace BLL
         {
             this.NamesInSubject = new List<string>();
             this.NormalizedSubjectWords = new List<string>();
-          //  this.bodyAnalysis= new BodyContent[numSentencesInBody];
         }
-
     }
 }

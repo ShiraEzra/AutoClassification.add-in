@@ -23,5 +23,23 @@ namespace DebugTrying
             Algorithm algorithm = new Algorithm();
             algorithm.NewEmailRequest("", "רועי ספק - מעוניין לדבר עם אסתי רכש בהקדם", "shira0556791045@gmail.com", DateTime.Now);
         }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            List<string> sentence = new List<string>();
+            sentence.Add("הי");
+            sentence.Add("רועי");
+            sentence.Add("מה");
+            sentence.Add("קורה?");
+            List<string> names = new List<string>();
+            names.Add("רועי");
+            sentence = RemoveNamesFromSentence(sentence, names);
+        }
+
+        public List<string> RemoveNamesFromSentence(List<string> sentence, List<string> names)
+        {
+            sentence.RemoveAll(item => names.Contains(item));
+            return sentence;
+        }
     }
 }

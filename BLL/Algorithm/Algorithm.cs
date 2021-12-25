@@ -20,12 +20,14 @@ namespace BLL
         float[,] probability_mat;   //A matrix that contains in each cell the probability of a word to belong to a specific category.
         float[] categoryProbability_arr;  //An array that contains in each cell the probability of its face belonging to each category.
         RequestAnalysis req_Analysis;    //Object containing the request analysis.
+        Dictionary<string, Word_tbl> allWords;
 
         public Algorithm()
         {
             probability_mat = new float[db.Word_tbl.Count(), db.Category_tbl.Count()];
             categoryProbability_arr = InitProbability_arr();
             req_Analysis = new RequestAnalysis();
+            allWords = GetAllWordsAsDictionary();
         }
 
         /// <summary>
@@ -40,11 +42,12 @@ namespace BLL
             EmailRequest request = new EmailRequest(subject, body, sender, date);
             request.ID_category = AssociateRequestToCategory(request);
             //העברת המייל מתיבת דואר נכנס לתקיית הקטגוריה שנבחרה
+            LearningForNext((int)request.ID_category);
             db.EmailRequest_tbl.Add(request.DtoTODal());
             db.SaveChanges();
         }
 
-
+    
         /// <summary>
         /// The function associates the email request to category.
         /// </summary>
@@ -68,14 +71,15 @@ namespace BLL
         {
             string[] subject_arr = StringToArray(subject);
             req_Analysis.NamesInSubject = NameRecognitionByHebrewNLP(subject_arr);
-            //להסיר מהמשפט את כל המילים שזוהו כשמות
+            subject_arr = RemoveNamesFromSentence(subject_arr.ToList(),req_Analysis.NamesInSubject);  //הסרה השמות שזוהו מהנושא
             req_Analysis.NormalizedSubjectWords = NormalizeWordsByHebrewNLP(subject_arr);
+            req_Analysis.NormalizedSubjectWords = RemoveIrrelevantWords(req_Analysis.NormalizedSubjectWords);
             //if (normalizedSubjectWords[7]=="רכש")     //somthing wrong...
             //{
             //    Console.WriteLine("hiiiii");
             //}
         }
-
+                
 
         /// <summary>
         /// The function analyzes the body of the email.
@@ -85,15 +89,42 @@ namespace BLL
         {
             List<string> bodySplitToSentences = SplitToSentencesByHebrewNLP(body);
             req_Analysis.bodyAnalysis = new BodyContent[bodySplitToSentences.Count()];
-            int i = 0;
-            int numCategories = db.Category_tbl.Count();
+            int i=0,  numCategories = db.Category_tbl.Count();
+            string[] sentenceInBody_arr=null;
             foreach (var sentence in bodySplitToSentences)
             {
                 req_Analysis.bodyAnalysis[i] = new BodyContent(numCategories);
-                req_Analysis.bodyAnalysis[i].NamesInBody = NameRecognitionByHebrewNLP(StringToArray(sentence));
-                //צריך להסיר את כל השמות  שזוהו מהמשפט
-                req_Analysis.bodyAnalysis[i++].NormalizedBodyWords = NormalizeWordsByHebrewNLP(StringToArray(sentence));
+                sentenceInBody_arr = StringToArray(sentence);
+                req_Analysis.bodyAnalysis[i].NamesInBody = NameRecognitionByHebrewNLP(sentenceInBody_arr);      //הסרה השמות שזוהו במשפט זה
+                sentenceInBody_arr = RemoveNamesFromSentence(sentenceInBody_arr.ToList(), req_Analysis.bodyAnalysis[i].NamesInBody);
+                req_Analysis.bodyAnalysis[i].NormalizedBodyWords = NormalizeWordsByHebrewNLP(sentenceInBody_arr);
+                req_Analysis.bodyAnalysis[i].NormalizedBodyWords= RemoveIrrelevantWords(req_Analysis.bodyAnalysis[i].NormalizedBodyWords);
+                i++;
             }
+        }
+
+
+        /// <summary>
+        /// A function that removes prepositions and belonging from the list. (All irrelevant words will be removed from the email request)
+        /// </summary>
+        /// <param name="words_lst">words list</param>
+        /// <returns>List of words without irrelevant words</returns>
+        public List<string> RemoveIrrelevantWords(List<string> words_lst)
+        {
+            words_lst.RemoveAll(item =>  /*allWords[item]!=null &&*/ allWords[item].ID_wordType == 2);
+            return words_lst;
+        }
+
+        /// <summary>
+        /// The function removes the list list names from the sentence list.
+        /// </summary>
+        /// <param name="sentence">sentence list</param>
+        /// <param name="names">names list</param>
+        /// <returns>Array containing the sentence list after mapping (after removal)</returns>
+        public string[] RemoveNamesFromSentence(List<string> sentence, List<string> names)
+        {
+            sentence.RemoveAll(item => names.Contains(item));
+            return sentence.ToArray();
         }
 
 
@@ -141,8 +172,16 @@ namespace BLL
         /// <returns>A list of strings containing the names recognized in the sentence</returns>
         public List<string> NameRecognitionByHebrewNLP(string[] sentence_arr)
         {
+            List<NameInfo> options = null;
             HebrewNLP.HebrewNLP.Password = "3BGkxLKouDk3l7B";
-            List<NameInfo> options = NameAnalyzer.Analyze(sentence_arr);
+            try
+            {
+                options= NameAnalyzer.Analyze(sentence_arr);
+            }
+            catch (Exception)
+            {
+                return ReturnOnlyNames(null, sentence_arr);
+            }
             return ReturnOnlyNames(options, sentence_arr);
         }
 
@@ -156,12 +195,12 @@ namespace BLL
         public List<string> ReturnOnlyNames(List<NameInfo> options, string[] sentence_arr)
         {
             int i = 0;
-            List<string> onlyNames = null;
-            //if (options == null)
-            //    return onlyNames;
+            List<string> onlyNames = new List<string>();
+            if (options == null)
+                return onlyNames;
             foreach (var word in options)
             {
-                if (word.FirstName > 6 || word.LastName > 6)
+                if (word.FirstName > 7 || word.LastName > 7)
                     onlyNames.Add(sentence_arr[i]);
                 i++;
             }
@@ -187,27 +226,24 @@ namespace BLL
         /// <returns>An array that contains for each category its probability of belonging to this a category.</returns>
         public float[] CalcProbabilityForCategory(List<string> contentWords_lst)
         {
-            Dictionary<string, int> words_dictionary = GetRelevantWordsAsDictionary(contentWords_lst);
-            //int key = -1;
-            int id_word;
+            Word_tbl word;
             float prob_similiarWords = 0;
-            //        //לבדוק האם מילה קיימת בדטה בייס. אם כן- להכפיל בערך של המיקום שלו במטריצה. אם לא- לבדוק באתר מילים דומות. ואם גם זה לא להכפיל ב- 0.0001
-            foreach (var word in contentWords_lst)
+            //לבדוק האם מילה קיימת בדטה בייס. אם כן- להכפיל בערך של המיקום שלו במטריצה. אם לא- לבדוק באתר מילים דומות. ואם גם זה לא להכפיל ב- 0.0001
+            foreach (var w in contentWords_lst)
             {
-                //key = FindKeyByValue(words_dictionary, word);
-                id_word = 0;
-                bool isExsist = words_dictionary.TryGetValue(word, out id_word);
+                word = null;
+                bool isExsist = allWords.TryGetValue(w, out word);
                 for (int i = 0; i < categoryProbability_arr.Length; i++)
                 {
-                    if (!isExsist /*|| probability_mat[id_word-1 , i]==0*/)
+                    if (!isExsist /*|| probability_mat[id_word-1 , i]==0*/)    //האם לבצע שליחה לאתר מילים דומות גם במקרה שהמילה קיימת בדטה בייס אך לא בקטגוריה זו?
                     {
-                        prob_similiarWords = SimiliarWords_probability(word);
+                        prob_similiarWords = SimiliarWords_probability(w);
                         if (prob_similiarWords == 0)
                             prob_similiarWords = 0.0001f;
                         categoryProbability_arr[i] *= prob_similiarWords;
                     }
                     else
-                        categoryProbability_arr[i] *= probability_mat[id_word - 1, i];
+                        categoryProbability_arr[i] *= probability_mat[word.ID_word - 1, i];
                 }
             }
             return categoryProbability_arr;
@@ -233,24 +269,81 @@ namespace BLL
         /// <summary>
         /// A function that converts a list to a dictionary
         /// </summary>
-        /// <param name="words_lst">A list of words that exist in the email request</param>
-        /// <returns>A dictionary that contains only words that exist in the application</returns>
-        public Dictionary<string, int> GetRelevantWordsAsDictionary(List<string> words_lst)
+        /// <returns>A dictionary that contains all DB words</returns>
+        public Dictionary<string, Word_tbl> GetAllWordsAsDictionary()
         {
             var allWords_lst = db.Word_tbl.ToList();
-            var dic = allWords_lst.ToDictionary(x => x.Value_word, x => x.ID_word)/*.Where(y => words_lst.Contains(y.Key))*/;
-            return /*(Dictionary<string, int>)*/dic;
+            return allWords_lst.ToDictionary(x => x.Value_word, x => x);
         }
 
         public float SimiliarWords_probability(string word)
         {
             //על המילים הדומות שמקבלים צריך לבדוק שוב האם קיימות ב-דטה בייס לקטגוריה זו, ולהחזיר את ההסתברות, אם לא קיימות  להחזיר 0
+            return 0;
         }
 
         public int IndexMaxProbability(float[] probability_arr)  //לא השתמשתי עדיין
         {
             //צריך להחזיר את המקס
             //אם יש כמה קטגוריות שקרובות למקס, צריך לבצע בדיקות נוספות לדוגמא: אנשי קשר
+            return 0;
+        }
+
+
+        public void LearningForNext(int category_id)
+        {
+            List<string> subjectWords = req_Analysis.NamesInSubject;
+            subjectWords.AddRange(req_Analysis.NormalizedSubjectWords);
+            SavingConclusionsInDB(subjectWords, category_id);
+            List<string> bodyWords = new List<string>();
+            foreach (var item in req_Analysis.bodyAnalysis)
+            {
+                bodyWords.AddRange(item.NamesInBody);
+                bodyWords.AddRange(item.NormalizedBodyWords);
+            }
+            SavingConclusionsInDB(bodyWords, category_id);
+        }
+
+        public void SavingConclusionsInDB(List<string> words_lst, int category_id)
+        {
+            WordPerCategory_tbl wordPerCategory = null;
+            Word_tbl word = null;
+            foreach (var w in words_lst)
+            {
+                word = allWords[w];
+                if (word == null)
+                    AddNewWordToDb(w, category_id);
+                else
+                {
+                    wordPerCategory = db.WordPerCategory_tbl.Where(wpc => wpc.ID_word == word.ID_word && wpc.ID_category == category_id).FirstOrDefault();
+                    IncreasePercentageMatching(wordPerCategory);
+                }
+            }
+        }
+
+        public void AddNewWordToDb(string w, int category_id)
+        {
+            Word_tbl word = new Word_tbl();
+            word.Value_word = w;
+            word.ID_wordType = 1;
+            db.Word_tbl.Add(word);
+            db.SaveChanges();     //צריך פעמיים באותה פונקציה?
+            WordPerCategory_tbl wordPerCategory = new WordPerCategory_tbl();
+            wordPerCategory.ID_word = word.ID_word;
+            wordPerCategory.ID_category = category_id;
+            wordPerCategory.AmountOfUse = 0;   //צריך לאתחל?
+            wordPerCategory.MatchPercentage = 0;   //צריך לאתחל?
+            db.WordPerCategory_tbl.Add(wordPerCategory);
+            db.SaveChanges();
+            IncreasePercentageMatching(wordPerCategory);
+        }
+
+        public void IncreasePercentageMatching(WordPerCategory_tbl wpc)
+        {
+            wpc.AmountOfUse++;
+            int numRequestsForThisCategory = db.EmailRequest_tbl.Where(er => er.ID_category == wpc.ID_category).Count();
+            wpc.MatchPercentage = wpc.AmountOfUse / numRequestsForThisCategory;
+            db.SaveChanges();
         }
     }
 }
