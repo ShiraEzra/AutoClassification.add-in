@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BLL
 {
-    class BodyContent
+    public class BodyContent
     {
         public List<string> NamesInBody { get; set; }
         public List<string> NormalizedBodyWords { get; set; }
