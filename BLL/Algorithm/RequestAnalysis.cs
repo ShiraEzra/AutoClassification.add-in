@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BLL
 {
-    class RequestAnalysis
+     public class RequestAnalysis
     {
         public List<string> NamesInSubject { get; set; }
         public List<string> NormalizedSubjectWords { get; set; }

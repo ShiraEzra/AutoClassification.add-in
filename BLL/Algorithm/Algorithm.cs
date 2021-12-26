@@ -12,9 +12,7 @@ namespace BLL
 {
     public class Algorithm
     {
-        AutomaticClassificationDBEntities db = new AutomaticClassificationDBEntities();
-
-        //הסרת מילים לא רלוונטיותתת
+        AutomaticClassificationDBEntities db = AutomaticClassificationDBEntities.Instance;
 
 
         float[,] probability_mat;   //A matrix that contains in each cell the probability of a word to belong to a specific category.
@@ -42,9 +40,9 @@ namespace BLL
             EmailRequest request = new EmailRequest(subject, body, sender, date);
             request.ID_category = AssociateRequestToCategory(request);
             //העברת המייל מתיבת דואר נכנס לתקיית הקטגוריה שנבחרה
-            LearningForNext((int)request.ID_category);
-            db.EmailRequest_tbl.Add(request.DtoTODal());
-            db.SaveChanges();
+            Conclusion conclusion = new Conclusion(req_Analysis);
+            conclusion.LearningForNext((int)request.ID_category, allWords);
+            conclusion.AddEmailRequest_tbl(request.DtoTODal());
         }
 
     
@@ -287,63 +285,6 @@ namespace BLL
             //צריך להחזיר את המקס
             //אם יש כמה קטגוריות שקרובות למקס, צריך לבצע בדיקות נוספות לדוגמא: אנשי קשר
             return 0;
-        }
-
-
-        public void LearningForNext(int category_id)
-        {
-            List<string> subjectWords = req_Analysis.NamesInSubject;
-            subjectWords.AddRange(req_Analysis.NormalizedSubjectWords);
-            SavingConclusionsInDB(subjectWords, category_id);
-            List<string> bodyWords = new List<string>();
-            foreach (var item in req_Analysis.bodyAnalysis)
-            {
-                bodyWords.AddRange(item.NamesInBody);
-                bodyWords.AddRange(item.NormalizedBodyWords);
-            }
-            SavingConclusionsInDB(bodyWords, category_id);
-        }
-
-        public void SavingConclusionsInDB(List<string> words_lst, int category_id)
-        {
-            WordPerCategory_tbl wordPerCategory = null;
-            Word_tbl word = null;
-            foreach (var w in words_lst)
-            {
-                word = allWords[w];
-                if (word == null)
-                    AddNewWordToDb(w, category_id);
-                else
-                {
-                    wordPerCategory = db.WordPerCategory_tbl.Where(wpc => wpc.ID_word == word.ID_word && wpc.ID_category == category_id).FirstOrDefault();
-                    IncreasePercentageMatching(wordPerCategory);
-                }
-            }
-        }
-
-        public void AddNewWordToDb(string w, int category_id)
-        {
-            Word_tbl word = new Word_tbl();
-            word.Value_word = w;
-            word.ID_wordType = 1;
-            db.Word_tbl.Add(word);
-            db.SaveChanges();     //צריך פעמיים באותה פונקציה?
-            WordPerCategory_tbl wordPerCategory = new WordPerCategory_tbl();
-            wordPerCategory.ID_word = word.ID_word;
-            wordPerCategory.ID_category = category_id;
-            wordPerCategory.AmountOfUse = 0;   //צריך לאתחל?
-            wordPerCategory.MatchPercentage = 0;   //צריך לאתחל?
-            db.WordPerCategory_tbl.Add(wordPerCategory);
-            db.SaveChanges();
-            IncreasePercentageMatching(wordPerCategory);
-        }
-
-        public void IncreasePercentageMatching(WordPerCategory_tbl wpc)
-        {
-            wpc.AmountOfUse++;
-            int numRequestsForThisCategory = db.EmailRequest_tbl.Where(er => er.ID_category == wpc.ID_category).Count();
-            wpc.MatchPercentage = wpc.AmountOfUse / numRequestsForThisCategory;
-            db.SaveChanges();
         }
     }
 }

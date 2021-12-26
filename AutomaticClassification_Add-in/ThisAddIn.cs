@@ -24,7 +24,7 @@ namespace AutomaticClassification_Add_in
             }
             Outlook.MailItem lastMail = (Outlook.MailItem)unReadItems.GetLast();
             Algorithm algorithm = new Algorithm();
-            algorithm.NewEmailRequest("רועי ספק - מעוניין לדבר עם אסתי רכש בהקדם", lastMail.Body/*, lastMail.SenderEmailAddress, lastMail.CreationTime*/);
+            algorithm.NewEmailRequest("רועי ספק - מעוניין לדבר עם אסתי רכש בהקדם", lastMail.Body, lastMail.SenderEmailAddress, lastMail.CreationTime);
         }
 
 
