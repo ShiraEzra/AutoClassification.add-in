@@ -97,6 +97,10 @@
       <Project>{b15981ec-50ae-4567-bb7a-caa4e7249e73}</Project>
       <Name>BLL</Name>
     </ProjectReference>
+    <ProjectReference Include="..\DAL\DAL.csproj">
+      <Project>{CF768E90-29D6-4D70-BDCF-6062C31FC8DE}</Project>
+      <Name>DAL</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

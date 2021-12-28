@@ -15,9 +15,7 @@ namespace DAL
     
     public partial class AutomaticClassificationDBEntities : DbContext
     {
-        public static AutomaticClassificationDBEntities Instance { get; } = new AutomaticClassificationDBEntities();
-
-        protected AutomaticClassificationDBEntities()
+        public AutomaticClassificationDBEntities()
             : base("name=AutomaticClassificationDBEntities")
         {
         }

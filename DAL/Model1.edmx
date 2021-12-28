@@ -68,7 +68,7 @@
             <PropertyRef Name="ID_word" />
           </Key>
           <Property Name="ID_word" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="Value_word" Type="nchar" MaxLength="20" Nullable="false" />
+          <Property Name="Value_word" Type="nchar" MaxLength="20" />
           <Property Name="ID_wordType" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="WordPerCategory_tbl">
@@ -323,7 +323,7 @@
             <PropertyRef Name="ID_word" />
           </Key>
           <Property Name="ID_word" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Value_word" Type="String" MaxLength="20" FixedLength="true" Unicode="true" Nullable="false" />
+          <Property Name="Value_word" Type="String" MaxLength="20" FixedLength="true" Unicode="true" />
           <Property Name="ID_wordType" Type="Int32" Nullable="false" />
           <NavigationProperty Name="WordType_tbl" Relationship="Self.FK_Word_tbl_WordType_tbl" FromRole="Word_tbl" ToRole="WordType_tbl" />
           <NavigationProperty Name="WordPerCategory_tbl" Relationship="Self.FK_WordPerCategory_Word" FromRole="Word_tbl" ToRole="WordPerCategory_tbl" />

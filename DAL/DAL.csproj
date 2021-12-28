@@ -53,7 +53,7 @@
     <Compile Include="Category_tbl.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
-    <Compile Include="Class1.cs" />
+    <Compile Include="AutoClassificationDBEntities.cs" />
     <Compile Include="EmailRequest_tbl.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>

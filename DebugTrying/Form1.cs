@@ -1,4 +1,5 @@
 ﻿using BLL;
+using DAL;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,6 +14,8 @@ namespace DebugTrying
 {
     public partial class Form1 : Form
     {
+        AutoClassificationDBEntities db = AutoClassificationDBEntities.Instance;
+  
         public Form1()
         {
             InitializeComponent();
@@ -40,6 +43,28 @@ namespace DebugTrying
         {
             sentence.RemoveAll(item => names.Contains(item));
             return sentence;
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            List<Word_tbl> double_lst = new List<Word_tbl>();
+            var allWords_lst = db.Word_tbl.ToList();
+            foreach (var word in allWords_lst)
+            {
+                foreach (var w in allWords_lst)
+                {
+                    if (word != w && word.Value_word == w.Value_word && !double_lst.Contains(word))
+                    {
+                        double_lst.Add(word);
+                        double_lst.Add(w);
+                    }
+                }
+            }
+
+            //נותן להוסיף ערכים כפולים למרות שהוא יוניקיו
+            //Word_tbl wo = new Word_tbl() { Value_word = "עקב", ID_wordType = 2 };
+            //db.Word_tbl.Add(wo);
+            //db.SaveChanges();
         }
     }
 }

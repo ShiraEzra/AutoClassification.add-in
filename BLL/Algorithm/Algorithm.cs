@@ -12,7 +12,7 @@ namespace BLL
 {
     public class Algorithm
     {
-        AutomaticClassificationDBEntities db = AutomaticClassificationDBEntities.Instance;
+        AutoClassificationDBEntities db = AutoClassificationDBEntities.Instance;
 
 
         float[,] probability_mat;   //A matrix that contains in each cell the probability of a word to belong to a specific category.
