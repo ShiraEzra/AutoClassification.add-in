@@ -45,7 +45,7 @@ namespace BLL
             conclusion.AddEmailRequest_tbl(request.DtoTODal());
         }
 
-    
+
         /// <summary>
         /// The function associates the email request to category.
         /// </summary>
@@ -68,16 +68,19 @@ namespace BLL
         public void SubjetcAnalysis(string subject)
         {
             string[] subject_arr = StringToArray(subject);
-            req_Analysis.NamesInSubject = NameRecognitionByHebrewNLP(subject_arr);
-            subject_arr = RemoveNamesFromSentence(subject_arr.ToList(),req_Analysis.NamesInSubject);  //הסרה השמות שזוהו מהנושא
-            req_Analysis.NormalizedSubjectWords = NormalizeWordsByHebrewNLP(subject_arr);
-            req_Analysis.NormalizedSubjectWords = RemoveIrrelevantWords(req_Analysis.NormalizedSubjectWords);
+            if (IsTherewordInSentence(subject_arr))
+            {
+                req_Analysis.NamesInSubject = NameRecognitionByHebrewNLP(subject_arr);
+                subject_arr = RemoveNamesFromSentence(subject_arr.ToList(), req_Analysis.NamesInSubject);  //הסרה השמות שזוהו מהנושא
+                req_Analysis.NormalizedSubjectWords = NormalizeWordsByHebrewNLP(subject_arr);
+                req_Analysis.NormalizedSubjectWords = RemoveIrrelevantWords(req_Analysis.NormalizedSubjectWords);
+            }
             //if (normalizedSubjectWords[7]=="רכש")     //somthing wrong...
             //{
             //    Console.WriteLine("hiiiii");
             //}
         }
-                
+
 
         /// <summary>
         /// The function analyzes the body of the email.
@@ -87,20 +90,34 @@ namespace BLL
         {
             List<string> bodySplitToSentences = SplitToSentencesByHebrewNLP(body);
             req_Analysis.bodyAnalysis = new BodyContent[bodySplitToSentences.Count()];
-            int i=0,  numCategories = db.Category_tbl.Count();
-            string[] sentenceInBody_arr=null;
+            int i = 0, numCategories = db.Category_tbl.Count();
+            string[] sentenceInBody_arr = null;
             foreach (var sentence in bodySplitToSentences)
             {
                 req_Analysis.bodyAnalysis[i] = new BodyContent(numCategories);
                 sentenceInBody_arr = StringToArray(sentence);
-                req_Analysis.bodyAnalysis[i].NamesInBody = NameRecognitionByHebrewNLP(sentenceInBody_arr);      //הסרה השמות שזוהו במשפט זה
-                sentenceInBody_arr = RemoveNamesFromSentence(sentenceInBody_arr.ToList(), req_Analysis.bodyAnalysis[i].NamesInBody);
-                req_Analysis.bodyAnalysis[i].NormalizedBodyWords = NormalizeWordsByHebrewNLP(sentenceInBody_arr);
-                req_Analysis.bodyAnalysis[i].NormalizedBodyWords= RemoveIrrelevantWords(req_Analysis.bodyAnalysis[i].NormalizedBodyWords);
-                i++;
+                if (IsTherewordInSentence(sentenceInBody_arr))
+                {
+                    req_Analysis.bodyAnalysis[i].NamesInBody = NameRecognitionByHebrewNLP(sentenceInBody_arr);      //הסרה השמות שזוהו במשפט זה
+                    sentenceInBody_arr = RemoveNamesFromSentence(sentenceInBody_arr.ToList(), req_Analysis.bodyAnalysis[i].NamesInBody);
+                    req_Analysis.bodyAnalysis[i].NormalizedBodyWords = NormalizeWordsByHebrewNLP(sentenceInBody_arr);
+                    req_Analysis.bodyAnalysis[i].NormalizedBodyWords = RemoveIrrelevantWords(req_Analysis.bodyAnalysis[i].NormalizedBodyWords);
+                    i++;
+                }
             }
         }
 
+        public bool IsTherewordInSentence(string[] sentence)
+        {
+            if (sentence.Count() == 0)
+                return false;
+            foreach (var word in sentence)
+            {
+                if (word != "")
+                    return true;
+            }
+            return false;
+        }
 
         /// <summary>
         /// A function that removes prepositions and belonging from the list. (All irrelevant words will be removed from the email request)
@@ -109,8 +126,13 @@ namespace BLL
         /// <returns>List of words without irrelevant words</returns>
         public List<string> RemoveIrrelevantWords(List<string> words_lst)
         {
-            words_lst.RemoveAll(item =>  /*allWords[item]!=null &&*/ allWords[item].ID_wordType == 2);
+            words_lst.RemoveAll(item =>  allWords.ContainsKey(item) && allWords[item].ID_wordType == 2);
             return words_lst;
+            //problemmm
+            //המילה אייטם מנוקדת ועם אותיות סופיות רגילות
+            //איך אני יכולה לבדוק האם קיים לי ב-דטה בייס  מילה כזו ללא ניקוד ועם אותיות מנצפך.
+
+            //bool result = root.Equals(root2, StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -174,7 +196,7 @@ namespace BLL
             HebrewNLP.HebrewNLP.Password = "3BGkxLKouDk3l7B";
             try
             {
-                options= NameAnalyzer.Analyze(sentence_arr);
+                options = NameAnalyzer.Analyze(sentence_arr);
             }
             catch (Exception)
             {
@@ -213,7 +235,7 @@ namespace BLL
         {
             List<WordPerCategory_tbl> wpc_lst = db.WordPerCategory_tbl.ToList();
             for (int i = 0; i < wpc_lst.Count(); i++)
-                probability_mat[wpc_lst[i].ID_word - 1, wpc_lst[i].ID_category - 1] = (float)wpc_lst[i].MatchPercentage; //קוד המילה/ הקטגוריה הוא המיקום של המילה/ הקטגוריה ברשימה שלהם- כי זה מספור אוטומטי רודף.
+                probability_mat[wpc_lst[i].ID_word - 1,  wpc_lst[i].ID_category - 1] = (float)wpc_lst[i].MatchPercentage; //קוד המילה/ הקטגוריה הוא המיקום של המילה/ הקטגוריה ברשימה שלהם- כי זה מספור אוטומטי רודף.
         }
 
 
@@ -263,6 +285,7 @@ namespace BLL
             }
             return probability_arr;
         }
+
 
         /// <summary>
         /// A function that converts a list to a dictionary
