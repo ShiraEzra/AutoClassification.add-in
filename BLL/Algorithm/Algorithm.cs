@@ -107,6 +107,12 @@ namespace BLL
             }
         }
 
+
+        /// <summary>
+        /// Check if the sentence isn't empty
+        /// </summary>
+        /// <param name="sentence">sentence</param>
+        /// <returns>true - if the sentence isn't empty.  false -if the sentence is empty</returns>
         public bool IsTherewordInSentence(string[] sentence)
         {
             if (sentence.Count() == 0)
