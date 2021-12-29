@@ -26,6 +26,7 @@ namespace BLL
             categoryProbability_arr = InitProbability_arr();
             req_Analysis = new RequestAnalysis();
             allWords = GetAllWordsAsDictionary();
+            GetAnalyze();
         }
 
         /// <summary>
@@ -211,6 +212,15 @@ namespace BLL
             return ReturnOnlyNames(options, sentence_arr);
         }
 
+        public void GetAnalyze()
+        {
+            List<List<MorphInfo>> l = Analyze("רועי ספקים - מעוניין לדבר עם אסתי רכש בהקדם");
+        }
+        public List<List<MorphInfo>> Analyze(string sentence)
+        {
+            HebrewNLP.HebrewNLP.Password = "3BGkxLKouDk3l7B";
+            return HebrewMorphology.AnalyzeSentence(sentence);
+        }
 
         /// <summary>
         /// The function maps the names from the list.
