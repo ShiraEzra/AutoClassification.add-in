@@ -26,8 +26,8 @@ namespace BLL
             categoryProbability_arr = InitProbability_arr();
             req_Analysis = new RequestAnalysis();
             allWords = GetAllWordsAsDictionary();
-            GetAnalyze();
         }
+
 
         /// <summary>
         /// The function gets a new mail and move the email from an inbox to the selected category folder.
@@ -68,18 +68,8 @@ namespace BLL
         /// <param name="subject">email subject</param>
         public void SubjetcAnalysis(string subject)
         {
-            string[] subject_arr = StringToArray(subject);
-            if (IsTherewordInSentence(subject_arr))
-            {
-                req_Analysis.NamesInSubject = NameRecognitionByHebrewNLP(subject_arr);
-                subject_arr = RemoveNamesFromSentence(subject_arr.ToList(), req_Analysis.NamesInSubject);  //הסרה השמות שזוהו מהנושא
-                req_Analysis.NormalizedSubjectWords = NormalizeWordsByHebrewNLP(subject_arr);
-                req_Analysis.NormalizedSubjectWords = RemoveIrrelevantWords(req_Analysis.NormalizedSubjectWords);
-            }
-            //if (normalizedSubjectWords[7]=="רכש")     //somthing wrong...
-            //{
-            //    Console.WriteLine("hiiiii");
-            //}
+            List<List<MorphInfo>> analyzedSubject = AnalyzeSentence(subject);
+            req_Analysis.NormalizedSubjectWords = RemoveIrrelevantWords(analyzedSubject);
         }
 
 
@@ -89,90 +79,57 @@ namespace BLL
         /// <param name="body">email body</param>
         public void BodyAnalysis(string body)
         {
-            List<string> bodySplitToSentences = SplitToSentencesByHebrewNLP(body);
+            List<string> bodySplitToSentences = SplitToSentences(body);
             req_Analysis.bodyAnalysis = new BodyContent[bodySplitToSentences.Count()];
             int i = 0, numCategories = db.Category_tbl.Count();
-            string[] sentenceInBody_arr = null;
             foreach (var sentence in bodySplitToSentences)
             {
                 req_Analysis.bodyAnalysis[i] = new BodyContent(numCategories);
-                sentenceInBody_arr = StringToArray(sentence);
-                if (IsTherewordInSentence(sentenceInBody_arr))
-                {
-                    req_Analysis.bodyAnalysis[i].NamesInBody = NameRecognitionByHebrewNLP(sentenceInBody_arr);      //הסרה השמות שזוהו במשפט זה
-                    sentenceInBody_arr = RemoveNamesFromSentence(sentenceInBody_arr.ToList(), req_Analysis.bodyAnalysis[i].NamesInBody);
-                    req_Analysis.bodyAnalysis[i].NormalizedBodyWords = NormalizeWordsByHebrewNLP(sentenceInBody_arr);
-                    req_Analysis.bodyAnalysis[i].NormalizedBodyWords = RemoveIrrelevantWords(req_Analysis.bodyAnalysis[i].NormalizedBodyWords);
-                    i++;
-                }
+                List<List<MorphInfo>> analyzedSentence = AnalyzeSentence(sentence);
+                req_Analysis.bodyAnalysis[i].NormalizedBodyWords = RemoveIrrelevantWords(analyzedSentence);
+                i++;
             }
         }
 
 
         /// <summary>
-        /// Check if the sentence isn't empty
+        /// The function removes the irrelevant words from the sentence.
         /// </summary>
-        /// <param name="sentence">sentence</param>
-        /// <returns>true - if the sentence isn't empty.  false -if the sentence is empty</returns>
-        public bool IsTherewordInSentence(string[] sentence)
+        /// <param name="analyzedSentence">Analyzed sentence. (In addition - the word is normalized to the base form)</param>
+        /// <returns>A list of strings containing the words relevant to the classification.</returns>
+        public List<string> RemoveIrrelevantWords(List<List<MorphInfo>> analyzedSentence)
         {
-            if (sentence.Count() == 0)
-                return false;
-            foreach (var word in sentence)
+            List<string> rellevantWords = new List<string>();
+            foreach (var item in analyzedSentence)
             {
-                if (word != "")
-                    return true;
+                MorphInfo firstword = item.FirstOrDefault();
+                if (IsRrelavantPartOfSpeach(firstword))
+                    rellevantWords.Add(firstword.BaseWordMenukad);
             }
+            return rellevantWords;
+        }
+
+
+        /// <summary>
+        /// The function checks whether the word is relevant according to the analysis of the word.
+        /// </summary>
+        /// <param name="morphInfo">Analyzed word</param>
+        /// <returns>True- If the word is captivating and relevant. Otherwise - False</returns>
+        public bool IsRrelavantPartOfSpeach(MorphInfo morphInfo)
+        {
+            if (morphInfo.PartOfSpeech == PartOfSpeech.VERB || morphInfo.PartOfSpeech == PartOfSpeech.NOUN || morphInfo.PartOfSpeech == PartOfSpeech.ADJECTIVE ||
+                morphInfo.PartOfSpeech == PartOfSpeech.ADVERB || morphInfo.PartOfSpeech == PartOfSpeech.PROPER_NOUN)
+                return true;
             return false;
         }
 
-        /// <summary>
-        /// A function that removes prepositions and belonging from the list. (All irrelevant words will be removed from the email request)
-        /// </summary>
-        /// <param name="words_lst">words list</param>
-        /// <returns>List of words without irrelevant words</returns>
-        public List<string> RemoveIrrelevantWords(List<string> words_lst)
-        {
-            words_lst.RemoveAll(item =>  allWords.ContainsKey(item) && allWords[item].ID_wordType == 2);
-            return words_lst;
-            //problemmm
-            //המילה אייטם מנוקדת ועם אותיות סופיות רגילות
-            //איך אני יכולה לבדוק האם קיים לי ב-דטה בייס  מילה כזו ללא ניקוד ועם אותיות מנצפך.
-
-            //bool result = root.Equals(root2, StringComparison.OrdinalIgnoreCase);
-        }
-
-        /// <summary>
-        /// The function removes the list list names from the sentence list.
-        /// </summary>
-        /// <param name="sentence">sentence list</param>
-        /// <param name="names">names list</param>
-        /// <returns>Array containing the sentence list after mapping (after removal)</returns>
-        public string[] RemoveNamesFromSentence(List<string> sentence, List<string> names)
-        {
-            sentence.RemoveAll(item => names.Contains(item));
-            return sentence.ToArray();
-        }
-
-
-        /// <summary>
-        /// The function converts a string to an array, each word in a string = cell in the array.
-        /// </summary>
-        /// <param name="sentence">any string</param>
-        /// <returns>An array</returns>
-        public string[] StringToArray(string sentence)
-        {
-            char[] separators = new char[] { ' ', '\n', '\t', '\r' };
-            return sentence.Split(separators);     //take out the separators.
-        }
-
-
+    
         /// <summary>
         /// The function splits the string into a list of sentences by using the library HebrewNLP.
         /// </summary>
         /// <param name="allBody">email body</param>
         /// <returns>List of sentences</returns>
-        public List<string> SplitToSentencesByHebrewNLP(string allBody)
+        public List<string> SplitToSentences(string allBody)
         {
             HebrewNLP.HebrewNLP.Password = "3BGkxLKouDk3l7B";
             List<string> bodySplitToSentences = HebrewNLP.Sentencer.Sentences(allBody);
@@ -181,69 +138,17 @@ namespace BLL
 
 
         /// <summary>
-        /// The function normalizes each word to its original form by using the HebrewNLP directory.
+        /// The function analyzes the sentence.
         /// </summary>
-        /// <param name="words_arr">Receives an array of strings</param>
-        /// <returns>A list of strings containing the words normalized</returns>
-        public List<string> NormalizeWordsByHebrewNLP(string[] words_arr)
-        {
-            HebrewNLP.HebrewNLP.Password = "3BGkxLKouDk3l7B";
-            return HebrewMorphology.NormalizeWords(words_arr, NormalizationType.SEARCH);
-        }
-
-
-        /// <summary>
-        /// The function analyzes the sentence and recognize names using the HebrewNLP library.
-        /// </summary>
-        /// <param name="sentence_arr">sentence (as an array)</param>
-        /// <returns>A list of strings containing the names recognized in the sentence</returns>
-        public List<string> NameRecognitionByHebrewNLP(string[] sentence_arr)
-        {
-            List<NameInfo> options = null;
-            HebrewNLP.HebrewNLP.Password = "3BGkxLKouDk3l7B";
-            try
-            {
-                options = NameAnalyzer.Analyze(sentence_arr);
-            }
-            catch (Exception)
-            {
-                return ReturnOnlyNames(null, sentence_arr);
-            }
-            return ReturnOnlyNames(options, sentence_arr);
-        }
-
-        public void GetAnalyze()
-        {
-            List<List<MorphInfo>> l = Analyze("רועי ספקים - מעוניין לדבר עם אסתי רכש בהקדם");
-        }
-        public List<List<MorphInfo>> Analyze(string sentence)
+        /// <param name="sentence">sentence</param>
+        /// <returns>analyzed sentence   (as MorphInfo list)</returns>
+        public List<List<MorphInfo>> AnalyzeSentence(string sentence)
         {
             HebrewNLP.HebrewNLP.Password = "3BGkxLKouDk3l7B";
             return HebrewMorphology.AnalyzeSentence(sentence);
         }
 
-        /// <summary>
-        /// The function maps the names from the list.
-        /// </summary>
-        /// <param name="options">List of NameInfo</param>
-        /// <param name="sentence_arr"></param>
-        /// <returns>A list of strings containing the names from the sentence</returns>
-        public List<string> ReturnOnlyNames(List<NameInfo> options, string[] sentence_arr)
-        {
-            int i = 0;
-            List<string> onlyNames = new List<string>();
-            if (options == null)
-                return onlyNames;
-            foreach (var word in options)
-            {
-                if (word.FirstName > 7 || word.LastName > 7)
-                    onlyNames.Add(sentence_arr[i]);
-                i++;
-            }
-            return onlyNames;
-        }
-
-
+      
         /// <summary>
         /// The function build the matrix of probabilities. In each cell in the matrix we put the probability of this word to belong to a certain category.
         /// </summary>
@@ -251,7 +156,7 @@ namespace BLL
         {
             List<WordPerCategory_tbl> wpc_lst = db.WordPerCategory_tbl.ToList();
             for (int i = 0; i < wpc_lst.Count(); i++)
-                probability_mat[wpc_lst[i].ID_word - 1,  wpc_lst[i].ID_category - 1] = (float)wpc_lst[i].MatchPercentage; //קוד המילה/ הקטגוריה הוא המיקום של המילה/ הקטגוריה ברשימה שלהם- כי זה מספור אוטומטי רודף.
+                probability_mat[wpc_lst[i].ID_word - 1, wpc_lst[i].ID_category - 1] = (float)wpc_lst[i].MatchPercentage; //קוד המילה/ הקטגוריה הוא המיקום של המילה/ הקטגוריה ברשימה שלהם- כי זה מספור אוטומטי רודף.
         }
 
 
