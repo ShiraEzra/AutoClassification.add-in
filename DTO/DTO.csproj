@@ -54,7 +54,6 @@
     <Compile Include="User.cs" />
     <Compile Include="Word.cs" />
     <Compile Include="WordPerCategory.cs" />
-    <Compile Include="WordType.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DAL\DAL.csproj">

@@ -162,24 +162,5 @@ namespace BLL
             db.WordPerCategory_tbl.Add(w.DtoTODal());
             db.SaveChanges();
         }
-
-
-        //WordType
-        public RequestResult GetAllWordsType()
-        {
-
-            List<WordType> lst = new List<WordType>();
-            foreach (var item in db.WordType_tbl.ToList())
-            {
-                lst.Add(WordType.DalToDto(item));
-            }
-            return new RequestResult() { Data = lst, Message = "success", Status = true };
-        }
-
-        public void AddWordType(WordType w)
-        {
-            db.WordType_tbl.Add(w.DtoTODal());
-            db.SaveChanges();
-        }
     }
 }

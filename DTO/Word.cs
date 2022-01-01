@@ -12,7 +12,6 @@ namespace DTO
     {
         public int ID_word { get; set; }
         public string Value_word { get; set; }
-        public int ID_wordType { get; set; }
 
         public Word_tbl DtoTODal()
         {

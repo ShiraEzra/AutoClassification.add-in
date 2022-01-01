@@ -1,4 +1,5 @@
-﻿using HebrewNLP.Morphology;
+﻿using DAL;
+using HebrewNLP.Morphology;
 using HebrewNLP.Names;
 using System;
 using System.Collections.Generic;
@@ -91,9 +92,9 @@ namespace BLL
         /// </summary>
         /// <param name="words_lst">words list</param>
         /// <returns>List of words without irrelevant words</returns>
-        public List<string> RemoveIrrelevantWords(List<string> words_lst)
+        public List<string> RemoveIrrelevantWords(List<string> words_lst, Dictionary<string, Word_tbl> allWords)
         {
-            words_lst.RemoveAll(item => allWords.ContainsKey(item) && allWords[item].ID_wordType == 2);
+            words_lst.RemoveAll(item => allWords.ContainsKey(item) );
             return words_lst;
             //problemmm
             //המילה אייטם מנוקדת ועם אותיות סופיות רגילות

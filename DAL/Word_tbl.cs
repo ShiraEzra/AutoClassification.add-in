@@ -22,9 +22,7 @@ namespace DAL
     
         public int ID_word { get; set; }
         public string Value_word { get; set; }
-        public int ID_wordType { get; set; }
     
-        public virtual WordType_tbl WordType_tbl { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<WordPerCategory_tbl> WordPerCategory_tbl { get; set; }
     }

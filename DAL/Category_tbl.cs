@@ -17,10 +17,10 @@ namespace DAL
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Category_tbl()
         {
+            this.EmailRequest_tbl = new HashSet<EmailRequest_tbl>();
             this.SendingHistory_tbl = new HashSet<SendingHistory_tbl>();
             this.SendingHistory_tbl1 = new HashSet<SendingHistory_tbl>();
             this.WordPerCategory_tbl = new HashSet<WordPerCategory_tbl>();
-            this.EmailRequest_tbl = new HashSet<EmailRequest_tbl>();
         }
     
         public int ID_category { get; set; }
@@ -32,12 +32,12 @@ namespace DAL
         public string ManagerName_category { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<EmailRequest_tbl> EmailRequest_tbl { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SendingHistory_tbl> SendingHistory_tbl { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SendingHistory_tbl> SendingHistory_tbl1 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<WordPerCategory_tbl> WordPerCategory_tbl { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<EmailRequest_tbl> EmailRequest_tbl { get; set; }
     }
 }

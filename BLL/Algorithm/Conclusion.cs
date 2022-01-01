@@ -25,13 +25,10 @@ namespace BLL
         /// <param name="allWordsDic">all Db words as dictionary</param>
         public void LearningForNext(int category_id, Dictionary<string, Word_tbl> allWordsDic)
         {
-            List<string> subjectWords = reqAnalysis.NamesInSubject;
-            subjectWords.AddRange(reqAnalysis.NormalizedSubjectWords);
-            SavingConclusionsInDB(subjectWords, category_id, allWordsDic);
+            SavingConclusionsInDB(reqAnalysis.NormalizedSubjectWords, category_id, allWordsDic);
             List<string> bodyWords = new List<string>();
             foreach (var item in reqAnalysis.bodyAnalysis)
             {
-                bodyWords.AddRange(item.NamesInBody);
                 bodyWords.AddRange(item.NormalizedBodyWords);
             }
             SavingConclusionsInDB(bodyWords, category_id, allWordsDic);
@@ -51,10 +48,11 @@ namespace BLL
         {
             WordPerCategory_tbl wordPerCategory = null;
             Word_tbl word = null;
+            bool isExsist;
             foreach (var w in words_lst)
             {
-                word = allWordsDic[w];
-                if (word == null)
+                isExsist= allWordsDic.TryGetValue(w, out word);
+                if (!isExsist)
                     word = AddWord_tbl(w);
                 wordPerCategory = db.WordPerCategory_tbl.Where(wpc => wpc.ID_word == word.ID_word && wpc.ID_category == category_id).FirstOrDefault();
                 if (wordPerCategory == null)
@@ -86,7 +84,6 @@ namespace BLL
         {
             Word_tbl word = new Word_tbl();
             word.Value_word = w;
-            word.ID_wordType = 1;
             db.Word_tbl.Add(word);
             db.SaveChanges();
             return word;

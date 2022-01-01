@@ -33,6 +33,5 @@ namespace DAL
         public virtual DbSet<User_tbl> User_tbl { get; set; }
         public virtual DbSet<Word_tbl> Word_tbl { get; set; }
         public virtual DbSet<WordPerCategory_tbl> WordPerCategory_tbl { get; set; }
-        public virtual DbSet<WordType_tbl> WordType_tbl { get; set; }
     }
 }

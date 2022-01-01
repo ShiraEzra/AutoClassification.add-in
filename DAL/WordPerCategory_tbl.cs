@@ -15,10 +15,10 @@ namespace DAL
     public partial class WordPerCategory_tbl
     {
         public int ID_wordPerCategory { get; set; }
-        public int ID_word { get; set; }
         public int ID_category { get; set; }
         public Nullable<int> AmountOfUse { get; set; }
         public Nullable<float> MatchPercentage { get; set; }
+        public int ID_word { get; set; }
     
         public virtual Category_tbl Category_tbl { get; set; }
         public virtual Word_tbl Word_tbl { get; set; }

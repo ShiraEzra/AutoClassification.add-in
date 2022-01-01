@@ -5,6 +5,7 @@ using HebrewNLP.Names;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -13,7 +14,7 @@ namespace BLL
     public class Algorithm
     {
         AutoClassificationDBEntities db = AutoClassificationDBEntities.Instance;
-
+        const int numOfSimiliarWords = 10;
 
         float[,] probability_mat;   //A matrix that contains in each cell the probability of a word to belong to a specific category.
         float[] categoryProbability_arr;  //An array that contains in each cell the probability of its face belonging to each category.
@@ -26,6 +27,8 @@ namespace BLL
             categoryProbability_arr = InitProbability_arr();
             req_Analysis = new RequestAnalysis();
             allWords = GetAllWordsAsDictionary();
+
+            GetSimilarWords("דירה");
         }
 
 
@@ -104,7 +107,7 @@ namespace BLL
             {
                 MorphInfo firstword = item.FirstOrDefault();
                 if (IsRrelavantPartOfSpeach(firstword))
-                    rellevantWords.Add(firstword.BaseWordMenukad);
+                    rellevantWords.Add(firstword.BaseWordMenukad == null ? firstword.BaseWord : firstword.BaseWordMenukad);
             }
             return rellevantWords;
         }
@@ -117,13 +120,10 @@ namespace BLL
         /// <returns>True- If the word is captivating and relevant. Otherwise - False</returns>
         public bool IsRrelavantPartOfSpeach(MorphInfo morphInfo)
         {
-            if (morphInfo.PartOfSpeech == PartOfSpeech.VERB || morphInfo.PartOfSpeech == PartOfSpeech.NOUN || morphInfo.PartOfSpeech == PartOfSpeech.ADJECTIVE ||
-                morphInfo.PartOfSpeech == PartOfSpeech.ADVERB || morphInfo.PartOfSpeech == PartOfSpeech.PROPER_NOUN)
-                return true;
-            return false;
+            return morphInfo.PartOfSpeech == PartOfSpeech.VERB || morphInfo.PartOfSpeech == PartOfSpeech.NOUN || morphInfo.PartOfSpeech == PartOfSpeech.ADJECTIVE || morphInfo.PartOfSpeech == PartOfSpeech.PROPER_NOUN;
         }
 
-    
+
         /// <summary>
         /// The function splits the string into a list of sentences by using the library HebrewNLP.
         /// </summary>
@@ -148,7 +148,13 @@ namespace BLL
             return HebrewMorphology.AnalyzeSentence(sentence);
         }
 
-      
+        public List<List<MorphInfo>> AnalyzeWords(string[] words)
+        {
+            HebrewNLP.HebrewNLP.Password = "3BGkxLKouDk3l7B";
+            return HebrewMorphology.AnalyzeWords(words);
+        }
+
+
         /// <summary>
         /// The function build the matrix of probabilities. In each cell in the matrix we put the probability of this word to belong to a certain category.
         /// </summary>
@@ -169,22 +175,22 @@ namespace BLL
         {
             Word_tbl word;
             float prob_similiarWords = 0;
-            //לבדוק האם מילה קיימת בדטה בייס. אם כן- להכפיל בערך של המיקום שלו במטריצה. אם לא- לבדוק באתר מילים דומות. ואם גם זה לא להכפיל ב- 0.0001
+            //לבדוק האם מילה קיימת בדטה בייס. אם כן- להכפיל בערך של המיקום שלו במטריצה. אם לא- לבדוק באתר מילים דומות. ואם גם זה לא להכפיל ב- 0.00001
             foreach (var w in contentWords_lst)
             {
                 word = null;
                 bool isExsist = allWords.TryGetValue(w, out word);
                 for (int i = 0; i < categoryProbability_arr.Length; i++)
                 {
-                    if (!isExsist /*|| probability_mat[id_word-1 , i]==0*/)    //האם לבצע שליחה לאתר מילים דומות גם במקרה שהמילה קיימת בדטה בייס אך לא בקטגוריה זו?
+                    if (isExsist && probability_mat[word.ID_word - 1, i] != 0)
+                        categoryProbability_arr[i] *= probability_mat[word.ID_word - 1, i];
+                    else   //במקרה שהמילה כלל לא קיימת בדטה בייס , וגם במקרה שהמילה קיימת בדטה בייס אך לא קיימת בקטגוריה זו
                     {
-                        prob_similiarWords = SimiliarWords_probability(w);
+                        prob_similiarWords = SimiliarWords_probability(w, i);
                         if (prob_similiarWords == 0)
-                            prob_similiarWords = 0.0001f;
+                            prob_similiarWords = 0.00001f;
                         categoryProbability_arr[i] *= prob_similiarWords;
                     }
-                    else
-                        categoryProbability_arr[i] *= probability_mat[word.ID_word - 1, i];
                 }
             }
             return categoryProbability_arr;
@@ -218,12 +224,60 @@ namespace BLL
             return allWords_lst.ToDictionary(x => x.Value_word, x => x);
         }
 
-        public float SimiliarWords_probability(string word)
+        public float SimiliarWords_probability(string word, int category_id)
         {
             //על המילים הדומות שמקבלים צריך לבדוק שוב האם קיימות ב-דטה בייס לקטגוריה זו, ולהחזיר את ההסתברות, אם לא קיימות  להחזיר 0
-            return 0;
+            List<string> similarWords = GetSimilarWords(word);
+            List<List<MorphInfo>> analyzedWords = AnalyzeWords(similarWords.ToArray());
+            List<string> normalizedWords = RemoveIrrelevantWords(analyzedWords);
+            float prob = 0;
+            Word_tbl wordFromDic = null;
+            foreach (var item in normalizedWords)
+            {
+                bool isExsist = allWords.TryGetValue(item, out wordFromDic);
+                if (isExsist && probability_mat[wordFromDic.ID_word-1, category_id]!=0)
+                {
+                    if (prob == 0)
+                        prob = probability_mat[wordFromDic.ID_word - 1, category_id];
+                    else
+                        prob*= probability_mat[wordFromDic.ID_word - 1, category_id];
+                }
+            }
+            return prob;
         }
 
+        public List<string> GetSimilarWords(string word)
+        {
+            string html_ans = GetDataFromSimilarWordsSite(word);
+            if (html_ans.Contains("<h1>האם התכוונת ל-</h1>"))
+                return null;
+            List<string> similarWords = new List<string>();
+            int start = html_ans.IndexOf("data-word");
+            html_ans = html_ans.Substring(start);
+            start = 0;
+            int end;
+            while (similarWords.Count() <= 10 && start != -1)
+            {
+                start = html_ans.IndexOf("\"", start) + 1;
+                end = html_ans.IndexOf("\"", start);
+                string sim_word = html_ans.Substring(start, end - start);
+                similarWords.Add(sim_word);
+                start = html_ans.IndexOf("data-word", end);
+            }
+            similarWords.RemoveAt(0);  //הראשון זה המילה בעצמה
+            return similarWords;
+        }
+
+        public string GetDataFromSimilarWordsSite(string word)
+        {
+            string html_ans;
+            using (WebClient client = new WebClient())
+            {
+                var data = client.DownloadData("https://synonyms.reverso.net/%D7%9E%D7%9C%D7%99%D7%9D-%D7%A0%D7%A8%D7%93%D7%A4%D7%95%D7%AA/he/" + word);
+                html_ans = Encoding.UTF8.GetString(data);
+            }
+            return html_ans;
+        }
         public int IndexMaxProbability(float[] probability_arr)  //לא השתמשתי עדיין
         {
             //צריך להחזיר את המקס
