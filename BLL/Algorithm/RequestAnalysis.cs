@@ -9,6 +9,7 @@ namespace BLL
     public class RequestAnalysis
     {
         public List<string> NormalizedSubjectWords { get; set; }
+        public float[] ProbabilitybSubjectForCategory { get; set; }
         public BodyContent[] bodyAnalysis { get; set; }
         public RequestAnalysis()
         {

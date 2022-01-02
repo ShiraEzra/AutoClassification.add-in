@@ -182,5 +182,32 @@ namespace BLL
             return onlyNames;
         }
 
+
+        //הפונקציה הקודמת - של חישוב ההסתברויות של פניה לקטגוריות
+        public float[] CalcProbabilityForCategory(List<string> contentWords_lst, Dictionary<string, Word_tbl> allWords, float[] categoryProbability_arr, float[,] probability_mat)
+        {
+            Word_tbl word;
+            float prob_similiarWords = 0, prob = 0;
+            //לבדוק האם מילה קיימת בדטה בייס. אם כן- להכפיל בערך של המיקום שלו במטריצה. אם לא- לבדוק באתר מילים דומות. ואם גם זה לא להכפיל ב- 0.00001
+            foreach (var w in contentWords_lst)
+            {
+                word = null;
+                bool isExsist = allWords.TryGetValue(w, out word);
+                for (int i = 0; i < categoryProbability_arr.Length; i++)
+                {
+                    if (isExsist && probability_mat[word.ID_word - 1, i] != 0)
+                        categoryProbability_arr[i] *= probability_mat[word.ID_word - 1, i];
+                    else   //במקרה שהמילה כלל לא קיימת בדטה בייס , וגם במקרה שהמילה קיימת בדטה בייס אך לא קיימת בקטגוריה זו
+                    {
+                    //    prob_similiarWords = SimiliarWords_probability(w, i);   פונקציהה קיימת במחלקת אלגוריתם
+                        if (prob_similiarWords == 0)
+                            prob_similiarWords = 0.00001f;
+                        categoryProbability_arr[i] *= prob_similiarWords;
+                    }
+                }
+            }
+            return categoryProbability_arr;
+        }
+
     }
 }

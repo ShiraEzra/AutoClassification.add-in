@@ -17,18 +17,17 @@ namespace BLL
         const int numOfSimiliarWords = 10;
 
         float[,] probability_mat;   //A matrix that contains in each cell the probability of a word to belong to a specific category.
-        float[] categoryProbability_arr;  //An array that contains in each cell the probability of its face belonging to each category.
+        float[] firstInit_arr;      //An initialized array with the number of email requests for each category.
         RequestAnalysis req_Analysis;    //Object containing the request analysis.
-        Dictionary<string, Word_tbl> allWords;
+        Dictionary<string, Word_tbl> allWords;   //All words from word_tbl as dictionary.
 
         public Algorithm()
         {
             probability_mat = new float[db.Word_tbl.Count(), db.Category_tbl.Count()];
-            categoryProbability_arr = InitProbability_arr();
             req_Analysis = new RequestAnalysis();
             allWords = GetAllWordsAsDictionary();
-
-            GetSimilarWords("דירה");
+            firstInit_arr = FirstInitProbability_arr();
+            BuildProbabilityMat();
         }
 
 
@@ -59,9 +58,8 @@ namespace BLL
         {
             SubjetcAnalysis(request.EmailSubject);
             BodyAnalysis(request.EmailContent);
-            BuildProbabilityMat();
-
-            return 1;  //צריך להחזיר את הקטגוריה
+            float[] totalProbability = TotalProbability();
+            return IndexMaxProbability(totalProbability);  //צריך להחזיר את הקטגוריה
         }
 
 
@@ -73,6 +71,7 @@ namespace BLL
         {
             List<List<MorphInfo>> analyzedSubject = AnalyzeSentence(subject);
             req_Analysis.NormalizedSubjectWords = RemoveIrrelevantWords(analyzedSubject);
+            req_Analysis.ProbabilitybSubjectForCategory = CalcProbabilityForCategory(req_Analysis.NormalizedSubjectWords, req_Analysis.ProbabilitybSubjectForCategory);
         }
 
 
@@ -90,6 +89,7 @@ namespace BLL
                 req_Analysis.bodyAnalysis[i] = new BodyContent(numCategories);
                 List<List<MorphInfo>> analyzedSentence = AnalyzeSentence(sentence);
                 req_Analysis.bodyAnalysis[i].NormalizedBodyWords = RemoveIrrelevantWords(analyzedSentence);
+                req_Analysis.bodyAnalysis[i].ProbabilitybSentenceForCategory = CalcProbabilityForCategory(req_Analysis.bodyAnalysis[i].NormalizedBodyWords, req_Analysis.bodyAnalysis[i].ProbabilitybSentenceForCategory);
                 i++;
             }
         }
@@ -148,6 +148,12 @@ namespace BLL
             return HebrewMorphology.AnalyzeSentence(sentence);
         }
 
+
+        /// <summary>
+        /// The function analyzes the words.
+        /// </summary>
+        /// <param name="words"> list of words</param>
+        /// <returns>analyzed words</returns>
         public List<List<MorphInfo>> AnalyzeWords(string[] words)
         {
             HebrewNLP.HebrewNLP.Password = "3BGkxLKouDk3l7B";
@@ -167,30 +173,32 @@ namespace BLL
 
 
         /// <summary>
-        /// The function calculates for each category the probability of the email request to belong to it.
+        /// The function calculates for each category the probability of the sentence to belong to it.
         /// </summary>
-        /// <param name="contentWords_lst">A list of strings containing the words from the email request.</param>
+        /// <param name="contentWords_lst">A list of strings containing the sentence.</param>
         /// <returns>An array that contains for each category its probability of belonging to this a category.</returns>
-        public float[] CalcProbabilityForCategory(List<string> contentWords_lst)
+        public float[] CalcProbabilityForCategory(List<string> contentWords_lst, float[] categoryProbability_arr)
         {
             Word_tbl word;
-            float prob_similiarWords = 0;
-            //לבדוק האם מילה קיימת בדטה בייס. אם כן- להכפיל בערך של המיקום שלו במטריצה. אם לא- לבדוק באתר מילים דומות. ואם גם זה לא להכפיל ב- 0.00001
+            float prob_similiarWords = 0, prob = 0;
+            //בעבור כל מילה הקיימת בדטה בייס - מחשבים את ההסתברות שלה + ההסתברות של המלילם הדומות לה הקיימות ב-דטה בייס
+            if (contentWords_lst.Count() == 0)
+                InitProbability_arr(categoryProbability_arr, false);
+            else
+                InitProbability_arr(categoryProbability_arr, true);
             foreach (var w in contentWords_lst)
             {
                 word = null;
                 bool isExsist = allWords.TryGetValue(w, out word);
                 for (int i = 0; i < categoryProbability_arr.Length; i++)
                 {
-                    if (isExsist && probability_mat[word.ID_word - 1, i] != 0)
-                        categoryProbability_arr[i] *= probability_mat[word.ID_word - 1, i];
-                    else   //במקרה שהמילה כלל לא קיימת בדטה בייס , וגם במקרה שהמילה קיימת בדטה בייס אך לא קיימת בקטגוריה זו
-                    {
-                        prob_similiarWords = SimiliarWords_probability(w, i);
-                        if (prob_similiarWords == 0)
-                            prob_similiarWords = 0.00001f;
-                        categoryProbability_arr[i] *= prob_similiarWords;
-                    }
+                    prob_similiarWords = SimiliarWords_probability(w, i);
+                    if (isExsist)
+                        prob = probability_mat[word.ID_word - 1, i];
+                    else
+                        prob = 0.00001f;
+                    prob = prob * 0.6f + prob_similiarWords * 0.4f;   //משקל של 60% להסתברות של המילה עצמה, ו-40% להסתברות של המילים הדומות.
+                    categoryProbability_arr[i] *= prob;
                 }
             }
             return categoryProbability_arr;
@@ -198,11 +206,30 @@ namespace BLL
 
 
         /// <summary>
+        /// If flag=true:  Function initializes the array of categories - with copies values as firstInit_arr   (istead of calculate it few times)
+        /// If flag=false: Init arr to zero.
+        /// </summary>
+        /// <param name="probability_arr">arr</param>
+        /// <param name="flag">init to num requests for category or init to 0</param>
+        /// <returns>The array of probabilities - for each category the num of the email requests to belong to it, or array init to 0. it'w up to the flag </returns>
+        public float[] InitProbability_arr(float[] probability_arr, bool flag)
+        {
+            probability_arr = new float[firstInit_arr.Length] ;
+            if (flag)
+                firstInit_arr.CopyTo(probability_arr, 0);
+            else    //לבדוק אם באמת צריך לאפס
+                for (int i = 0; i < probability_arr.Length; i++)
+                    probability_arr[i] = 0;
+            return probability_arr;
+        }
+
+
+        /// <summary>
         /// Function initializes the array of categories - for each category the number of email requests sent to this category.  
         /// arr[i]= P(c).  We will not make the division into the general number of email requests because this division is equal for all categories and there is no point in doing so.
         /// </summary>
-        /// <returns>The array of probabilities - for each category the probability of the email requests to belong to it.</returns>
-        public float[] InitProbability_arr()
+        /// <returns>The array of probabilities - for each category the num of the email requests to belong to it.</returns>
+        public float[] FirstInitProbability_arr()
         {
             float[] probability_arr = new float[db.Category_tbl.Count()];
             for (int i = 0; i < probability_arr.Length; i++)
@@ -224,28 +251,41 @@ namespace BLL
             return allWords_lst.ToDictionary(x => x.Value_word, x => x);
         }
 
+
+        /// <summary>
+        /// Calculating the probability of words similar to the word.
+        /// </summary>
+        /// <param name="word">word</param>
+        /// <param name="category_id">category id</param>
+        /// <returns>the probability of words similar to the word</returns>
         public float SimiliarWords_probability(string word, int category_id)
         {
             //על המילים הדומות שמקבלים צריך לבדוק שוב האם קיימות ב-דטה בייס לקטגוריה זו, ולהחזיר את ההסתברות, אם לא קיימות  להחזיר 0
             List<string> similarWords = GetSimilarWords(word);
             List<List<MorphInfo>> analyzedWords = AnalyzeWords(similarWords.ToArray());
-            List<string> normalizedWords = RemoveIrrelevantWords(analyzedWords);
+            List<string> normalizedSimWords = RemoveIrrelevantWords(analyzedWords);
             float prob = 0;
+            int count = 0;
             Word_tbl wordFromDic = null;
-            foreach (var item in normalizedWords)
+            foreach (var item in normalizedSimWords)
             {
                 bool isExsist = allWords.TryGetValue(item, out wordFromDic);
-                if (isExsist && probability_mat[wordFromDic.ID_word-1, category_id]!=0)
+                if (isExsist && probability_mat[wordFromDic.ID_word - 1, category_id] != 0)
                 {
-                    if (prob == 0)
-                        prob = probability_mat[wordFromDic.ID_word - 1, category_id];
-                    else
-                        prob*= probability_mat[wordFromDic.ID_word - 1, category_id];
+
+                    prob += probability_mat[wordFromDic.ID_word - 1, category_id];
+                    count++;
                 }
             }
-            return prob;
+            return prob / count;
         }
 
+
+        /// <summary>
+        /// Extract similar words from the Html code.
+        /// </summary>
+        /// <param name="word">word</param>
+        /// <returns>list of similiar words</returns>
         public List<string> GetSimilarWords(string word)
         {
             string html_ans = GetDataFromSimilarWordsSite(word);
@@ -268,6 +308,12 @@ namespace BLL
             return similarWords;
         }
 
+
+        /// <summary>
+        /// Gets html code with the similiar words to the word wich sent.
+        /// </summary>
+        /// <param name="word">word</param>
+        /// <returns>html code as string</returns>
         public string GetDataFromSimilarWordsSite(string word)
         {
             string html_ans;
@@ -278,10 +324,43 @@ namespace BLL
             }
             return html_ans;
         }
+
+
+        /// <summary>
+        /// The function calculates the total general probability for the email request for each category.
+        /// </summary>
+        /// <returns>Returns an array that contains for each category the final probability of the email request to belong to it.</returns>
+        public float[] TotalProbability()
+        {
+            float[] totalProbability = new float[firstInit_arr.Length];   //צריך לאפס?
+            for (int i = 0; i < totalProbability.Length; i++)
+            {
+                //חיבור ההסתברויות של כל המשפטים בגוף המייל
+                foreach (var sentence in req_Analysis.bodyAnalysis)
+                    totalProbability[i] += sentence.ProbabilitybSentenceForCategory[i];
+                totalProbability[i] /= req_Analysis.bodyAnalysis.Count();
+                //חיבור ההסתברות של גוף המייל עם הנושא
+                totalProbability[i] += req_Analysis.ProbabilitybSubjectForCategory[i];
+                totalProbability[i] /= 2;
+            }
+            return totalProbability;
+        }
+
+
+        /// <summary>
+        /// The function returns the index of the category with the highest probability.
+        /// </summary>
+        /// <param name="probability_arr">An array of probabilities for each category.</param>
+        /// <returns>index of the category with the highest probability.</returns>
         public int IndexMaxProbability(float[] probability_arr)  //לא השתמשתי עדיין
         {
-            //צריך להחזיר את המקס
+            //לראות אולי צאיך לבצע בדיקה יותר חחכמה מחיפוש שרירותי אחר המקסימום
             //אם יש כמה קטגוריות שקרובות למקס, צריך לבצע בדיקות נוספות לדוגמא: אנשי קשר
+
+            float maxValue = probability_arr.Max();
+            for (int i = 0; i < probability_arr.Length; i++)
+                if (probability_arr[i] == maxValue)
+                    return i;
             return 0;
         }
     }

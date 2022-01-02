@@ -14,7 +14,6 @@ namespace BLL
         public BodyContent(int numCategories)
         {
             this.NormalizedBodyWords = new List<string>();
-            this.ProbabilitybSentenceForCategory = new float[numCategories];
         }
     }
 }
