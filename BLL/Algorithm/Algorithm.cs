@@ -1,11 +1,9 @@
 ﻿using DAL;
 using DTO;
 using HebrewNLP.Morphology;
-using HebrewNLP.Names;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -69,7 +67,8 @@ namespace BLL
         /// <param name="subject">email subject</param>
         public void SubjetcAnalysis(string subject)
         {
-            List<List<MorphInfo>> analyzedSubject = AnalyzeSentence(subject);
+            List<List<MorphInfo>> analyzedSubject = Analysis.AnalyzeSentence(subject);
+            //לטפל במקרה שחוזר נאל= לא מצליח לגשת לספריית אןאלפי
             req_Analysis.NormalizedSubjectWords = RemoveIrrelevantWords(analyzedSubject);
             req_Analysis.ProbabilitybSubjectForCategory = CalcProbabilityForCategory(req_Analysis.NormalizedSubjectWords, req_Analysis.ProbabilitybSubjectForCategory);
         }
@@ -81,13 +80,15 @@ namespace BLL
         /// <param name="body">email body</param>
         public void BodyAnalysis(string body)
         {
-            List<string> bodySplitToSentences = SplitToSentences(body);
+            List<string> bodySplitToSentences = Analysis.SplitToSentences(body);
+            //לטפל במקרה שחוזר נאל= לא מצליח לגשת לספריית אןאלפי
             req_Analysis.bodyAnalysis = new BodyContent[bodySplitToSentences.Count()];
             int i = 0, numCategories = db.Category_tbl.Count();
             foreach (var sentence in bodySplitToSentences)
             {
                 req_Analysis.bodyAnalysis[i] = new BodyContent(numCategories);
-                List<List<MorphInfo>> analyzedSentence = AnalyzeSentence(sentence);
+                List<List<MorphInfo>> analyzedSentence = Analysis.AnalyzeSentence(sentence);
+                //לטפל במקרה שחוזר נאל= לא מצליח לגשת לספריית אןאלפי
                 req_Analysis.bodyAnalysis[i].NormalizedBodyWords = RemoveIrrelevantWords(analyzedSentence);
                 req_Analysis.bodyAnalysis[i].ProbabilitybSentenceForCategory = CalcProbabilityForCategory(req_Analysis.bodyAnalysis[i].NormalizedBodyWords, req_Analysis.bodyAnalysis[i].ProbabilitybSentenceForCategory);
                 i++;
@@ -123,44 +124,7 @@ namespace BLL
             return morphInfo.PartOfSpeech == PartOfSpeech.VERB || morphInfo.PartOfSpeech == PartOfSpeech.NOUN || morphInfo.PartOfSpeech == PartOfSpeech.ADJECTIVE || morphInfo.PartOfSpeech == PartOfSpeech.PROPER_NOUN;
         }
 
-
-        /// <summary>
-        /// The function splits the string into a list of sentences by using the library HebrewNLP.
-        /// </summary>
-        /// <param name="allBody">email body</param>
-        /// <returns>List of sentences</returns>
-        public List<string> SplitToSentences(string allBody)
-        {
-            HebrewNLP.HebrewNLP.Password = "3BGkxLKouDk3l7B";
-            List<string> bodySplitToSentences = HebrewNLP.Sentencer.Sentences(allBody);
-            return bodySplitToSentences;
-        }
-
-
-        /// <summary>
-        /// The function analyzes the sentence.
-        /// </summary>
-        /// <param name="sentence">sentence</param>
-        /// <returns>analyzed sentence   (as MorphInfo list)</returns>
-        public List<List<MorphInfo>> AnalyzeSentence(string sentence)
-        {
-            HebrewNLP.HebrewNLP.Password = "3BGkxLKouDk3l7B";
-            return HebrewMorphology.AnalyzeSentence(sentence);
-        }
-
-
-        /// <summary>
-        /// The function analyzes the words.
-        /// </summary>
-        /// <param name="words"> list of words</param>
-        /// <returns>analyzed words</returns>
-        public List<List<MorphInfo>> AnalyzeWords(string[] words)
-        {
-            HebrewNLP.HebrewNLP.Password = "3BGkxLKouDk3l7B";
-            return HebrewMorphology.AnalyzeWords(words);
-        }
-
-
+       
         /// <summary>
         /// The function build the matrix of probabilities. In each cell in the matrix we put the probability of this word to belong to a certain category.
         /// </summary>
@@ -261,8 +225,10 @@ namespace BLL
         public float SimiliarWords_probability(string word, int category_id)
         {
             //על המילים הדומות שמקבלים צריך לבדוק שוב האם קיימות ב-דטה בייס לקטגוריה זו, ולהחזיר את ההסתברות, אם לא קיימות  להחזיר 0
-            List<string> similarWords = GetSimilarWords(word);
-            List<List<MorphInfo>> analyzedWords = AnalyzeWords(similarWords.ToArray());
+            List<string> similarWords = SimilarWords.GetSimilarWords(word);
+            if (similarWords == null)
+                return 0;
+            List<List<MorphInfo>> analyzedWords = Analysis.AnalyzeWords(similarWords.ToArray());
             List<string> normalizedSimWords = RemoveIrrelevantWords(analyzedWords);
             float prob = 0;
             int count = 0;
@@ -280,50 +246,6 @@ namespace BLL
             return prob / count;
         }
 
-
-        /// <summary>
-        /// Extract similar words from the Html code.
-        /// </summary>
-        /// <param name="word">word</param>
-        /// <returns>list of similiar words</returns>
-        public List<string> GetSimilarWords(string word)
-        {
-            string html_ans = GetDataFromSimilarWordsSite(word);
-            if (html_ans.Contains("<h1>האם התכוונת ל-</h1>"))
-                return null;
-            List<string> similarWords = new List<string>();
-            int start = html_ans.IndexOf("data-word");
-            html_ans = html_ans.Substring(start);
-            start = 0;
-            int end;
-            while (similarWords.Count() <= 10 && start != -1)
-            {
-                start = html_ans.IndexOf("\"", start) + 1;
-                end = html_ans.IndexOf("\"", start);
-                string sim_word = html_ans.Substring(start, end - start);
-                similarWords.Add(sim_word);
-                start = html_ans.IndexOf("data-word", end);
-            }
-            similarWords.RemoveAt(0);  //הראשון זה המילה בעצמה
-            return similarWords;
-        }
-
-
-        /// <summary>
-        /// Gets html code with the similiar words to the word wich sent.
-        /// </summary>
-        /// <param name="word">word</param>
-        /// <returns>html code as string</returns>
-        public string GetDataFromSimilarWordsSite(string word)
-        {
-            string html_ans;
-            using (WebClient client = new WebClient())
-            {
-                var data = client.DownloadData("https://synonyms.reverso.net/%D7%9E%D7%9C%D7%99%D7%9D-%D7%A0%D7%A8%D7%93%D7%A4%D7%95%D7%AA/he/" + word);
-                html_ans = Encoding.UTF8.GetString(data);
-            }
-            return html_ans;
-        }
 
 
         /// <summary>
