@@ -44,6 +44,7 @@ namespace BLL
             Conclusion conclusion = new Conclusion(req_Analysis);
             conclusion.LearningForNext((int)request.ID_category, allWords);
             conclusion.AddEmailRequest_tbl(request.DtoTODal());
+            //שמירה גם בהיסטוריית שליחות
         }
 
 
