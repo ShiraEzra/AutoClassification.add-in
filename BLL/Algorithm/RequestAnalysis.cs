@@ -10,7 +10,7 @@ namespace BLL
     {
         public List<string> NormalizedSubjectWords { get; set; }
         public float[] ProbabilitybSubjectForCategory { get; set; }
-        public BodyContent[] bodyAnalysis { get; set; }
+        public BodyContent[] BodyAnalysis { get; set; }
         public RequestAnalysis()
         {
             this.NormalizedSubjectWords = new List<string>();

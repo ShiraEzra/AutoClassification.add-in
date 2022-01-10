@@ -12,12 +12,11 @@ namespace BLL
     public class Algorithm
     {
         AutoClassificationDBEntities db = AutoClassificationDBEntities.Instance;
-        const int numOfSimiliarWords = 10;
 
         float[,] probability_mat;   //A matrix that contains in each cell the probability of a word to belong to a specific category.
         float[] firstInit_arr;      //An initialized array with the number of email requests for each category.
         RequestAnalysis req_Analysis;    //Object containing the request analysis.
-        Dictionary<string, Word_tbl> allWords;   //All words from word_tbl as dictionary.
+        public static Dictionary<string, Word_tbl> allWords;   //All words from word_tbl as dictionary.
 
         public Algorithm()
         {
@@ -36,15 +35,15 @@ namespace BLL
         /// <param name="body">email body</param>
         /// <param name="sender">email sender</param>
         /// <param name="date">email date</param>
-        public void NewEmailRequest(string subject, string body, string sender, DateTime date)
+        public void NewEmailRequest(string subject, string body, string sender, DateTime date, string entryId)
         {
-            EmailRequest request = new EmailRequest(subject, body, sender, date);
+            EmailRequest_tbl request = new EmailRequest_tbl {EmailSubject= subject,EmailContent= body,SenderEmail= sender,Date= date,EntryId= entryId };
             request.ID_category = AssociateRequestToCategory(request);
             //העברת המייל מתיבת דואר נכנס לתקיית הקטגוריה שנבחרה
-            Conclusion conclusion = new Conclusion(req_Analysis);
-            conclusion.LearningForNext((int)request.ID_category, allWords);
-            conclusion.AddEmailRequest_tbl(request.DtoTODal());
-            //שמירה גם בהיסטוריית שליחות
+            Conclusion conclusion = new Conclusion(req_Analysis, request);
+            conclusion.LearningForNext();
+            conclusion.AddEmailRequest_tbl(request);
+            conclusion.AddSendingHistory_tbl(-1);
         }
 
 
@@ -53,7 +52,7 @@ namespace BLL
         /// </summary>
         /// <param name="request">email request</param>
         /// <returns>id of the most suitable category</returns>
-        public int AssociateRequestToCategory(EmailRequest request)
+        public int AssociateRequestToCategory(EmailRequest_tbl request)
         {
             SubjetcAnalysis(request.EmailSubject);
             BodyAnalysis(request.EmailContent);
@@ -83,15 +82,15 @@ namespace BLL
         {
             List<string> bodySplitToSentences = Analysis.SplitToSentences(body);
             //לטפל במקרה שחוזר נאל= לא מצליח לגשת לספריית אןאלפי
-            req_Analysis.bodyAnalysis = new BodyContent[bodySplitToSentences.Count()];
+            req_Analysis.BodyAnalysis = new BodyContent[bodySplitToSentences.Count()];
             int i = 0, numCategories = db.Category_tbl.Count();
             foreach (var sentence in bodySplitToSentences)
             {
-                req_Analysis.bodyAnalysis[i] = new BodyContent(numCategories);
+                req_Analysis.BodyAnalysis[i] = new BodyContent(numCategories);
                 List<List<MorphInfo>> analyzedSentence = Analysis.AnalyzeSentence(sentence);
                 //לטפל במקרה שחוזר נאל= לא מצליח לגשת לספריית אןאלפי
-                req_Analysis.bodyAnalysis[i].NormalizedBodyWords = RemoveIrrelevantWords(analyzedSentence);
-                req_Analysis.bodyAnalysis[i].ProbabilitybSentenceForCategory = CalcProbabilityForCategory(req_Analysis.bodyAnalysis[i].NormalizedBodyWords, req_Analysis.bodyAnalysis[i].ProbabilitybSentenceForCategory);
+                req_Analysis.BodyAnalysis[i].NormalizedBodyWords = RemoveIrrelevantWords(analyzedSentence);
+                req_Analysis.BodyAnalysis[i].ProbabilitybSentenceForCategory = CalcProbabilityForCategory(req_Analysis.BodyAnalysis[i].NormalizedBodyWords, req_Analysis.BodyAnalysis[i].ProbabilitybSentenceForCategory);
                 i++;
             }
         }
@@ -109,7 +108,7 @@ namespace BLL
             {
                 MorphInfo firstword = item.FirstOrDefault();
                 if (IsRrelavantPartOfSpeach(firstword))
-                    rellevantWords.Add(firstword.BaseWordMenukad == null ? firstword.BaseWord : firstword.BaseWordMenukad);
+                    rellevantWords.Add(firstword.BaseWordMenukad == null? firstword.BaseWord : firstword.BaseWordMenukad);
             }
             return rellevantWords;
         }
@@ -145,7 +144,7 @@ namespace BLL
         public float[] CalcProbabilityForCategory(List<string> contentWords_lst, float[] categoryProbability_arr)
         {
             Word_tbl word;
-            float prob_similiarWords = 0, prob = 0;
+            float prob_similiarWords, prob;
             //בעבור כל מילה הקיימת בדטה בייס - מחשבים את ההסתברות שלה + ההסתברות של המלילם הדומות לה הקיימות ב-דטה בייס
             if (contentWords_lst.Count() == 0)
                 InitProbability_arr(categoryProbability_arr, false);
@@ -233,20 +232,17 @@ namespace BLL
             List<string> normalizedSimWords = RemoveIrrelevantWords(analyzedWords);
             float prob = 0;
             int count = 0;
-            Word_tbl wordFromDic = null;
             foreach (var item in normalizedSimWords)
             {
-                bool isExsist = allWords.TryGetValue(item, out wordFromDic);
+                bool isExsist = allWords.TryGetValue(item, out Word_tbl wordFromDic);
                 if (isExsist && probability_mat[wordFromDic.ID_word - 1, category_id] != 0)
                 {
-
                     prob += probability_mat[wordFromDic.ID_word - 1, category_id];
                     count++;
                 }
             }
             return prob / count;
         }
-
 
 
         /// <summary>
@@ -259,9 +255,9 @@ namespace BLL
             for (int i = 0; i < totalProbability.Length; i++)
             {
                 //חיבור ההסתברויות של כל המשפטים בגוף המייל
-                foreach (var sentence in req_Analysis.bodyAnalysis)
+                foreach (var sentence in req_Analysis.BodyAnalysis)
                     totalProbability[i] += sentence.ProbabilitybSentenceForCategory[i];
-                totalProbability[i] /= req_Analysis.bodyAnalysis.Count();
+                totalProbability[i] /= req_Analysis.BodyAnalysis.Count();
                 //חיבור ההסתברות של גוף המייל עם הנושא
                 totalProbability[i] += req_Analysis.ProbabilitybSubjectForCategory[i];
                 totalProbability[i] /= 2;

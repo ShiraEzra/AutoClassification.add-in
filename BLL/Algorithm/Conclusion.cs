@@ -12,9 +12,11 @@ namespace BLL
         AutoClassificationDBEntities db = AutoClassificationDBEntities.Instance;
 
         RequestAnalysis reqAnalysis;
-        public Conclusion(RequestAnalysis request)
+        EmailRequest_tbl request;
+        public Conclusion(RequestAnalysis analysis, EmailRequest_tbl req)
         {
-            reqAnalysis = request;
+            reqAnalysis = analysis;
+            request = req;
         }
 
 
@@ -22,16 +24,17 @@ namespace BLL
         /// Go over each part of the email request analysis (subject / body) and sending to the SavingConclusionsInDB function.
         /// </summary>
         /// <param name="category_id">The number of the category to which the email request belongs</param>
-        /// <param name="allWordsDic">all Db words as dictionary</param>
-        public void LearningForNext(int category_id, Dictionary<string, Word_tbl> allWordsDic)
+        public void LearningForNext()
         {
-            SavingConclusionsInDB(reqAnalysis.NormalizedSubjectWords, category_id, allWordsDic);
+            SavingConclusionsInDB(reqAnalysis.NormalizedSubjectWords);
             List<string> bodyWords = new List<string>();
-            foreach (var item in reqAnalysis.bodyAnalysis)
+            foreach (var item in reqAnalysis.BodyAnalysis)
             {
                 bodyWords.AddRange(item.NormalizedBodyWords);
             }
-            SavingConclusionsInDB(bodyWords, category_id, allWordsDic);
+            SavingConclusionsInDB(bodyWords);
+
+
         }
 
 
@@ -41,22 +44,19 @@ namespace BLL
         /// We will increase the matching percentage of the word to a category.
         /// </summary>
         /// <param name="words_lst">List of words</param>
-        /// <param name="category_id">The number of the category to which the email request belongs</param>
-        /// <param name="allWordsDic">all Db words as dictionary</param>
-
-        public void SavingConclusionsInDB(List<string> words_lst, int category_id, Dictionary<string, Word_tbl> allWordsDic)
+        public void SavingConclusionsInDB(List<string> words_lst)
         {
             WordPerCategory_tbl wordPerCategory = null;
             Word_tbl word = null;
             bool isExsist;
             foreach (var w in words_lst)
             {
-                isExsist= allWordsDic.TryGetValue(w, out word);
+                isExsist = Algorithm.allWords.TryGetValue(w, out word);
                 if (!isExsist)
                     word = AddWord_tbl(w);
-                wordPerCategory = db.WordPerCategory_tbl.Where(wpc => wpc.ID_word == word.ID_word && wpc.ID_category == category_id).FirstOrDefault();
+                wordPerCategory = db.WordPerCategory_tbl.Where(wpc => wpc.ID_word == word.ID_word && wpc.ID_category == request.ID_category).FirstOrDefault();
                 if (wordPerCategory == null)
-                    wordPerCategory = AddWordPerCategory_tbl(word, category_id);
+                    wordPerCategory = AddWordPerCategory_tbl(word, (int)request.ID_category);
                 IncreasePercentageMatching(wordPerCategory);
             }
         }
@@ -82,8 +82,7 @@ namespace BLL
         /// <returns></returns>
         public Word_tbl AddWord_tbl(string w)
         {
-            Word_tbl word = new Word_tbl();
-            word.Value_word = w;
+            Word_tbl word = new Word_tbl { Value_word = w };
             db.Word_tbl.Add(word);
             db.SaveChanges();
             return word;
@@ -98,11 +97,13 @@ namespace BLL
         /// <returns></returns>
         public WordPerCategory_tbl AddWordPerCategory_tbl(Word_tbl word, int category_id)
         {
-            WordPerCategory_tbl wordPerCategory = new WordPerCategory_tbl();
-            wordPerCategory.ID_word = word.ID_word;
-            wordPerCategory.ID_category = category_id;
-            wordPerCategory.AmountOfUse = 0;   //צריך לאתחל?
-            wordPerCategory.MatchPercentage = 0;   //צריך לאתחל?
+            WordPerCategory_tbl wordPerCategory = new WordPerCategory_tbl
+            {
+                ID_word = word.ID_word,
+                ID_category = category_id,
+                AmountOfUse = 0,   //צריך לאתחל?
+                MatchPercentage = 0   //צריך לאתחל?
+            };
             db.WordPerCategory_tbl.Add(wordPerCategory);
             db.SaveChanges();
             return wordPerCategory;
@@ -110,12 +111,30 @@ namespace BLL
 
 
         /// <summary>
-        /// Add instance to emailRequest_tbl
+        /// Add an instance to emailRequest_tbl
         /// </summary>
         /// <param name="req"></param>
         public void AddEmailRequest_tbl(EmailRequest_tbl req)
         {
             db.EmailRequest_tbl.Add(req);
+            db.SaveChanges();
+        }
+
+
+
+        /// <summary>
+        /// Add an instance to SendingHistory_tbl
+        /// </summary>
+        /// <param name="sentFrom">s first time classified = -1. Otherwise -  id of the category to which it belonged the previous time.</param>
+        public void AddSendingHistory_tbl(int sentFrom)
+        {
+            SendingHistory_tbl history;
+            if (sentFrom != -1)
+                history = new SendingHistory_tbl { ID_category = (int)request.ID_category, ID_emailRequest = request.ID_emailRequest, Date = new DateTime(), IsSentAutomat = true };
+            else
+                history = new SendingHistory_tbl { ID_category = (int)request.ID_category, ID_emailRequest = request.ID_emailRequest, Date = new DateTime(), IsSentAutomat = false, SentFrom = sentFrom };
+
+            db.SendingHistory_tbl.Add(history);
             db.SaveChanges();
         }
     }

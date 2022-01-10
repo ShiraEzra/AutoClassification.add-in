@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="AutomaticClassificationDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="AutomaticClassificationDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="Category_tbl">
           <Key>
             <PropertyRef Name="ID_category" />
@@ -23,10 +23,11 @@
           </Key>
           <Property Name="ID_emailRequest" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="EmailSubject" Type="nchar" MaxLength="50" />
-          <Property Name="EmailContent" Type="nchar" MaxLength="150" />
+          <Property Name="EmailContent" Type="nchar" MaxLength="500" />
           <Property Name="SenderEmail" Type="nchar" MaxLength="25" Nullable="false" />
           <Property Name="Date" Type="date" Nullable="false" />
           <Property Name="ID_category" Type="int" />
+          <Property Name="EntryId" Type="nchar" MaxLength="200" Nullable="false" />
         </EntityType>
         <EntityType Name="PermissionLevel_tbl">
           <Key>
@@ -218,8 +219,7 @@
             <End Role="WordPerCategory_tbl" EntitySet="WordPerCategory_tbl" />
           </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="AutomaticClassificationDBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -245,12 +245,13 @@
           </Key>
           <Property Name="ID_emailRequest" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="EmailSubject" Type="String" MaxLength="50" FixedLength="true" Unicode="true" />
-          <Property Name="EmailContent" Type="String" MaxLength="150" FixedLength="true" Unicode="true" />
+          <Property Name="EmailContent" Type="String" MaxLength="500" FixedLength="true" Unicode="true" />
           <Property Name="SenderEmail" Type="String" MaxLength="25" FixedLength="true" Unicode="true" Nullable="false" />
           <Property Name="Date" Type="DateTime" Nullable="false" Precision="0" />
           <Property Name="ID_category" Type="Int32" />
           <NavigationProperty Name="Category_tbl" Relationship="Self.FK_EmailRequest_tbl_Category_tbl" FromRole="EmailRequest_tbl" ToRole="Category_tbl" />
           <NavigationProperty Name="SendingHistory_tbl" Relationship="Self.FK_SendingHistory_EmailRequest_tbl" FromRole="EmailRequest_tbl" ToRole="SendingHistory_tbl" />
+          <Property Name="EntryId" Type="String" Nullable="false" MaxLength="200" FixedLength="true" Unicode="true" />
         </EntityType>
         <EntityType Name="PermissionLevel_tbl">
           <Key>
@@ -474,6 +475,7 @@
           <EntitySetMapping Name="EmailRequest_tbl">
             <EntityTypeMapping TypeName="AutomaticClassificationDBModel.EmailRequest_tbl">
               <MappingFragment StoreEntitySet="EmailRequest_tbl">
+                <ScalarProperty Name="EntryId" ColumnName="EntryId" />
                 <ScalarProperty Name="ID_emailRequest" ColumnName="ID_emailRequest" />
                 <ScalarProperty Name="EmailSubject" ColumnName="EmailSubject" />
                 <ScalarProperty Name="EmailContent" ColumnName="EmailContent" />

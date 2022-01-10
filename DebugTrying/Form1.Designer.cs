@@ -44,7 +44,7 @@ namespace DebugTrying
             this.btn_invokeFuncGetNewMail.TabIndex = 0;
             this.btn_invokeFuncGetNewMail.Text = "מפעיל את הפונקציה קבלת מייל חדש";
             this.btn_invokeFuncGetNewMail.UseVisualStyleBackColor = true;
-            this.btn_invokeFuncGetNewMail.Click += new System.EventHandler(this.btn_invokeFuncGetNewMail_Click);
+            this.btn_invokeFuncGetNewMail.Click += new System.EventHandler(this.Btn_invokeFuncGetNewMail_Click);
             // 
             // btn_title
             // 

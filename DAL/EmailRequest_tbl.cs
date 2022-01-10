@@ -26,6 +26,7 @@ namespace DAL
         public string SenderEmail { get; set; }
         public System.DateTime Date { get; set; }
         public Nullable<int> ID_category { get; set; }
+        public string EntryId { get; set; }
     
         public virtual Category_tbl Category_tbl { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

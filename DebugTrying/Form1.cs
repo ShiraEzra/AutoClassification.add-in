@@ -24,18 +24,22 @@ namespace DebugTrying
         private void btn_invokeFuncGetNewMail_Click(object sender, EventArgs e)
         {
             Algorithm algorithm = new Algorithm();
-            algorithm.NewEmailRequest("בהקדם", "רועי ספק - מעוניין לדבר עם אסתי רכש בהקדם", "shira0556791045@gmail.com", DateTime.Now);
+            algorithm.NewEmailRequest("בהקדם", "רועי ספק - מעוניין לדבר עם אסתי רכש בהקדם", "shira0556791045@gmail.com", DateTime.Now, "36636520gfvhgj");
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            List<string> sentence = new List<string>();
-            sentence.Add("הי");
-            sentence.Add("רועי");
-            sentence.Add("מה");
-            sentence.Add("קורה?");
-            List<string> names = new List<string>();
-            names.Add("רועי");
+            List<string> sentence = new List<string>
+            {
+                "הי",
+                "רועי",
+                "מה",
+                "קורה?"
+            };
+            List<string> names = new List<string>
+            {
+                "רועי"
+            };
             sentence = RemoveNamesFromSentence(sentence, names);
         }
 

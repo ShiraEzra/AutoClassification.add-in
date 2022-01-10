@@ -16,15 +16,16 @@ namespace DTO
         public string SenderEmail { get; set; }
         public Nullable<System.DateTime> Date { get; set; }
         public Nullable<int> ID_category { get; set; }
+        public string EntryId { get; set; }
 
 
-
-        public EmailRequest(string subject, string body, string sender, DateTime date)
+        public EmailRequest(string subject, string body, string sender, DateTime date, string entryId)
         {
             this.EmailSubject = subject;
             this.EmailContent = body;
             this.SenderEmail = sender;
             this.Date = date;
+            this.EntryId = entryId;
         }
 
         public EmailRequest_tbl DtoTODal()

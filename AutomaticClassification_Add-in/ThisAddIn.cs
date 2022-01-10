@@ -33,10 +33,9 @@ namespace AutomaticClassification_Add_in
             if (currentMail != null)
             {
                 Algorithm algorithm = new Algorithm();
-                algorithm.NewEmailRequest(currentMail.Subject, RelevantBodyOnly(currentMail.Body), currentMail.SenderEmailAddress, currentMail.CreationTime);
+                algorithm.NewEmailRequest(currentMail.Subject, RelevantBodyOnly(currentMail.Body), currentMail.SenderEmailAddress, currentMail.CreationTime, currentMail.EntryID);
             }
         }
-
 
 
         /// <summary>
@@ -62,7 +61,6 @@ namespace AutomaticClassification_Add_in
         }
 
 
-
         /// <summary>
         /// A function that is performed whenever an email enters this folder.
         /// </summary>
@@ -70,21 +68,14 @@ namespace AutomaticClassification_Add_in
         private void AddMailToDirectory(object item)
         {
             MessageBox.Show("hii - tryin notify when new mail arrived to this directory");
-          
-            //EmailRequest_tbl req = db.EmailRequest_tbl.Single(e => e.entryId == ((Outlook.MailItem)item).EntryID);
-            //if (req.numLookingFor == 0)
-            //    req.numLookingFor=1;
-            //else
-            //{
-            //    if (req.numLookingfor>0)
-            //    {
-            //        //צריך לבצע את פונקציות העברת תקיה בצורה ידנית.
-            //        //להוריד את את כל אחוזי הסתברות שהוספנו לקטגוריה אחרונה שבה הייתה הפנייה
-            //        //ולהוסיפם לקטגוריה שאליה הועברה הפנייה
-            //    }
-            //}
+            var p = ((Outlook.MailItem)item).Parent;
+            if (p is Outlook.MAPIFolder folder)
+            {
+                EmailRequest_tbl req = db.EmailRequest_tbl.Single(e => e.EntryId == ((Outlook.MailItem)item).EntryID);
+                if (folder.Name == req.Category_tbl.Name_category)
+                    ReducingProbability.ChangeCategory(req, folder.Name);
+            }
         }
-
 
 
         /// <summary>
@@ -112,13 +103,13 @@ namespace AutomaticClassification_Add_in
 
             Outlook.MAPIFolder destFolder = oInbox.Folders["שירות לקוחות"];
             //העמסת המתודה לאירוע שיתרחש בכל פעם שיתווסף מייל חדש לתקיה זו
-            destFolder.Items.ItemAdd += new Outlook.ItemsEvents_ItemAddEventHandler(AddMailToDirectory);
+            destFolder.Items.ItemAdd += AddMailToDirectory;
 
             ////העמסת המתודה לאירוע שיתרחש בכל פעם שימחק מייל  מתקיה זו
             //destFolder.Items.ItemRemove += ChangeMailFromDirectory;
 
             GetNewMail();
-            MoveDirectory("שירות לקוחות");
+            //MoveDirectory("שירות לקוחות");
         }
 
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)

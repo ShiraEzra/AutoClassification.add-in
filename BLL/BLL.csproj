@@ -56,6 +56,7 @@
     <Compile Include="Algorithm\BodyContent.cs" />
     <Compile Include="Algorithm\Conclusion.cs" />
     <Compile Include="Algorithm\FunctionsIDontNeedRightNow.cs" />
+    <Compile Include="Algorithm\ReducingProbability.cs" />
     <Compile Include="Algorithm\RequestAnalysis.cs" />
     <Compile Include="Algorithm\SimilarWords.cs" />
     <Compile Include="DbRetrieval.cs" />

@@ -9,6 +9,7 @@ namespace BLL
 {
     public class SimilarWords
     {
+        const int numOfSimiliarWords = 10;
 
         /// <summary>
         /// Extract similar words from the Html code.
@@ -25,7 +26,7 @@ namespace BLL
             html_ans = html_ans.Substring(start);
             start = 0;
             int end;
-            while (similarWords.Count() <= 10 && start != -1)
+            while (similarWords.Count() <= numOfSimiliarWords && start != -1)
             {
                 start = html_ans.IndexOf("\"", start) + 1;
                 end = html_ans.IndexOf("\"", start);
