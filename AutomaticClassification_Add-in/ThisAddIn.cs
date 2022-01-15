@@ -16,7 +16,7 @@ namespace AutomaticClassification_Add_in
 
         Outlook.MailItem currentMail = null;
         Outlook.MAPIFolder oInbox = null;
-        AutoClassificationDBEntities db = AutoClassificationDBEntities.Instance;
+        AutomaticClassificationDBEntities db = AutomaticClassificationDBEntities.Instance;
 
 
         /// <summary>

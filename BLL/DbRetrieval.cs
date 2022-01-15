@@ -10,7 +10,7 @@ namespace BLL
 {
     public class DbRetrieval
     {
-        AutoClassificationDBEntities db = AutoClassificationDBEntities.Instance;
+        AutomaticClassificationDBEntities db = AutomaticClassificationDBEntities.Instance;
 
         //Category
         public RequestResult GetAllCategories()

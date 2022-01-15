@@ -50,7 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AutoClassificationDBEntities.cs" />
+    <Compile Include="AutomaticClassificationDBEntities.cs" />
     <Compile Include="Category_tbl.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>

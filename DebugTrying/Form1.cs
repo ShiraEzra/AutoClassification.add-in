@@ -14,7 +14,7 @@ namespace DebugTrying
 {
     public partial class Form1 : Form
     {
-        AutoClassificationDBEntities db = AutoClassificationDBEntities.Instance;
+        AutomaticClassificationDBEntities db = AutomaticClassificationDBEntities.Instance;
   
         public Form1()
         {

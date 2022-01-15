@@ -9,7 +9,7 @@ namespace BLL
 {
     public class ReducingProbability
     {
-        static AutoClassificationDBEntities db = AutoClassificationDBEntities.Instance;
+        static AutomaticClassificationDBEntities db = AutomaticClassificationDBEntities.Instance;
 
 
         /// <summary>

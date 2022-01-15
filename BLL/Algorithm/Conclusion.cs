@@ -9,7 +9,7 @@ namespace BLL
 {
     public class Conclusion
     {
-        AutoClassificationDBEntities db = AutoClassificationDBEntities.Instance;
+        AutomaticClassificationDBEntities db = AutomaticClassificationDBEntities.Instance;
 
         RequestAnalysis reqAnalysis;
         EmailRequest_tbl request;

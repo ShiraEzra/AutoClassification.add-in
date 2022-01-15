@@ -11,7 +11,7 @@ namespace BLL
 {
     public class Algorithm
     {
-        AutoClassificationDBEntities db = AutoClassificationDBEntities.Instance;
+        AutomaticClassificationDBEntities db = AutomaticClassificationDBEntities.Instance;
 
         float[,] probability_mat;   //A matrix that contains in each cell the probability of a word to belong to a specific category.
         float[] firstInit_arr;      //An initialized array with the number of email requests for each category.
@@ -145,7 +145,7 @@ namespace BLL
         {
             Word_tbl word;
             float prob_similiarWords, prob;
-            //בעבור כל מילה הקיימת בדטה בייס - מחשבים את ההסתברות שלה + ההסתברות של המלילם הדומות לה הקיימות ב-דטה בייס
+            //בעבור כל מילה הקיימת בדטה בייס - מחשבים את ההסתברות שלה + ההסתברות של המילים הדומות לה הקיימות ב-דטה בייס
             if (contentWords_lst.Count() == 0)
                 InitProbability_arr(categoryProbability_arr, false);
             else
