@@ -88,6 +88,9 @@
     <Compile Include="WordPerCategory_tbl.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="WordPerRequest_tbl.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
     <Compile Include="Word_tbl.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>

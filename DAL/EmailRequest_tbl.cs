@@ -18,6 +18,7 @@ namespace DAL
         public EmailRequest_tbl()
         {
             this.SendingHistory_tbl = new HashSet<SendingHistory_tbl>();
+            this.WordPerRequest_tbl = new HashSet<WordPerRequest_tbl>();
         }
     
         public int ID_emailRequest { get; set; }
@@ -31,5 +32,7 @@ namespace DAL
         public virtual Category_tbl Category_tbl { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SendingHistory_tbl> SendingHistory_tbl { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<WordPerRequest_tbl> WordPerRequest_tbl { get; set; }
     }
 }

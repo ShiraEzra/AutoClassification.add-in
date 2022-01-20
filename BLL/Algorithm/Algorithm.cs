@@ -35,15 +35,16 @@ namespace BLL
         /// <param name="body">email body</param>
         /// <param name="sender">email sender</param>
         /// <param name="date">email date</param>
-        public void NewEmailRequest(string subject, string body, string sender, DateTime date, string entryId)
+        public string NewEmailRequest(string subject, string body, string sender, DateTime date, string entryId)
         {
-            EmailRequest_tbl request = new EmailRequest_tbl {EmailSubject= subject,EmailContent= body,SenderEmail= sender,Date= date,EntryId= entryId };
+            EmailRequest_tbl request = new EmailRequest_tbl { EmailSubject = subject, EmailContent = body, SenderEmail = sender, Date = date, EntryId = entryId };
             request.ID_category = AssociateRequestToCategory(request);
             //העברת המייל מתיבת דואר נכנס לתקיית הקטגוריה שנבחרה
             Conclusion conclusion = new Conclusion(req_Analysis, request);
             conclusion.LearningForNext();
             conclusion.AddEmailRequest_tbl(request);
             conclusion.AddSendingHistory_tbl(-1);
+            return request.Category_tbl.Name_category;
         }
 
 
@@ -108,7 +109,7 @@ namespace BLL
             {
                 MorphInfo firstword = item.FirstOrDefault();
                 if (IsRrelavantPartOfSpeach(firstword))
-                    rellevantWords.Add(firstword.BaseWordMenukad == null? firstword.BaseWord : firstword.BaseWordMenukad);
+                    rellevantWords.Add(firstword.BaseWordMenukad == null ? firstword.BaseWord : firstword.BaseWordMenukad);
             }
             return rellevantWords;
         }
@@ -124,7 +125,7 @@ namespace BLL
             return morphInfo.PartOfSpeech == PartOfSpeech.VERB || morphInfo.PartOfSpeech == PartOfSpeech.NOUN || morphInfo.PartOfSpeech == PartOfSpeech.ADJECTIVE || morphInfo.PartOfSpeech == PartOfSpeech.PROPER_NOUN;
         }
 
-       
+
         /// <summary>
         /// The function build the matrix of probabilities. In each cell in the matrix we put the probability of this word to belong to a certain category.
         /// </summary>
@@ -178,7 +179,7 @@ namespace BLL
         /// <returns>The array of probabilities - for each category the num of the email requests to belong to it, or array init to 0. it'w up to the flag </returns>
         public float[] InitProbability_arr(float[] probability_arr, bool flag)
         {
-            probability_arr = new float[firstInit_arr.Length] ;
+            probability_arr = new float[firstInit_arr.Length];
             if (flag)
                 firstInit_arr.CopyTo(probability_arr, 0);
             else    //לבדוק אם באמת צריך לאפס
@@ -239,6 +240,7 @@ namespace BLL
                 {
                     prob += probability_mat[wordFromDic.ID_word - 1, category_id];
                     count++;
+                    req_Analysis.SimiliarwordsExsistDB.Add(wordFromDic);
                 }
             }
             return prob / count;

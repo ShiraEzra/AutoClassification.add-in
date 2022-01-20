@@ -33,8 +33,7 @@ namespace BLL
                 bodyWords.AddRange(item.NormalizedBodyWords);
             }
             SavingConclusionsInDB(bodyWords);
-
-
+            SavingSimiliarwordsForRequest(reqAnalysis.SimiliarwordsExsistDB);
         }
 
 
@@ -58,6 +57,7 @@ namespace BLL
                 if (wordPerCategory == null)
                     wordPerCategory = AddWordPerCategory_tbl(word, (int)request.ID_category);
                 IncreasePercentageMatching(wordPerCategory);
+                AddWordPerRequest(request.ID_emailRequest, word.ID_word);
             }
         }
 
@@ -72,6 +72,19 @@ namespace BLL
             int numRequestsForThisCategory = db.EmailRequest_tbl.Where(er => er.ID_category == wpc.ID_category).Count();
             wpc.MatchPercentage = wpc.AmountOfUse / numRequestsForThisCategory;
             db.SaveChanges();
+        }
+
+
+        /// <summary>
+        /// The function goes through all the words similar to the words from the email request which existing  in DB,
+        /// and adds them to WordPerCategory table
+        /// </summary>
+        /// <param name="similiarwords">List of similar words</param>
+        public void SavingSimiliarwordsForRequest(List<Word_tbl> similiarwords)
+        {
+            foreach (var simWord in similiarwords)
+                AddWordPerRequest(request.ID_emailRequest, simWord.ID_word);
+            //צריך להוסיף גם למילים הדומות את אחוזי ההתאמה??
         }
 
 
@@ -135,6 +148,19 @@ namespace BLL
                 history = new SendingHistory_tbl { ID_category = (int)request.ID_category, ID_emailRequest = request.ID_emailRequest, Date = new DateTime(), IsSentAutomat = false, SentFrom = sentFrom };
 
             db.SendingHistory_tbl.Add(history);
+            db.SaveChanges();
+        }
+
+
+        /// <summary>
+        /// The function adds an entry to  WordPerRequest table.
+        /// </summary>
+        /// <param name="request_id">reqest id</param>
+        /// <param name="word_id">word id</param>
+        public void AddWordPerRequest(int request_id, int word_id)
+        {
+            WordPerRequest_tbl wpr = new WordPerRequest_tbl() {Request_id=request_id, word_id=word_id };
+            db.WordPerRequest_tbl.Add(wpr);
             db.SaveChanges();
         }
     }

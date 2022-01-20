@@ -4,23 +4,26 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="cccf5fb5d49c451796f7f8e0693caeaa" Name="Diagram1">
-        <EntityTypeShape EntityType="AutomaticClassificationDBModel.Category_tbl" Width="1.5" PointX="5.25" PointY="0.5" IsExpanded="true" />
-        <EntityTypeShape EntityType="AutomaticClassificationDBModel.EmailRequest_tbl" Width="1.5" PointX="5.125" PointY="4" IsExpanded="true" />
-        <EntityTypeShape EntityType="AutomaticClassificationDBModel.PermissionLevel_tbl" Width="1.5" PointX="7.875" PointY="1" IsExpanded="true" />
-        <EntityTypeShape EntityType="AutomaticClassificationDBModel.SendingAdjustmentStatus_tbl" Width="1.5" PointX="9.375" PointY="3.375" IsExpanded="true" />
-        <EntityTypeShape EntityType="AutomaticClassificationDBModel.SendingHistory_tbl" Width="1.5" PointX="7.25" PointY="3.25" IsExpanded="true" />
-        <EntityTypeShape EntityType="AutomaticClassificationDBModel.User_tbl" Width="1.5" PointX="9.875" PointY="0.625" IsExpanded="true" />
-        <EntityTypeShape EntityType="AutomaticClassificationDBModel.Word_tbl" Width="1.5" PointX="2.875" PointY="3.625" IsExpanded="true" />
+      <Diagram DiagramId="b02428a5f11c4dd1af3787b0ac3dfe26" Name="Diagram1">
+        <EntityTypeShape EntityType="AutomaticClassificationDBModel.Category_tbl" Width="1.5" PointX="0.75" PointY="4.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="AutomaticClassificationDBModel.EmailRequest_tbl" Width="1.5" PointX="3" PointY="4.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="AutomaticClassificationDBModel.PermissionLevel_tbl" Width="1.5" PointX="5.75" PointY="1.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="AutomaticClassificationDBModel.SendingAdjustmentStatus_tbl" Width="1.5" PointX="3" PointY="9.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="AutomaticClassificationDBModel.SendingHistory_tbl" Width="1.5" PointX="5.25" PointY="4.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="AutomaticClassificationDBModel.User_tbl" Width="1.5" PointX="8" PointY="1" IsExpanded="true" />
+        <EntityTypeShape EntityType="AutomaticClassificationDBModel.Word_tbl" Width="1.5" PointX="0.75" PointY="1" IsExpanded="true" />
         <EntityTypeShape EntityType="AutomaticClassificationDBModel.WordPerCategory_tbl" Width="1.5" PointX="3" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="AutomaticClassificationDBModel.WordPerRequest_tbl" Width="1.5" PointX="8.25" PointY="5" IsExpanded="true" />
         <AssociationConnector Association="AutomaticClassificationDBModel.FK_EmailRequest_tbl_Category_tbl" ManuallyRouted="false" />
         <AssociationConnector Association="AutomaticClassificationDBModel.FK_SendingHistory_Category_tbl" ManuallyRouted="false" />
         <AssociationConnector Association="AutomaticClassificationDBModel.FK_SendingHistory_Category_tbl1" ManuallyRouted="false" />
         <AssociationConnector Association="AutomaticClassificationDBModel.FK_WordPerCategory_Category_tbl" ManuallyRouted="false" />
         <AssociationConnector Association="AutomaticClassificationDBModel.FK_SendingHistory_EmailRequest_tbl" ManuallyRouted="false" />
+        <AssociationConnector Association="AutomaticClassificationDBModel.FK_WordPerRequest_WordPerRequest" ManuallyRouted="false" />
         <AssociationConnector Association="AutomaticClassificationDBModel.FK_User_tbl_PermissionLevel_tbl" ManuallyRouted="false" />
         <AssociationConnector Association="AutomaticClassificationDBModel.FK_SendingHistory_SendingAdjustmentStatus_tbl" ManuallyRouted="false" />
         <AssociationConnector Association="AutomaticClassificationDBModel.FK_WordPerCategory_tbl_Word_tbl" ManuallyRouted="false" />
+        <AssociationConnector Association="AutomaticClassificationDBModel.FK_WordPerRequest_Word_tbl" ManuallyRouted="false" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

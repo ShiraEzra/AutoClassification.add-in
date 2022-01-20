@@ -33,7 +33,8 @@ namespace AutomaticClassification_Add_in
             if (currentMail != null)
             {
                 Algorithm algorithm = new Algorithm();
-                algorithm.NewEmailRequest(currentMail.Subject, RelevantBodyOnly(currentMail.Body), currentMail.SenderEmailAddress, currentMail.CreationTime, currentMail.EntryID);
+                string nameFolder= algorithm.NewEmailRequest(currentMail.Subject, RelevantBodyOnly(currentMail.Body), currentMail.SenderEmailAddress, currentMail.CreationTime, currentMail.EntryID);
+                MoveDirectory(nameFolder);
             }
         }
 

@@ -18,6 +18,7 @@ namespace DAL
         public Word_tbl()
         {
             this.WordPerCategory_tbl = new HashSet<WordPerCategory_tbl>();
+            this.WordPerRequest_tbl = new HashSet<WordPerRequest_tbl>();
         }
     
         public int ID_word { get; set; }
@@ -25,5 +26,7 @@ namespace DAL
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<WordPerCategory_tbl> WordPerCategory_tbl { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<WordPerRequest_tbl> WordPerRequest_tbl { get; set; }
     }
 }

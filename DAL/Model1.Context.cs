@@ -15,7 +15,7 @@ namespace DAL
     
     public partial class AutomaticClassificationDBEntities : DbContext
     {
-        protected AutomaticClassificationDBEntities()
+        public AutomaticClassificationDBEntities()
             : base("name=AutomaticClassificationDBEntities")
         {
         }
@@ -33,5 +33,6 @@ namespace DAL
         public virtual DbSet<User_tbl> User_tbl { get; set; }
         public virtual DbSet<Word_tbl> Word_tbl { get; set; }
         public virtual DbSet<WordPerCategory_tbl> WordPerCategory_tbl { get; set; }
+        public virtual DbSet<WordPerRequest_tbl> WordPerRequest_tbl { get; set; }
     }
 }
