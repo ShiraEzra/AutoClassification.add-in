@@ -20,17 +20,15 @@ namespace BLL
         /// <param name="newFolder">The new category to which the email request was referenced</param>
         public static void ChangeCategory(EmailRequest_tbl req, string newFolder)
         {
-            ReduceProbability(req);
-            int newCategoryId=db.Category_tbl.Single(c => c.Name_category == newFolder).ID_category;
             int sentFrom = (int)req.ID_category;
+            int newCategoryId = db.Category_tbl.Single(c => c.Name_category == newFolder).ID_category;
             req.ID_category = newCategoryId;
+            List<WordPerRequest_tbl> requestWords = db.WordPerRequest_tbl.Where(w => w.Request_id == req.ID_emailRequest).ToList();
+            ReduceProbability(req, sentFrom, requestWords);
 
-            //צריך לשלוח לבינה זו עצם מסוג ריקווסט-אניליסיס
-            //לשאול את המורה איך אני שומרת את מילות הפנייה המנותחת בעבור כל פנייה. ע"מ שבת שינוי קטגוריה אני אוכל לעבור עליהם ולשנות
-            
-            //Conclusion conclusion = new Conclusion();
-            //conclusion.LearningForNext();
-            //conclusion.AddSendingHistory_tbl(sentFrom);
+            Conclusion conclusion = new Conclusion(req, requestWords);
+            conclusion.SavingConclusionsInDB();
+            conclusion.AddSendingHistory_tbl(sentFrom);
         }
 
 
@@ -38,9 +36,21 @@ namespace BLL
         /// A function that goes over the list of email request words and lowers the percentage of matches for that email request following the cancellation of the match.
         /// </summary>
         /// <param name="req">The email request that changes its fit to the category</param>
-        public static void ReduceProbability(EmailRequest_tbl req)
+        public static void ReduceProbability(EmailRequest_tbl req, int oldCategoryId, List<WordPerRequest_tbl> requestWords)
         {
-            //לברר איך בדיוק אני שומרת את מילות הפנייה המנותחות
+            WordPerCategory_tbl wpc;
+            int numRequestsForThisCategory = db.EmailRequest_tbl.Where(er => er.ID_category == oldCategoryId).Count();
+            foreach (var wpr in requestWords)
+            {
+                wpc = db.WordPerCategory_tbl.Single(w => w.ID_category == oldCategoryId && w.ID_word == wpr.word_id);
+                wpc.AmountOfUse--;
+                //לבדוק אם יש אופציה שיתחלק באפס
+                if (wpc.AmountOfUse == 0)
+                    db.WordPerCategory_tbl.Remove(wpc);
+                else
+                    wpc.MatchPercentage = wpc.AmountOfUse / numRequestsForThisCategory;
+                db.SaveChanges();
+            }
         }
     }
 }

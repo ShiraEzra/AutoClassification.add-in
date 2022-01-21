@@ -11,12 +11,31 @@ namespace BLL
     {
         AutomaticClassificationDBEntities db = AutomaticClassificationDBEntities.Instance;
 
-        RequestAnalysis reqAnalysis;
         EmailRequest_tbl request;
+        RequestAnalysis reqAnalysis;
+        List<WordPerRequest_tbl> requestWord_lst;
+
+        /// <summary>
+        /// Constractor triggered from class Algorithm.
+        /// </summary>
+        /// <param name="analysis">RequestAnalysis</param>
+        /// <param name="req">EmailRequest_tbl</param>
         public Conclusion(RequestAnalysis analysis, EmailRequest_tbl req)
         {
             reqAnalysis = analysis;
             request = req;
+        }
+
+
+        /// <summary>
+        /// Constractor triggered from class ReducingProbability.
+        /// </summary>
+        /// <param name="req">EmailRequest_tbl</param>
+        /// <param name="wordsPerRequest">List of WordPerRequest_tbl</param>
+        public Conclusion(EmailRequest_tbl req, List<WordPerRequest_tbl> wordsPerRequest)
+        {
+            request = req;
+            requestWord_lst = wordsPerRequest;
         }
 
 
@@ -29,9 +48,7 @@ namespace BLL
             SavingConclusionsInDB(reqAnalysis.NormalizedSubjectWords);
             List<string> bodyWords = new List<string>();
             foreach (var item in reqAnalysis.BodyAnalysis)
-            {
                 bodyWords.AddRange(item.NormalizedBodyWords);
-            }
             SavingConclusionsInDB(bodyWords);
             SavingSimiliarwordsForRequest(reqAnalysis.SimiliarwordsExsistDB);
         }
@@ -48,6 +65,7 @@ namespace BLL
             WordPerCategory_tbl wordPerCategory = null;
             Word_tbl word = null;
             bool isExsist;
+            int numRequestsForThisCategory = db.EmailRequest_tbl.Where(er => er.ID_category == request.ID_category).Count();
             foreach (var w in words_lst)
             {
                 isExsist = Algorithm.allWords.TryGetValue(w, out word);
@@ -56,8 +74,27 @@ namespace BLL
                 wordPerCategory = db.WordPerCategory_tbl.Where(wpc => wpc.ID_word == word.ID_word && wpc.ID_category == request.ID_category).FirstOrDefault();
                 if (wordPerCategory == null)
                     wordPerCategory = AddWordPerCategory_tbl(word, (int)request.ID_category);
-                IncreasePercentageMatching(wordPerCategory);
+                IncreasePercentageMatching(wordPerCategory, numRequestsForThisCategory);
                 AddWordPerRequest(request.ID_emailRequest, word.ID_word);
+            }
+        }
+
+
+        /// <summary>
+        /// The function goes through all the email request words and increases the percentage of matching to the category to which the email request was transferred.
+        /// </summary>
+        public void SavingConclusionsInDB()
+        {
+            int numRequestsForThisCategory = db.EmailRequest_tbl.Where(er => er.ID_category == request.ID_category).Count();
+            WordPerCategory_tbl wordPerCategory = null;
+            Word_tbl word= null;
+            foreach (var wpr in requestWord_lst)
+            {
+                word = wpr.Word_tbl;
+                wordPerCategory = db.WordPerCategory_tbl.Where(wpc => wpc.ID_word == wpr.word_id && wpc.ID_category == request.ID_category).FirstOrDefault();
+                if (wordPerCategory == null)
+                    wordPerCategory = AddWordPerCategory_tbl(word, (int)request.ID_category);
+                IncreasePercentageMatching(wordPerCategory, numRequestsForThisCategory);
             }
         }
 
@@ -66,10 +103,10 @@ namespace BLL
         /// The function increases the percentage of fit of the word to the category
         /// </summary>
         /// <param name="wpc">instance of table wordPerCategory</param>
-        public void IncreasePercentageMatching(WordPerCategory_tbl wpc)
+        public void IncreasePercentageMatching(WordPerCategory_tbl wpc, int numRequestsForThisCategory)
         {
             wpc.AmountOfUse++;
-            int numRequestsForThisCategory = db.EmailRequest_tbl.Where(er => er.ID_category == wpc.ID_category).Count();
+            //לבדוק אם יש אופציה שיתחלק באפס
             wpc.MatchPercentage = wpc.AmountOfUse / numRequestsForThisCategory;
             db.SaveChanges();
         }
@@ -134,7 +171,6 @@ namespace BLL
         }
 
 
-
         /// <summary>
         /// Add an instance to SendingHistory_tbl
         /// </summary>
@@ -142,7 +178,7 @@ namespace BLL
         public void AddSendingHistory_tbl(int sentFrom)
         {
             SendingHistory_tbl history;
-            if (sentFrom != -1)
+            if (sentFrom == -1)
                 history = new SendingHistory_tbl { ID_category = (int)request.ID_category, ID_emailRequest = request.ID_emailRequest, Date = new DateTime(), IsSentAutomat = true };
             else
                 history = new SendingHistory_tbl { ID_category = (int)request.ID_category, ID_emailRequest = request.ID_emailRequest, Date = new DateTime(), IsSentAutomat = false, SentFrom = sentFrom };
@@ -159,7 +195,7 @@ namespace BLL
         /// <param name="word_id">word id</param>
         public void AddWordPerRequest(int request_id, int word_id)
         {
-            WordPerRequest_tbl wpr = new WordPerRequest_tbl() {Request_id=request_id, word_id=word_id };
+            WordPerRequest_tbl wpr = new WordPerRequest_tbl() { Request_id = request_id, word_id = word_id };
             db.WordPerRequest_tbl.Add(wpr);
             db.SaveChanges();
         }
