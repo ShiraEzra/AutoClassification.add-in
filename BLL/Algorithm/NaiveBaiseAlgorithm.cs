@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace BLL
 {
-    public class Algorithm
+    public class NaiveBaiseAlgorithm
     {
         AutomaticClassificationDBEntities db = AutomaticClassificationDBEntities.Instance;
 
@@ -18,7 +18,7 @@ namespace BLL
         RequestAnalysis req_Analysis;    //Object containing the request analysis.
         public static Dictionary<string, Word_tbl> allWords;   //All words from word_tbl as dictionary.
 
-        public Algorithm()
+        public NaiveBaiseAlgorithm()
         {
             probability_mat = new float[db.Word_tbl.Count(), db.Category_tbl.Count()];
             req_Analysis = new RequestAnalysis();
@@ -29,21 +29,39 @@ namespace BLL
 
 
         /// <summary>
+        /// The function receives an email request and the category to which it belongs.
+        ///The function puts the data into the DB, to teach the system first.
+        /// </summary>
+        /// <param name="subject">email subject</param>
+        /// <param name="body">email body</param>
+        /// <param name="sender">email sender</param>
+        /// <param name="date">email date</param>
+        /// <param name="entryId">entryId of this mail</param>
+        /// <param name="categoryName">the category to which this email request belongs</param>
+        public string FirstInitDB_NewMail(string subject, string body, string sender, DateTime date, string entryId, string categoryName)
+        {
+            EmailRequest_tbl request = new EmailRequest_tbl { EmailSubject = subject, EmailContent = body, SenderEmail = sender, Date = date, EntryId = entryId };
+            request.ID_category = db.Category_tbl.FirstOrDefault(c => c.Name_category == categoryName)?.ID_category;
+            SubjetcAnalysis(request.EmailSubject);
+            BodyAnalysis(request.EmailContent);
+            InsertConclusionToDB(request);
+            return request.Category_tbl.Name_category;
+        }
+
+
+        /// <summary>
         /// The function gets a new mail and move the email from an inbox to the selected category folder.
         /// </summary>
         /// <param name="subject">email subject</param>
         /// <param name="body">email body</param>
         /// <param name="sender">email sender</param>
         /// <param name="date">email date</param>
+        /// <param name="entryId">entryId of this mail</param>
         public string NewEmailRequest(string subject, string body, string sender, DateTime date, string entryId)
         {
             EmailRequest_tbl request = new EmailRequest_tbl { EmailSubject = subject, EmailContent = body, SenderEmail = sender, Date = date, EntryId = entryId };
             request.ID_category = AssociateRequestToCategory(request);
-            //העברת המייל מתיבת דואר נכנס לתקיית הקטגוריה שנבחרה
-            Conclusion conclusion = new Conclusion(req_Analysis, request);
-            conclusion.LearningForNext();
-            conclusion.AddEmailRequest_tbl(request);
-            conclusion.AddSendingHistory_tbl(-1);
+            InsertConclusionToDB(request);
             return request.Category_tbl.Name_category;
         }
 
@@ -57,6 +75,7 @@ namespace BLL
         {
             SubjetcAnalysis(request.EmailSubject);
             BodyAnalysis(request.EmailContent);
+            CallFuncCalcProbabilityForAllPartsRequest();
             float[] totalProbability = TotalProbability();
             return IndexMaxProbability(totalProbability);  //צריך להחזיר את הקטגוריה
         }
@@ -71,7 +90,6 @@ namespace BLL
             List<List<MorphInfo>> analyzedSubject = Analysis.AnalyzeSentence(subject);
             //לטפל במקרה שחוזר נאל= לא מצליח לגשת לספריית אןאלפי
             req_Analysis.NormalizedSubjectWords = RemoveIrrelevantWords(analyzedSubject);
-            req_Analysis.ProbabilitybSubjectForCategory = CalcProbabilityForCategory(req_Analysis.NormalizedSubjectWords, req_Analysis.ProbabilitybSubjectForCategory);
         }
 
 
@@ -83,7 +101,7 @@ namespace BLL
         {
             List<string> bodySplitToSentences = Analysis.SplitToSentences(body);
             //לטפל במקרה שחוזר נאל= לא מצליח לגשת לספריית אןאלפי
-            req_Analysis.BodyAnalysis = new BodyContent[bodySplitToSentences.Count()];
+            req_Analysis.BodyAnalysis = new BodyContent[(int)(bodySplitToSentences?.Count())];
             int i = 0, numCategories = db.Category_tbl.Count();
             foreach (var sentence in bodySplitToSentences)
             {
@@ -91,9 +109,20 @@ namespace BLL
                 List<List<MorphInfo>> analyzedSentence = Analysis.AnalyzeSentence(sentence);
                 //לטפל במקרה שחוזר נאל= לא מצליח לגשת לספריית אןאלפי
                 req_Analysis.BodyAnalysis[i].NormalizedBodyWords = RemoveIrrelevantWords(analyzedSentence);
-                req_Analysis.BodyAnalysis[i].ProbabilitybSentenceForCategory = CalcProbabilityForCategory(req_Analysis.BodyAnalysis[i].NormalizedBodyWords, req_Analysis.BodyAnalysis[i].ProbabilitybSentenceForCategory);
                 i++;
             }
+        }
+         
+
+        /// <summary>
+        /// The function goes through all the parts of the email request and sends each one separately to the function CalcProbabilityForCategory
+        /// </summary>
+        public void CallFuncCalcProbabilityForAllPartsRequest()
+        {
+            //זו הפונקציה שבמידת הצורך אחלק לתהליכונים
+            req_Analysis.ProbabilitybSubjectForCategory = CalcProbabilityForCategory(req_Analysis.NormalizedSubjectWords, req_Analysis.ProbabilitybSubjectForCategory);
+            foreach (var sentence in req_Analysis.BodyAnalysis)
+                sentence.ProbabilitybSentenceForCategory = CalcProbabilityForCategory(sentence.NormalizedBodyWords, sentence.ProbabilitybSentenceForCategory);
         }
 
 
@@ -105,12 +134,13 @@ namespace BLL
         public List<string> RemoveIrrelevantWords(List<List<MorphInfo>> analyzedSentence)
         {
             List<string> rellevantWords = new List<string>();
-            foreach (var item in analyzedSentence)
-            {
-                MorphInfo firstword = item.FirstOrDefault();
-                if (IsRrelavantPartOfSpeach(firstword))
-                    rellevantWords.Add(firstword.BaseWordMenukad == null ? firstword.BaseWord : firstword.BaseWordMenukad);
-            }
+            if (analyzedSentence != null)
+                foreach (var item in analyzedSentence)
+                {
+                    MorphInfo firstword = item.FirstOrDefault();
+                    if (IsRrelavantPartOfSpeach(firstword))
+                        rellevantWords.Add(firstword.BaseWordMenukad == null ? firstword.BaseWord : firstword.BaseWordMenukad);
+                }
             return rellevantWords;
         }
 
@@ -283,6 +313,19 @@ namespace BLL
                 if (probability_arr[i] == maxValue)
                     return i;
             return 0;
+        }
+         
+
+        /// <summary>
+        /// The function calls the functions of Conclusion class, in order to enter into the DB the data of the current email request for system improvement from now on.
+        /// </summary>
+        /// <param name="request">The emaill request</param>
+        public void InsertConclusionToDB(EmailRequest_tbl request)
+        {
+            Conclusion conclusion = new Conclusion(req_Analysis, request);
+            conclusion.LearningForNext();
+            conclusion.AddEmailRequest_tbl(request);
+            conclusion.AddSendingHistory_tbl(-1);
         }
     }
 }

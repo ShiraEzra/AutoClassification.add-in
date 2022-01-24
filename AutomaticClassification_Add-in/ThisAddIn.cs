@@ -32,9 +32,13 @@ namespace AutomaticClassification_Add_in
             currentMail = (Outlook.MailItem)unReadItems.GetLast();
             if (currentMail != null)
             {
-                Algorithm algorithm = new Algorithm();
-                string nameFolder= algorithm.NewEmailRequest(currentMail.Subject, RelevantBodyOnly(currentMail.Body), currentMail.SenderEmailAddress, currentMail.CreationTime, currentMail.EntryID);
-                MoveDirectory(nameFolder);
+                NaiveBaiseAlgorithm algorithm = new NaiveBaiseAlgorithm();
+                //הכנסה  ל-דטה בייס בעבור לימוד ראשוני
+                algorithm.FirstInitDB_NewMail(currentMail.Subject, RelevantBodyOnly(currentMail.Body), currentMail.SenderEmailAddress, currentMail.CreationTime, currentMail.EntryID, "שירות לקוחות");
+
+                //לאחר הלימוד הראשוני - פניות יכנסו בצורה כזו
+                //string nameFolder= algorithm.NewEmailRequest(currentMail.Subject, RelevantBodyOnly(currentMail.Body), currentMail.SenderEmailAddress, currentMail.CreationTime, currentMail.EntryID);
+                //MoveDirectory(nameFolder);
             }
         }
 
@@ -46,8 +50,14 @@ namespace AutomaticClassification_Add_in
         /// <returns>Relevant email body only</returns>
         private string RelevantBodyOnly(string body)
         {
-            int endBody = body.IndexOf("<https");
-            return body.Substring(0, endBody);
+            int startFirstTag = body.IndexOf("<https");
+            return body.Substring(0, startFirstTag);
+
+
+            //לטפל במקרה שהמייל מועבר/ מתקבל בצורה שונה עם תוספות בתחילה
+            //body= body.Substring(startFirstTag, body.Length);
+            //int endFirstTag = body.IndexOf(">");
+            //return body.Substring(endFirstTag, body.Length);
         }
 
 
