@@ -49,7 +49,7 @@
     <Compile Include="EmailRequest.cs" />
     <Compile Include="PermissionLevel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SendingAdjustmentStatus.cs" />
+    <Compile Include="StatusSending.cs" />
     <Compile Include="SendingHistory.cs" />
     <Compile Include="User.cs" />
     <Compile Include="Word.cs" />

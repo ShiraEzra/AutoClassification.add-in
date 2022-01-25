@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace BLL
 {
+    public enum StatusKind :byte{ FirstLearning=1, AutomatSend=2, MenuallSent=3}
     public class Conclusion
     {
         AutomaticClassificationDBEntities db = AutomaticClassificationDBEntities.Instance;
@@ -14,16 +15,18 @@ namespace BLL
         EmailRequest_tbl request;
         RequestAnalysis reqAnalysis;
         List<WordPerRequest_tbl> requestWord_lst;
+        bool IsFirstOrAutomat;  //If true: AutomatSend, else:FirstLearning;
 
         /// <summary>
         /// Constractor triggered from class Algorithm.
         /// </summary>
         /// <param name="analysis">RequestAnalysis</param>
         /// <param name="req">EmailRequest_tbl</param>
-        public Conclusion(RequestAnalysis analysis, EmailRequest_tbl req)
+        public Conclusion(RequestAnalysis analysis, EmailRequest_tbl req, bool FirstOrAutomat)
         {
             reqAnalysis = analysis;
             request = req;
+            IsFirstOrAutomat = FirstOrAutomat;
         }
 
 
@@ -106,7 +109,6 @@ namespace BLL
         public void IncreasePercentageMatching(WordPerCategory_tbl wpc, int numRequestsForThisCategory)
         {
             wpc.AmountOfUse++;
-            //לבדוק אם יש אופציה שיתחלק באפס
             wpc.MatchPercentage = wpc.AmountOfUse / numRequestsForThisCategory;
             db.SaveChanges();
         }
@@ -179,12 +181,14 @@ namespace BLL
         {
             SendingHistory_tbl history;
             if (sentFrom == -1)
-                history = null;// new SendingHistory_tbl { ID_category = (int)request.ID_category, ID_emailRequest = request.ID_emailRequest, Date = new DateTime(), IsSentAutomat = true };
+            {
+                int statusSending_id = (int)(IsFirstOrAutomat ? StatusKind.AutomatSend : StatusKind.FirstLearning);
+                history =new SendingHistory_tbl { ID_category = (int)request.ID_category, ID_emailRequest = request.ID_emailRequest, Date = new DateTime(), ID_StatusSending = statusSending_id };
+            }
             else
-                history = new SendingHistory_tbl { ID_category = (int)request.ID_category, ID_emailRequest = request.ID_emailRequest, Date = new DateTime(), IsSentAutomat = false, SentFrom = sentFrom };
-
-            //db.SendingHistory_tbl.Add(history);
-            //db.SaveChanges();
+                history = new SendingHistory_tbl { ID_category = (int)request.ID_category, ID_emailRequest = request.ID_emailRequest, Date = new DateTime(), ID_StatusSending = (int)StatusKind.MenuallSent, SentFrom = sentFrom };
+            db.SendingHistory_tbl.Add(history);
+            db.SaveChanges();
         }
 
 

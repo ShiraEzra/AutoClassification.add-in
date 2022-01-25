@@ -18,14 +18,13 @@ namespace DAL
         public int ID_category { get; set; }
         public int ID_emailRequest { get; set; }
         public System.DateTime Date { get; set; }
-        public int ID_sendingAdjustmentStatus { get; set; }
-        public bool IsSentAutomat { get; set; }
+        public int ID_StatusSending { get; set; }
         public Nullable<int> SentFrom { get; set; }
         public Nullable<float> Precision { get; set; }
     
         public virtual Category_tbl Category_tbl { get; set; }
         public virtual Category_tbl Category_tbl1 { get; set; }
         public virtual EmailRequest_tbl EmailRequest_tbl { get; set; }
-        public virtual SendingAdjustmentStatus_tbl SendingAdjustmentStatus_tbl { get; set; }
+        public virtual StatusSending_tbl StatusSending_tbl { get; set; }
     }
 }

@@ -76,10 +76,10 @@
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SendingAdjustmentStatus_tbl.cs">
+    <Compile Include="SendingHistory_tbl.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
-    <Compile Include="SendingHistory_tbl.cs">
+    <Compile Include="StatusSending_tbl.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="User_tbl.cs">

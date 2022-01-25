@@ -10,6 +10,8 @@ namespace BLL
     public class SimilarWords
     {
         const int numOfSimiliarWords = 10;
+        static string[] noSimiliarWords = new string[] { "<h1>האם התכוונת ל-</h1>", "<h1>לא נמצאו תוצאות</h1>" };
+
 
         /// <summary>
         /// Extract similar words from the Html code.
@@ -19,8 +21,11 @@ namespace BLL
         public static List<string> GetSimilarWords(string word)
         {
             string html_ans = GetDataFromSimilarWordsSite(word);
-            if (html_ans.Contains("<h1>האם התכוונת ל-</h1>"))
-                return null;
+            foreach (var item in noSimiliarWords)
+            {
+                if (html_ans.Contains(item))
+                    return null;
+            }
             List<string> similarWords = new List<string>();
             int start = html_ans.IndexOf("data-word");
             html_ans = html_ans.Substring(start);

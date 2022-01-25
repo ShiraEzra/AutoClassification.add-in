@@ -14,8 +14,7 @@ namespace DTO
         public int ID_category { get; set; }
         public int ID_emailRequest { get; set; }
         public System.DateTime Date { get; set; }
-        public int ID_sendingAdjustmentStatus { get; set; }
-        public bool IsSentAutomat { get; set; }
+        public int ID_StatusSending { get; set; }
         public Nullable<int> SentFrom { get; set; }
         public Nullable<float> Precision { get; set; }
 

@@ -36,13 +36,6 @@
           <Property Name="ID_permissionLevel" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="Value_pl" Type="nvarchar" MaxLength="30" Nullable="false" />
         </EntityType>
-        <EntityType Name="SendingAdjustmentStatus_tbl">
-          <Key>
-            <PropertyRef Name="ID_SendingAdjustmentStatus" />
-          </Key>
-          <Property Name="ID_SendingAdjustmentStatus" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="Value_SAStatus" Type="nvarchar" MaxLength="50" Nullable="false" />
-        </EntityType>
         <EntityType Name="SendingHistory_tbl">
           <Key>
             <PropertyRef Name="ID_sendingHistory" />
@@ -51,10 +44,16 @@
           <Property Name="ID_category" Type="int" Nullable="false" />
           <Property Name="ID_emailRequest" Type="int" Nullable="false" />
           <Property Name="Date" Type="date" Nullable="false" />
-          <Property Name="ID_sendingAdjustmentStatus" Type="int" Nullable="false" />
-          <Property Name="IsSentAutomat" Type="bit" Nullable="false" />
+          <Property Name="ID_StatusSending" Type="int" Nullable="false" />
           <Property Name="SentFrom" Type="int" />
           <Property Name="Precision" Type="real" />
+        </EntityType>
+        <EntityType Name="StatusSending_tbl">
+          <Key>
+            <PropertyRef Name="ID_StatusSending" />
+          </Key>
+          <Property Name="ID_StatusSending" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Description_StatusSending" Type="nvarchar" MaxLength="50" Nullable="false" />
         </EntityType>
         <EntityType Name="User_tbl">
           <Key>
@@ -138,14 +137,14 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_SendingHistory_SendingAdjustmentStatus_tbl">
-          <End Role="SendingAdjustmentStatus_tbl" Type="Self.SendingAdjustmentStatus_tbl" Multiplicity="1" />
+          <End Role="StatusSending_tbl" Type="Self.StatusSending_tbl" Multiplicity="1" />
           <End Role="SendingHistory_tbl" Type="Self.SendingHistory_tbl" Multiplicity="*" />
           <ReferentialConstraint>
-            <Principal Role="SendingAdjustmentStatus_tbl">
-              <PropertyRef Name="ID_SendingAdjustmentStatus" />
+            <Principal Role="StatusSending_tbl">
+              <PropertyRef Name="ID_StatusSending" />
             </Principal>
             <Dependent Role="SendingHistory_tbl">
-              <PropertyRef Name="ID_sendingAdjustmentStatus" />
+              <PropertyRef Name="ID_StatusSending" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -213,8 +212,8 @@
           <EntitySet Name="Category_tbl" EntityType="Self.Category_tbl" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="EmailRequest_tbl" EntityType="Self.EmailRequest_tbl" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PermissionLevel_tbl" EntityType="Self.PermissionLevel_tbl" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="SendingAdjustmentStatus_tbl" EntityType="Self.SendingAdjustmentStatus_tbl" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SendingHistory_tbl" EntityType="Self.SendingHistory_tbl" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="StatusSending_tbl" EntityType="Self.StatusSending_tbl" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="User_tbl" EntityType="Self.User_tbl" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Word_tbl" EntityType="Self.Word_tbl" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="WordPerCategory_tbl" EntityType="Self.WordPerCategory_tbl" Schema="dbo" store:Type="Tables" />
@@ -236,7 +235,7 @@
             <End Role="SendingHistory_tbl" EntitySet="SendingHistory_tbl" />
           </AssociationSet>
           <AssociationSet Name="FK_SendingHistory_SendingAdjustmentStatus_tbl" Association="Self.FK_SendingHistory_SendingAdjustmentStatus_tbl">
-            <End Role="SendingAdjustmentStatus_tbl" EntitySet="SendingAdjustmentStatus_tbl" />
+            <End Role="StatusSending_tbl" EntitySet="StatusSending_tbl" />
             <End Role="SendingHistory_tbl" EntitySet="SendingHistory_tbl" />
           </AssociationSet>
           <AssociationSet Name="FK_User_tbl_PermissionLevel_tbl" Association="Self.FK_User_tbl_PermissionLevel_tbl">
@@ -304,14 +303,6 @@
           <Property Name="Value_pl" Type="String" MaxLength="30" FixedLength="false" Unicode="true" Nullable="false" />
           <NavigationProperty Name="User_tbl" Relationship="Self.FK_User_tbl_PermissionLevel_tbl" FromRole="PermissionLevel_tbl" ToRole="User_tbl" />
         </EntityType>
-        <EntityType Name="SendingAdjustmentStatus_tbl">
-          <Key>
-            <PropertyRef Name="ID_SendingAdjustmentStatus" />
-          </Key>
-          <Property Name="ID_SendingAdjustmentStatus" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Value_SAStatus" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
-          <NavigationProperty Name="SendingHistory_tbl" Relationship="Self.FK_SendingHistory_SendingAdjustmentStatus_tbl" FromRole="SendingAdjustmentStatus_tbl" ToRole="SendingHistory_tbl" />
-        </EntityType>
         <EntityType Name="SendingHistory_tbl">
           <Key>
             <PropertyRef Name="ID_sendingHistory" />
@@ -320,14 +311,21 @@
           <Property Name="ID_category" Type="Int32" Nullable="false" />
           <Property Name="ID_emailRequest" Type="Int32" Nullable="false" />
           <Property Name="Date" Type="DateTime" Nullable="false" Precision="0" />
-          <Property Name="ID_sendingAdjustmentStatus" Type="Int32" Nullable="false" />
-          <Property Name="IsSentAutomat" Type="Boolean" Nullable="false" />
+          <Property Name="ID_StatusSending" Type="Int32" Nullable="false" />
           <Property Name="SentFrom" Type="Int32" />
           <Property Name="Precision" Type="Single" />
           <NavigationProperty Name="Category_tbl" Relationship="Self.FK_SendingHistory_Category_tbl" FromRole="SendingHistory_tbl" ToRole="Category_tbl" />
           <NavigationProperty Name="Category_tbl1" Relationship="Self.FK_SendingHistory_Category_tbl1" FromRole="SendingHistory_tbl" ToRole="Category_tbl" />
           <NavigationProperty Name="EmailRequest_tbl" Relationship="Self.FK_SendingHistory_EmailRequest_tbl" FromRole="SendingHistory_tbl" ToRole="EmailRequest_tbl" />
-          <NavigationProperty Name="SendingAdjustmentStatus_tbl" Relationship="Self.FK_SendingHistory_SendingAdjustmentStatus_tbl" FromRole="SendingHistory_tbl" ToRole="SendingAdjustmentStatus_tbl" />
+          <NavigationProperty Name="StatusSending_tbl" Relationship="Self.FK_SendingHistory_SendingAdjustmentStatus_tbl" FromRole="SendingHistory_tbl" ToRole="StatusSending_tbl" />
+        </EntityType>
+        <EntityType Name="StatusSending_tbl">
+          <Key>
+            <PropertyRef Name="ID_StatusSending" />
+          </Key>
+          <Property Name="ID_StatusSending" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Description_StatusSending" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="SendingHistory_tbl" Relationship="Self.FK_SendingHistory_SendingAdjustmentStatus_tbl" FromRole="StatusSending_tbl" ToRole="SendingHistory_tbl" />
         </EntityType>
         <EntityType Name="User_tbl">
           <Key>
@@ -454,14 +452,14 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_SendingHistory_SendingAdjustmentStatus_tbl">
-          <End Role="SendingAdjustmentStatus_tbl" Type="Self.SendingAdjustmentStatus_tbl" Multiplicity="1" />
+          <End Role="StatusSending_tbl" Type="Self.StatusSending_tbl" Multiplicity="1" />
           <End Role="SendingHistory_tbl" Type="Self.SendingHistory_tbl" Multiplicity="*" />
           <ReferentialConstraint>
-            <Principal Role="SendingAdjustmentStatus_tbl">
-              <PropertyRef Name="ID_SendingAdjustmentStatus" />
+            <Principal Role="StatusSending_tbl">
+              <PropertyRef Name="ID_StatusSending" />
             </Principal>
             <Dependent Role="SendingHistory_tbl">
-              <PropertyRef Name="ID_sendingAdjustmentStatus" />
+              <PropertyRef Name="ID_StatusSending" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -493,8 +491,8 @@
           <EntitySet Name="Category_tbl" EntityType="Self.Category_tbl" />
           <EntitySet Name="EmailRequest_tbl" EntityType="Self.EmailRequest_tbl" />
           <EntitySet Name="PermissionLevel_tbl" EntityType="Self.PermissionLevel_tbl" />
-          <EntitySet Name="SendingAdjustmentStatus_tbl" EntityType="Self.SendingAdjustmentStatus_tbl" />
           <EntitySet Name="SendingHistory_tbl" EntityType="Self.SendingHistory_tbl" />
+          <EntitySet Name="StatusSending_tbl" EntityType="Self.StatusSending_tbl" />
           <EntitySet Name="User_tbl" EntityType="Self.User_tbl" />
           <EntitySet Name="Word_tbl" EntityType="Self.Word_tbl" />
           <EntitySet Name="WordPerCategory_tbl" EntityType="Self.WordPerCategory_tbl" />
@@ -528,7 +526,7 @@
             <End Role="User_tbl" EntitySet="User_tbl" />
           </AssociationSet>
           <AssociationSet Name="FK_SendingHistory_SendingAdjustmentStatus_tbl" Association="Self.FK_SendingHistory_SendingAdjustmentStatus_tbl">
-            <End Role="SendingAdjustmentStatus_tbl" EntitySet="SendingAdjustmentStatus_tbl" />
+            <End Role="StatusSending_tbl" EntitySet="StatusSending_tbl" />
             <End Role="SendingHistory_tbl" EntitySet="SendingHistory_tbl" />
           </AssociationSet>
           <AssociationSet Name="FK_WordPerCategory_tbl_Word_tbl" Association="Self.FK_WordPerCategory_tbl_Word_tbl">
@@ -580,14 +578,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="SendingAdjustmentStatus_tbl">
-            <EntityTypeMapping TypeName="AutomaticClassificationDBModel.SendingAdjustmentStatus_tbl">
-              <MappingFragment StoreEntitySet="SendingAdjustmentStatus_tbl">
-                <ScalarProperty Name="ID_SendingAdjustmentStatus" ColumnName="ID_SendingAdjustmentStatus" />
-                <ScalarProperty Name="Value_SAStatus" ColumnName="Value_SAStatus" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="SendingHistory_tbl">
             <EntityTypeMapping TypeName="AutomaticClassificationDBModel.SendingHistory_tbl">
               <MappingFragment StoreEntitySet="SendingHistory_tbl">
@@ -595,10 +585,17 @@
                 <ScalarProperty Name="ID_category" ColumnName="ID_category" />
                 <ScalarProperty Name="ID_emailRequest" ColumnName="ID_emailRequest" />
                 <ScalarProperty Name="Date" ColumnName="Date" />
-                <ScalarProperty Name="ID_sendingAdjustmentStatus" ColumnName="ID_sendingAdjustmentStatus" />
-                <ScalarProperty Name="IsSentAutomat" ColumnName="IsSentAutomat" />
+                <ScalarProperty Name="ID_StatusSending" ColumnName="ID_StatusSending" />
                 <ScalarProperty Name="SentFrom" ColumnName="SentFrom" />
                 <ScalarProperty Name="Precision" ColumnName="Precision" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="StatusSending_tbl">
+            <EntityTypeMapping TypeName="AutomaticClassificationDBModel.StatusSending_tbl">
+              <MappingFragment StoreEntitySet="StatusSending_tbl">
+                <ScalarProperty Name="ID_StatusSending" ColumnName="ID_StatusSending" />
+                <ScalarProperty Name="Description_StatusSending" ColumnName="Description_StatusSending" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

@@ -12,16 +12,16 @@ namespace DAL
     using System;
     using System.Collections.Generic;
     
-    public partial class SendingAdjustmentStatus_tbl
+    public partial class StatusSending_tbl
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public SendingAdjustmentStatus_tbl()
+        public StatusSending_tbl()
         {
             this.SendingHistory_tbl = new HashSet<SendingHistory_tbl>();
         }
     
-        public int ID_SendingAdjustmentStatus { get; set; }
-        public string Value_SAStatus { get; set; }
+        public int ID_StatusSending { get; set; }
+        public string Description_StatusSending { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SendingHistory_tbl> SendingHistory_tbl { get; set; }

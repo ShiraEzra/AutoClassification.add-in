@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 
 namespace BLL
 {
+    public enum Percent { Body_VS_Subject = 50, Similiar = 40, Common = 60 }
+
     public class NaiveBaiseAlgorithm
     {
         AutomaticClassificationDBEntities db = AutomaticClassificationDBEntities.Instance;
@@ -44,7 +46,7 @@ namespace BLL
             request.ID_category = db.Category_tbl.FirstOrDefault(c => c.Name_category == categoryName)?.ID_category;
             SubjetcAnalysis(request.EmailSubject);
             BodyAnalysis(request.EmailContent);
-            InsertConclusionToDB(request);
+            InsertConclusionToDB(request, false);
             return request.Category_tbl.Name_category;
         }
 
@@ -61,7 +63,7 @@ namespace BLL
         {
             EmailRequest_tbl request = new EmailRequest_tbl { EmailSubject = subject, EmailContent = body, SenderEmail = sender, Date = date, EntryId = entryId };
             request.ID_category = AssociateRequestToCategory(request);
-            InsertConclusionToDB(request);
+            InsertConclusionToDB(request, true);
             return request.Category_tbl.Name_category;
         }
 
@@ -192,7 +194,7 @@ namespace BLL
                         prob = probability_mat[word.ID_word - 1, i];
                     else
                         prob = 0.00001f;
-                    prob = prob * 0.6f + prob_similiarWords * 0.4f;   //משקל של 60% להסתברות של המילה עצמה, ו-40% להסתברות של המילים הדומות.
+                    prob = prob * ((float)Percent.Common) /100 + prob_similiarWords * ((float)Percent.Similiar) / 100;   //משקל של 60% להסתברות של המילה עצמה, ו-40% להסתברות של המילים הדומות.
                     categoryProbability_arr[i] *= prob;
                 }
             }
@@ -290,9 +292,9 @@ namespace BLL
                 foreach (var sentence in req_Analysis.BodyAnalysis)
                     totalProbability[i] += sentence.ProbabilitybSentenceForCategory[i];
                 totalProbability[i] /= req_Analysis.BodyAnalysis.Count();
+                totalProbability[i] *= ((float)Percent.Body_VS_Subject) / 100;  //gives 50% for the body
                 //חיבור ההסתברות של גוף המייל עם הנושא
-                totalProbability[i] += req_Analysis.ProbabilitybSubjectForCategory[i];
-                totalProbability[i] /= 2;
+                totalProbability[i] += req_Analysis.ProbabilitybSubjectForCategory[i] * (((float)Percent.Body_VS_Subject) / 100);  //gives 50% for the subject
             }
             return totalProbability;
         }
@@ -320,9 +322,9 @@ namespace BLL
         /// The function calls the functions of Conclusion class, in order to enter into the DB the data of the current email request for system improvement from now on.
         /// </summary>
         /// <param name="request">The emaill request</param>
-        public void InsertConclusionToDB(EmailRequest_tbl request)
+        public void InsertConclusionToDB(EmailRequest_tbl request, bool isAutomat)
         {
-            Conclusion conclusion = new Conclusion(req_Analysis, request);
+            Conclusion conclusion = new Conclusion(req_Analysis, request, isAutomat);
             conclusion.AddEmailRequest_tbl(request);
             conclusion.LearningForNext();
             conclusion.AddSendingHistory_tbl(-1);

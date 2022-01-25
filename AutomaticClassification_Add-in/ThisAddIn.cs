@@ -39,7 +39,7 @@ namespace AutomaticClassification_Add_in
                 //לאחר הלימוד הראשוני - פניות יכנסו בצורה כזו
                 //string nameFolder= algorithm.NewEmailRequest(currentMail.Subject, RelevantBodyOnly(currentMail.Body), currentMail.SenderEmailAddress, currentMail.CreationTime, currentMail.EntryID);
                 
-                MoveDirectory("שירות לקוחות");
+                MoveDirectory(nameFolder);
             }
         }
 
