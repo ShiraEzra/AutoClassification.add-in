@@ -68,7 +68,7 @@ namespace BLL
             int numRequestsForThisCategory = db.EmailRequest_tbl.Where(er => er.ID_category == request.ID_category).Count();
             foreach (var w in words_lst)
             {
-                isExsist = Algorithm.allWords.TryGetValue(w, out word);
+                isExsist = NaiveBaiseAlgorithm.allWords.TryGetValue(w, out word);
                 if (!isExsist)
                     word = AddWord_tbl(w);
                 wordPerCategory = db.WordPerCategory_tbl.Where(wpc => wpc.ID_word == word.ID_word && wpc.ID_category == request.ID_category).FirstOrDefault();
@@ -179,12 +179,12 @@ namespace BLL
         {
             SendingHistory_tbl history;
             if (sentFrom == -1)
-                history = new SendingHistory_tbl { ID_category = (int)request.ID_category, ID_emailRequest = request.ID_emailRequest, Date = new DateTime(), IsSentAutomat = true };
+                history = null;// new SendingHistory_tbl { ID_category = (int)request.ID_category, ID_emailRequest = request.ID_emailRequest, Date = new DateTime(), IsSentAutomat = true };
             else
                 history = new SendingHistory_tbl { ID_category = (int)request.ID_category, ID_emailRequest = request.ID_emailRequest, Date = new DateTime(), IsSentAutomat = false, SentFrom = sentFrom };
 
-            db.SendingHistory_tbl.Add(history);
-            db.SaveChanges();
+            //db.SendingHistory_tbl.Add(history);
+            //db.SaveChanges();
         }
 
 

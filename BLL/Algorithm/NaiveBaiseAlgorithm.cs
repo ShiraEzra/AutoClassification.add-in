@@ -109,7 +109,7 @@ namespace BLL
                 List<List<MorphInfo>> analyzedSentence = Analysis.AnalyzeSentence(sentence);
                 //לטפל במקרה שחוזר נאל= לא מצליח לגשת לספריית אןאלפי
                 req_Analysis.BodyAnalysis[i].NormalizedBodyWords = RemoveIrrelevantWords(analyzedSentence);
-                i++;
+                 i++;
             }
         }
          
@@ -323,8 +323,8 @@ namespace BLL
         public void InsertConclusionToDB(EmailRequest_tbl request)
         {
             Conclusion conclusion = new Conclusion(req_Analysis, request);
-            conclusion.LearningForNext();
             conclusion.AddEmailRequest_tbl(request);
+            conclusion.LearningForNext();
             conclusion.AddSendingHistory_tbl(-1);
         }
     }
