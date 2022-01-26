@@ -1,6 +1,5 @@
 ﻿using DAL;
 using DTO;
-using HebrewNLP.Morphology;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,10 +12,9 @@ namespace BLL
 
     public class NaiveBaiseAlgorithm
     {
-        AutomaticClassificationDBEntities db = AutomaticClassificationDBEntities.Instance;
-
-        float[,] probability_mat;   //A matrix that contains in each cell the probability of a word to belong to a specific category.
-        float[] firstInit_arr;      //An initialized array with the number of email requests for each category.
+        readonly AutomaticClassificationDBEntities db = AutomaticClassificationDBEntities.Instance;
+        readonly float[,] probability_mat;   //A matrix that contains in each cell the probability of a word to belong to a specific category.
+        readonly float[] firstInit_arr;      //An initialized array with the number of email requests for each category.
         RequestAnalysis req_Analysis;    //Object containing the request analysis.
         public static Dictionary<string, Word_tbl> allWords;   //All words from word_tbl as dictionary.
 
@@ -84,37 +82,33 @@ namespace BLL
 
 
         /// <summary>
-        /// Analysis of the subject of the email
+        /// Call for a sentence analysis function from class Analysis.
         /// </summary>
         /// <param name="subject">email subject</param>
         public void SubjetcAnalysis(string subject)
         {
-            List<List<MorphInfo>> analyzedSubject = Analysis.AnalyzeSentence(subject);
-            //לטפל במקרה שחוזר נאל= לא מצליח לגשת לספריית אןאלפי
-            req_Analysis.NormalizedSubjectWords = RemoveIrrelevantWords(analyzedSubject);
+            req_Analysis.NormalizedSubjectWords = subject.AnalysisSentece();
         }
 
 
         /// <summary>
-        /// The function analyzes the body of the email.
+        /// The function analyzes the body of the email, And calls a function analysis function from class Analysis.
         /// </summary>
         /// <param name="body">email body</param>
         public void BodyAnalysis(string body)
         {
-            List<string> bodySplitToSentences = Analysis.SplitToSentences(body);
+            List<string> bodySplitToSentences = body.SplitToSentences();
             //לטפל במקרה שחוזר נאל= לא מצליח לגשת לספריית אןאלפי
             req_Analysis.BodyAnalysis = new BodyContent[(int)(bodySplitToSentences?.Count())];
             int i = 0, numCategories = db.Category_tbl.Count();
             foreach (var sentence in bodySplitToSentences)
             {
                 req_Analysis.BodyAnalysis[i] = new BodyContent(numCategories);
-                List<List<MorphInfo>> analyzedSentence = Analysis.AnalyzeSentence(sentence);
-                //לטפל במקרה שחוזר נאל= לא מצליח לגשת לספריית אןאלפי
-                req_Analysis.BodyAnalysis[i].NormalizedBodyWords = RemoveIrrelevantWords(analyzedSentence);
-                 i++;
+                req_Analysis.BodyAnalysis[i].NormalizedBodyWords = sentence.AnalysisSentece();
+                i++;
             }
         }
-         
+
 
         /// <summary>
         /// The function goes through all the parts of the email request and sends each one separately to the function CalcProbabilityForCategory
@@ -125,36 +119,6 @@ namespace BLL
             req_Analysis.ProbabilitybSubjectForCategory = CalcProbabilityForCategory(req_Analysis.NormalizedSubjectWords, req_Analysis.ProbabilitybSubjectForCategory);
             foreach (var sentence in req_Analysis.BodyAnalysis)
                 sentence.ProbabilitybSentenceForCategory = CalcProbabilityForCategory(sentence.NormalizedBodyWords, sentence.ProbabilitybSentenceForCategory);
-        }
-
-
-        /// <summary>
-        /// The function removes the irrelevant words from the sentence.
-        /// </summary>
-        /// <param name="analyzedSentence">Analyzed sentence. (In addition - the word is normalized to the base form)</param>
-        /// <returns>A list of strings containing the words relevant to the classification.</returns>
-        public List<string> RemoveIrrelevantWords(List<List<MorphInfo>> analyzedSentence)
-        {
-            List<string> rellevantWords = new List<string>();
-            if (analyzedSentence != null)
-                foreach (var item in analyzedSentence)
-                {
-                    MorphInfo firstword = item.FirstOrDefault();
-                    if (IsRrelavantPartOfSpeach(firstword))
-                        rellevantWords.Add(firstword.BaseWordMenukad == null ? firstword.BaseWord : firstword.BaseWordMenukad);
-                }
-            return rellevantWords;
-        }
-
-
-        /// <summary>
-        /// The function checks whether the word is relevant according to the analysis of the word.
-        /// </summary>
-        /// <param name="morphInfo">Analyzed word</param>
-        /// <returns>True- If the word is captivating and relevant. Otherwise - False</returns>
-        public bool IsRrelavantPartOfSpeach(MorphInfo morphInfo)
-        {
-            return morphInfo.PartOfSpeech == PartOfSpeech.VERB || morphInfo.PartOfSpeech == PartOfSpeech.NOUN || morphInfo.PartOfSpeech == PartOfSpeech.ADJECTIVE || morphInfo.PartOfSpeech == PartOfSpeech.PROPER_NOUN;
         }
 
 
@@ -194,7 +158,7 @@ namespace BLL
                         prob = probability_mat[word.ID_word - 1, i];
                     else
                         prob = 0.00001f;
-                    prob = prob * ((float)Percent.Common) /100 + prob_similiarWords * ((float)Percent.Similiar) / 100;   //משקל של 60% להסתברות של המילה עצמה, ו-40% להסתברות של המילים הדומות.
+                    prob = prob * ((float)Percent.Common) / 100 + prob_similiarWords * ((float)Percent.Similiar) / 100;   //משקל של 60% להסתברות של המילה עצמה, ו-40% להסתברות של המילים הדומות.
                     categoryProbability_arr[i] *= prob;
                 }
             }
@@ -261,8 +225,7 @@ namespace BLL
             List<string> similarWords = SimilarWords.GetSimilarWords(word);
             if (similarWords == null)
                 return 0;
-            List<List<MorphInfo>> analyzedWords = Analysis.AnalyzeWords(similarWords.ToArray());
-            List<string> normalizedSimWords = RemoveIrrelevantWords(analyzedWords);
+            List<string> normalizedSimWords = similarWords.ToArray().AnalysisWords();
             float prob = 0;
             int count = 0;
             foreach (var item in normalizedSimWords)
@@ -316,7 +279,7 @@ namespace BLL
                     return i;
             return 0;
         }
-         
+
 
         /// <summary>
         /// The function calls the functions of Conclusion class, in order to enter into the DB the data of the current email request for system improvement from now on.

@@ -1,4 +1,5 @@
 ﻿using HebrewNLP.Morphology;
+using HebrewNLP.Names;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,14 +8,41 @@ using System.Threading.Tasks;
 
 namespace BLL
 {
-    public class Analysis
+    public static class Analysis
     {
+
+        /// <summary>
+        /// The function receives a sentence, activates the AnalyzeSentence function on it. And returns it analyzed without any irrelevant words.
+        /// </summary>
+        /// <param name="sentence">sentence to analysis</param>
+        /// <returns>list of the analyzed words without any irrelevant words.</returns>
+        public static List<string> AnalysisSentece(this string sentence)
+        {
+            List<List<MorphInfo>> analyzedSentence = AnalyzeSentence(sentence);
+            //לטפל במקרה שחוזר נאל= לא מצליח לגשת לספריית אןאלפי
+            return RemoveIrrelevantWords(analyzedSentence);
+        }
+
+
+        /// <summary>
+        /// The function receives an array of words , activates the AnalyzeSentence function on it. And returns it analyzed without any irrelevant words.
+        /// </summary>
+        /// <param name="words">word to analysis</param>
+        /// <returns>list of the analyzed words without any irrelevant words.</returns>
+        public static List<string> AnalysisWords(this string[] words)
+        {
+            List<List<MorphInfo>> analyzedWords = AnalyzeWords(words);
+            //לטפל במקרה שחוזר נאל= לא מצליח לגשת לספריית אןאלפי
+            return RemoveIrrelevantWords(analyzedWords);
+        }
+
+
         /// <summary>
         /// The function splits the string into a list of sentences by using the library HebrewNLP.
         /// </summary>
         /// <param name="allBody">email body</param>
         /// <returns>List of sentences</returns>
-        public static List<string> SplitToSentences(string allBody)
+        public static List<string> SplitToSentences(this string allBody)
         {
             try
             {
@@ -53,7 +81,7 @@ namespace BLL
         /// </summary>
         /// <param name="words"> list of words</param>
         /// <returns>analyzed words</returns>
-        public static List<List<MorphInfo>> AnalyzeWords(string[] words)
+        public static List<List<MorphInfo>> AnalyzeWords(this string[] words)
         {
             try
             {
@@ -64,6 +92,85 @@ namespace BLL
             {
                 return null;
             }
+        }
+
+
+        /// <summary>
+        /// The function analyzes this string and recognize if it's a name using the HebrewNLP library.
+        /// </summary>
+        /// <param name="maybeName">string</param>
+        /// <returns>NameIfo - analysis of maybeName</returns>
+        public static NameInfo NameRecognition(string maybeName)
+        {
+            string[] arrName = new string[] { maybeName };
+            List<NameInfo> options = null;
+            HebrewNLP.HebrewNLP.Password = "3BGkxLKouDk3l7B";
+            try
+            {
+                options = NameAnalyzer.Analyze(arrName);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+            return options.FirstOrDefault();
+        }
+
+
+
+        /// <summary>
+        /// The function removes the irrelevant words from the sentence.
+        /// </summary>
+        /// <param name="analyzedSentence">Analyzed sentence. (In addition - the word is normalized to the base form)</param>
+        /// <returns>A list of strings containing the words relevant to the classification.</returns>
+        public static List<string> RemoveIrrelevantWords(List<List<MorphInfo>> analyzedSentence)
+        {
+            List<string> rellevantWords = new List<string>();
+            if (analyzedSentence != null)
+                foreach (var item in analyzedSentence)
+                {
+                    //לראות איך אפשר לייעל את הבחירה מבין האופציות שחוזרות לי מהספרייה
+                    MorphInfo firstword = CheckName(item);
+                    if (firstword == null)
+                        firstword = item.FirstOrDefault();
+                    if (IsRrelavantPartOfSpeach(firstword))
+                        rellevantWords.Add(firstword.BaseWordMenukad == null ? firstword.BaseWord : firstword.BaseWordMenukad);
+                }
+            return rellevantWords;
+        }
+
+
+        /// <summary>
+        /// The function checks whether the word is relevant according to the analysis of the word.
+        /// </summary>
+        /// <param name="morphInfo">Analyzed word</param>
+        /// <returns>True- If the word is captivating and relevant. Otherwise - False</returns>
+        public static bool IsRrelavantPartOfSpeach(MorphInfo morphInfo)
+        {
+            //לראות איך להתייחס למספר
+            return morphInfo.PartOfSpeech == PartOfSpeech.VERB || morphInfo.PartOfSpeech == PartOfSpeech.NOUN || morphInfo.PartOfSpeech == PartOfSpeech.ADJECTIVE || morphInfo.PartOfSpeech == PartOfSpeech.PROPER_NOUN;
+        }
+
+
+        /// <summary>
+        /// The function gets a list of analysis options for a particular word.
+        ///The function checks if one of the options contains a name.
+        ///If so - sends to a name identification function.If not returns NULL
+        /// </summary>
+        /// <param name="wordsOptions"></param>
+        /// <returns></returns>
+        public static MorphInfo CheckName(List<MorphInfo> wordsOptions)
+        {
+            foreach (var word in wordsOptions)
+            {
+                if (word.PartOfSpeech == PartOfSpeech.PROPER_NOUN)
+                {
+                    NameInfo nameInfo = NameRecognition(word.BaseWord);
+                    if (nameInfo.FirstName > 8 || nameInfo.LastName > 8 || (nameInfo.FirstName >= 5 && nameInfo.LastName >= 5))
+                        return word;
+                }
+            }
+            return null;
         }
     }
 }
