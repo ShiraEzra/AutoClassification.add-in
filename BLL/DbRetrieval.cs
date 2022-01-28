@@ -69,21 +69,21 @@ namespace BLL
         }
 
 
-        //SendingAdjustmentStatus
-        public RequestResult GetAllSendingAdjustmentsStatus()
+        //StatusSending
+        public RequestResult GetAllStatusSending()
         {
 
             List<StatusSending> lst = new List<StatusSending>();
-            foreach (var item in db.SendingAdjustmentStatus_tbl.ToList())
+            foreach (var item in db.StatusSending_tbl.ToList())
             {
                 lst.Add(StatusSending.DalToDto(item));
             }
             return new RequestResult() { Data = lst, Message = "success", Status = true };
         }
 
-        public void AddSendingAdjustmentStatus(StatusSending s)
+        public void AddStatusSending(StatusSending s)
         {
-            db.SendingAdjustmentStatus_tbl.Add(s.DtoTODal());
+            db.StatusSending_tbl.Add(s.DtoTODal());
             db.SaveChanges();
         }
 

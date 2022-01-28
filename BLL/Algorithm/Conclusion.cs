@@ -1,13 +1,15 @@
 ﻿using DAL;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity.Infrastructure;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace BLL
 {
-    public enum StatusKind :byte{ FirstLearning=1, AutomatSend=2, MenuallSent=3}
+    public enum StatusKind : byte { FirstLearning = 1, AutomatSend = 2, MenuallSent = 3 }
     public class Conclusion
     {
         AutomaticClassificationDBEntities db = AutomaticClassificationDBEntities.Instance;
@@ -90,7 +92,7 @@ namespace BLL
         {
             int numRequestsForThisCategory = db.EmailRequest_tbl.Where(er => er.ID_category == request.ID_category).Count();
             WordPerCategory_tbl wordPerCategory = null;
-            Word_tbl word= null;
+            Word_tbl word = null;
             foreach (var wpr in requestWord_lst)
             {
                 word = wpr.Word_tbl;
@@ -135,8 +137,20 @@ namespace BLL
         public Word_tbl AddWord_tbl(string w)
         {
             Word_tbl word = new Word_tbl { Value_word = w };
-            db.Word_tbl.Add(word);
-            db.SaveChanges();
+            try
+            {
+                db.Word_tbl.Add(word);
+                db.SaveChanges();
+            }
+            catch (SqlException ex)
+            {
+                if (ex.Number == 2627 || ex.Number == 2601)  //catch this errors
+                {
+                    // 2627- Unique constraint error
+                    //2601- Duplicated key row error
+                    return db.Word_tbl.FirstOrDefault(wt => wt.Value_word == word.Value_word);
+                }
+            }
             return word;
         }
 
@@ -183,7 +197,7 @@ namespace BLL
             if (sentFrom == -1)
             {
                 int statusSending_id = (int)(IsFirstOrAutomat ? StatusKind.AutomatSend : StatusKind.FirstLearning);
-                history =new SendingHistory_tbl { ID_category = (int)request.ID_category, ID_emailRequest = request.ID_emailRequest, Date = new DateTime(), ID_StatusSending = statusSending_id };
+                history = new SendingHistory_tbl { ID_category = (int)request.ID_category, ID_emailRequest = request.ID_emailRequest, Date = new DateTime(), ID_StatusSending = statusSending_id };
             }
             else
                 history = new SendingHistory_tbl { ID_category = (int)request.ID_category, ID_emailRequest = request.ID_emailRequest, Date = new DateTime(), ID_StatusSending = (int)StatusKind.MenuallSent, SentFrom = sentFrom };
