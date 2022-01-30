@@ -13,14 +13,13 @@ namespace BLL
     public class NaiveBaiseAlgorithm
     {
         readonly AutomaticClassificationDBEntities db = AutomaticClassificationDBEntities.Instance;
-        readonly float[,] probability_mat;   //A matrix that contains in each cell the probability of a word to belong to a specific category.
+        float[,] probability_mat;   //A matrix that contains in each cell the probability of a word to belong to a specific category.
         readonly float[] firstInit_arr;      //An initialized array with the number of email requests for each category.
         RequestAnalysis req_Analysis;    //Object containing the request analysis.
         public static Dictionary<string, Word_tbl> allWords;   //All words from word_tbl as dictionary.
 
         public NaiveBaiseAlgorithm()
         {
-            probability_mat = new float[db.Word_tbl.Count(), db.Category_tbl.Count()];
             req_Analysis = new RequestAnalysis();
             allWords = GetAllWordsAsDictionary();
             firstInit_arr = FirstInitProbability_arr();
@@ -127,8 +126,12 @@ namespace BLL
         /// </summary>
         public void BuildProbabilityMat()
         {
+            int max_IdWord = db.Word_tbl.Max(w => w.ID_word);
+            int max_IdCategory = db.Category_tbl.Max(c => c.ID_category);
+            probability_mat = new float[max_IdWord, max_IdCategory];
             List<WordPerCategory_tbl> wpc_lst = db.WordPerCategory_tbl.ToList();
-            for (int i = 0; i < wpc_lst.Count(); i++)
+            int wpc_count = wpc_lst.Count();
+            for (int i = 0; i < wpc_count; i++)
                 probability_mat[wpc_lst[i].ID_word - 1, wpc_lst[i].ID_category - 1] = (float)wpc_lst[i].MatchPercentage; //קוד המילה/ הקטגוריה הוא המיקום של המילה/ הקטגוריה ברשימה שלהם- כי זה מספור אוטומטי רודף.
         }
 
@@ -195,7 +198,7 @@ namespace BLL
             float[] probability_arr = new float[db.Category_tbl.Count()];
             for (int i = 0; i < probability_arr.Length; i++)
             {
-                int numRequestsForCategory = db.EmailRequest_tbl.Where(e => e.ID_category == i).Count();
+                int numRequestsForCategory = db.EmailRequest_tbl.Where(e => e.ID_category == i+1).Count();
                 probability_arr[i] = numRequestsForCategory;
             }
             return probability_arr;

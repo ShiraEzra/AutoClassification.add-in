@@ -125,16 +125,43 @@ namespace BLL
         /// <returns>A list of strings containing the words relevant to the classification.</returns>
         public static List<string> RemoveIrrelevantWords(List<List<MorphInfo>> analyzedSentence)
         {
+            //לסדר תיעוד
             List<string> rellevantWords = new List<string>();
+            bool isLastwasfirstName = true;
             if (analyzedSentence != null)
                 foreach (var item in analyzedSentence)
                 {
                     //לראות איך אפשר לייעל את הבחירה מבין האופציות שחוזרות לי מהספרייה
-                    MorphInfo firstword = CheckName(item);
-                    if (firstword == null)
-                        firstword = item.FirstOrDefault();
-                    if (IsRrelavantPartOfSpeach(firstword))
-                        rellevantWords.Add(firstword.BaseWordMenukad == null ? firstword.BaseWord : firstword.BaseWordMenukad);
+                    if (IsRrelavantPartOfSpeach(item.FirstOrDefault()))  //אם המילה רלוונטית
+                    {
+                        MorphInfo word = CheckName(item);
+                        if (word != null)
+                        {
+                            if (isLastwasfirstName)  //אם המילה הקודמת הייתה שם פרטי, ועכשיו המילה היא שם משפחה
+                            {
+                                string fullName = rellevantWords.Last() + word.BaseWordMenukad == null ? word.BaseWord : word.BaseWordMenukad;
+                                rellevantWords[rellevantWords.Count() - 1] = fullName;   //מוסיפים את השם משפחה לשם הפרטי כמילה אחת
+                                isLastwasfirstName = false;
+                            }
+                            else
+                            {
+                                rellevantWords.Add(word.BaseWordMenukad == null ? word.BaseWord : word.BaseWordMenukad);
+                                isLastwasfirstName = false;
+                            }
+                        }
+                        else
+                        {
+                            word = CheckParticle(item);   //מילת הקריאה אם קיימת באופציות, אחרת - נאל
+                            if (!OpeningAndclosingWords(word))   //אם לא קיימת אופציה של מילת קריאה, או שהמילה אינה באמת מילת קריאה - ניקח באופן שרירותי את האופציה הראשונה ברשימה
+                            {
+                                word = item.FirstOrDefault();
+                                rellevantWords.Add(word.BaseWordMenukad == null ? word.BaseWord : word.BaseWordMenukad);
+                                isLastwasfirstName = word.PartOfSpeech == PartOfSpeech.PROPER_NOUN ? true : false;
+                            }
+                            else
+                                isLastwasfirstName = false;
+                        }
+                    }
                 }
             return rellevantWords;
         }
@@ -148,6 +175,7 @@ namespace BLL
         public static bool IsRrelavantPartOfSpeach(MorphInfo morphInfo)
         {
             //לראות איך להתייחס למספר
+            //MODAL
             return morphInfo.PartOfSpeech == PartOfSpeech.VERB || morphInfo.PartOfSpeech == PartOfSpeech.NOUN || morphInfo.PartOfSpeech == PartOfSpeech.ADJECTIVE || morphInfo.PartOfSpeech == PartOfSpeech.PROPER_NOUN;
         }
 
@@ -157,8 +185,8 @@ namespace BLL
         ///The function checks if one of the options contains a name.
         ///If so - sends to a name identification function.If not returns NULL
         /// </summary>
-        /// <param name="wordsOptions"></param>
-        /// <returns></returns>
+        /// <param name="wordsOptions">a list of options of analyzed words</param>
+        /// <returns>word / null</returns>
         public static MorphInfo CheckName(List<MorphInfo> wordsOptions)
         {
             foreach (var word in wordsOptions)
@@ -166,11 +194,48 @@ namespace BLL
                 if (word.PartOfSpeech == PartOfSpeech.PROPER_NOUN)
                 {
                     NameInfo nameInfo = NameRecognition(word.BaseWord);
+                    if (nameInfo == null)
+                        return null;
                     if (nameInfo.FirstName > 8 || nameInfo.LastName > 8 || (nameInfo.FirstName >= 5 && nameInfo.LastName >= 5))
                         return word;
                 }
             }
             return null;
+        }
+
+
+        /// <summary>
+        /// The function receives a list of options of analyzed words and returns true if one of all the options is a word, otherwise false.
+        /// </summary>
+        /// <param name="wordsOptions">a list of options of analyzed words</param>
+        /// <returns>word / null</returns>
+        public static MorphInfo CheckParticle(List<MorphInfo> wordsOptions)
+        {
+            foreach (var word in wordsOptions)
+            {
+                if (word.PartOfSpeech == PartOfSpeech.PARTICLE)
+                    return word;
+            }
+            return null;
+        }
+
+
+        /// <summary>
+        /// The function builds a list of opening words and ending words.
+        ///Returns whether the word she received is an opening / closing word or not.
+        /// </summary>
+        /// <param name="word">word (as MorphInfo)</param>
+        /// <returns>whether the word she received is an opening / closing word or not.</returns>
+        public static bool OpeningAndclosingWords(MorphInfo word)
+        {
+            if (word != null)
+            {
+                List<string> commonWords = new List<string>() { "הי", "היי", "שלום", "תודה", "בבקשה", "בברכה", "רב", "רבה" };
+                //List<string> commonPairWords = new List<string>() { "תודה רבה", "שבת שלום", "בוקר טוב", "בוקר אור", "צהריים טובים", "ערב טוב" };
+                if (commonWords.Contains(word.BaseWord))
+                    return true;
+            }
+            return false;
         }
     }
 }

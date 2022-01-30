@@ -14,7 +14,7 @@ namespace AutomaticClassification_Add_in
     public partial class ThisAddIn
     {
 
-        Outlook.MailItem currentMail = null;
+        //Outlook.MailItem currentMail = null;
         Outlook.MAPIFolder oInbox = null;
         AutomaticClassificationDBEntities db = AutomaticClassificationDBEntities.Instance;
 
@@ -22,28 +22,43 @@ namespace AutomaticClassification_Add_in
         /// <summary>
         /// Function performed when entering a new email
         /// </summary>
-        private void GetNewMail()
+        void GetNewMail()
         {
             Outlook.Items oItems = oInbox.Items;
             Outlook.Items unReadItems = oItems.Restrict("[Unread]=true");
-            //List<Outlook.MailItem> unReadMails = new List<Outlook.MailItem>();
-            //foreach (var item in unReadItems)
-            //    unReadMails.Add((Outlook.MailItem)item);
-            currentMail = (Outlook.MailItem)unReadItems.GetLast();
-            if (currentMail != null)
+            List<Outlook.MailItem> unReadMails = new List<Outlook.MailItem>();
+            foreach (var unRead in unReadItems)
+                unReadMails.Add((Outlook.MailItem)unRead);
+            foreach (var mail in unReadMails)
             {
-                MessageBox.Show("got a new mail.  Activates the algorithm");
+                MessageBox.Show("got a new mail.  Activates the algorithm.\n "+ mail.Subject);
                 NaiveBaiseAlgorithm algorithm = new NaiveBaiseAlgorithm();
-                //הכנסה  ל-דטה בייס בעבור לימוד ראשוני
 
-                string nameFolder = algorithm.FirstInitDB_NewMail(currentMail.Subject, RelevantBodyOnly(currentMail.Body), currentMail.SenderEmailAddress, currentMail.CreationTime, currentMail.EntryID, "שירות לקוחות");
-                MessageBox.Show(nameFolder);
+                //הכנסה  ל-דטה בייס בעבור לימוד ראשוני
+                 string nameFolder = algorithm.FirstInitDB_NewMail(mail.Subject, RelevantBodyOnly(mail.Body), mail.SenderEmailAddress, mail.CreationTime, mail.EntryID, "שירות לקוחות");
+                 MessageBox.Show(nameFolder);
 
                 //לאחר הלימוד הראשוני - פניות יכנסו בצורה כזו
                 //string nameFolder= algorithm.NewEmailRequest(currentMail.Subject, RelevantBodyOnly(currentMail.Body), currentMail.SenderEmailAddress, currentMail.CreationTime, currentMail.EntryID);
 
-                MoveDirectory(nameFolder);
+                  MoveDirectory(mail,nameFolder);
             }
+
+            //currentMail = (Outlook.MailItem)unReadItems.GetLast();
+            //if (currentMail != null)
+            //{
+            //    MessageBox.Show("got a new mail.  Activates the algorithm");
+            //    NaiveBaiseAlgorithm algorithm = new NaiveBaiseAlgorithm();
+            //    //הכנסה  ל-דטה בייס בעבור לימוד ראשוני
+
+            //    string nameFolder = algorithm.FirstInitDB_NewMail(currentMail.Subject, RelevantBodyOnly(currentMail.Body), currentMail.SenderEmailAddress, currentMail.CreationTime, currentMail.EntryID, "שירות לקוחות");
+            //    MessageBox.Show(nameFolder);
+
+            //    //לאחר הלימוד הראשוני - פניות יכנסו בצורה כזו
+            //    //string nameFolder= algorithm.NewEmailRequest(currentMail.Subject, RelevantBodyOnly(currentMail.Body), currentMail.SenderEmailAddress, currentMail.CreationTime, currentMail.EntryID);
+
+            //    MoveDirectory(nameFolder);
+            //}
         }
 
 
@@ -55,7 +70,7 @@ namespace AutomaticClassification_Add_in
         private string RelevantBodyOnly(string body)
         {
             int startFirstTag = body.IndexOf("<https");
-            string relevantBody= body.Substring(0, startFirstTag);
+            string relevantBody = body.Substring(0, startFirstTag);
             MessageBox.Show("Body: " + relevantBody);
             return relevantBody;
 
@@ -71,10 +86,10 @@ namespace AutomaticClassification_Add_in
         /// The function moves the current e-mail to the requested folder. (The category selected by the algorithm.)
         /// </summary>
         /// <param name="nameFolder">The directory to which the email should be forwarded</param>
-        private void MoveDirectory(string nameFolder)
+        private void MoveDirectory(Outlook.MailItem mail, string nameFolder)
         {
             Outlook.MAPIFolder destFolder = oInbox.Folders[nameFolder];
-            currentMail?.Move(destFolder);
+            mail.Move(destFolder);
         }
 
 
@@ -82,15 +97,18 @@ namespace AutomaticClassification_Add_in
         /// A function that is performed whenever an email enters this folder.
         /// </summary>
         /// <param name="item">The email added</param>
-        private void AddMailToDirectory(object item)
+        void AddMailToDirectory(object item)
         {
             MessageBox.Show("hii - tryin notify when new mail arrived to this directory");
             var p = ((Outlook.MailItem)item).Parent;
+
             if (p is Outlook.MAPIFolder folder)
             {
-                EmailRequest_tbl req = db.EmailRequest_tbl.Single(e => e.EntryId == ((Outlook.MailItem)item).EntryID);
-                if (folder.Name == req.Category_tbl.Name_category)
-                    ReducingProbability.ChangeCategory(req, folder.Name);
+                //EmailRequest_tbl req = db.EmailRequest_tbl.Single(e => e.EntryId == ((Outlook.MailItem)item).EntryID);
+                //if (folder.Name == req.Category_tbl.Name_category)
+                //    ReducingProbability.ChangeCategory(req, folder.Name);
+
+                //שם התקיה יהיה שם התקיה החדשה שאליה הועבר המייל
             }
         }
 
@@ -117,6 +135,7 @@ namespace AutomaticClassification_Add_in
             Outlook.NameSpace oNS = this.Application.GetNamespace("mapi");
             oInbox = oNS.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderInbox);
 
+            //oInbox.Items.ItemAdd += GetNewMail;
 
             Outlook.MAPIFolder destFolder = oInbox.Folders["שירות לקוחות"];
             //העמסת המתודה לאירוע שיתרחש בכל פעם שיתווסף מייל חדש לתקיה זו
@@ -125,7 +144,7 @@ namespace AutomaticClassification_Add_in
             ////העמסת המתודה לאירוע שיתרחש בכל פעם שימחק מייל  מתקיה זו
             //destFolder.Items.ItemRemove += ChangeMailFromDirectory;
 
-            GetNewMail();
+            //GetNewMail();
             //MoveDirectory("שירות לקוחות");
         }
 

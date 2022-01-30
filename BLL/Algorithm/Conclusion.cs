@@ -12,7 +12,7 @@ namespace BLL
     public enum StatusKind : byte { FirstLearning = 1, AutomatSend = 2, MenuallSent = 3 }
     public class Conclusion
     {
-        AutomaticClassificationDBEntities db = AutomaticClassificationDBEntities.Instance;
+        static AutomaticClassificationDBEntities db = AutomaticClassificationDBEntities.Instance;
 
         EmailRequest_tbl request;
         RequestAnalysis reqAnalysis;
@@ -142,19 +142,19 @@ namespace BLL
                 db.Word_tbl.Add(word);
                 db.SaveChanges();
             }
-            catch (SqlException ex)
+            catch (DbUpdateException e)
+                    when (e.InnerException?.InnerException is SqlException sqlEx &&
+                    (sqlEx.Number == 2601 || sqlEx.Number == 2627))
             {
-                if (ex.Number == 2627 || ex.Number == 2601)  //catch this errors
-                {
-                    // 2627- Unique constraint error
-                    //2601- Duplicated key row error
-                    return db.Word_tbl.FirstOrDefault(wt => wt.Value_word == word.Value_word);
-                }
+                //catch this errors:
+                // 2627- Unique constraint error
+                //2601- Duplicated key row error
+                return db.Word_tbl.FirstOrDefault(wt => wt.Value_word == word.Value_word);
             }
             return word;
         }
 
-
+      
         /// <summary>
         /// Add instance to wordPerCategory_tbl
         /// </summary>

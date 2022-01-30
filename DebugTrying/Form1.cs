@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.Entity.Infrastructure;
+using System.Data.SqlClient;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -24,7 +26,7 @@ namespace DebugTrying
         private void btn_invokeFuncGetNewMail_Click(object sender, EventArgs e)
         {
             NaiveBaiseAlgorithm algorithm = new NaiveBaiseAlgorithm();
-            algorithm.NewEmailRequest("משכנתא לקניית דירה", "", "shira0556791045@gmail.com", DateTime.Now, "36636520gfvhgj");
+            algorithm.FirstInitDB_NewMail("משכנתא לקניית דירה", "", "shira0556791045@gmail.com", DateTime.Now, "36636520gfvhgj", "שירות לקוחות");
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -69,6 +71,32 @@ namespace DebugTrying
             //Word_tbl wo = new Word_tbl() { Value_word = "עקב", ID_wordType = 2 };
             //db.Word_tbl.Add(wo);
             //db.SaveChanges();
+        }
+
+        private void btnTryingDuplicateWord_Click(object sender, EventArgs e)
+        {
+            Word_tbl w= AddDuplicateWord_tbl("דִּירָה");
+        }
+
+
+        public Word_tbl AddDuplicateWord_tbl(string w)
+        {
+            Word_tbl word = new Word_tbl { Value_word = w };
+            try
+            {
+                db.Word_tbl.Add(word);
+                db.SaveChanges();
+            }
+            catch (DbUpdateException e)
+                   when (e.InnerException?.InnerException is SqlException sqlEx &&
+                   (sqlEx.Number == 2601 || sqlEx.Number == 2627))
+            {
+                //catch this errors:
+                // 2627- Unique constraint error
+                //2601- Duplicated key row error
+                return db.Word_tbl.FirstOrDefault(wt => wt.Value_word == word.Value_word);
+            }
+            return word;
         }
     }
 }
