@@ -32,17 +32,16 @@ namespace AutomaticClassification_Add_in
                 unReadMails.Add((Outlook.MailItem)unRead);
             foreach (var mail in unReadMails)
             {
-                MessageBox.Show("got a new mail.  Activates the algorithm.\n "+ mail.Subject);
+                MessageBox.Show("got a new mail.  Activates the algorithm.\n " + mail.Subject);
                 NaiveBaiseAlgorithm algorithm = new NaiveBaiseAlgorithm();
 
                 //הכנסה  ל-דטה בייס בעבור לימוד ראשוני
-                 string nameFolder = algorithm.FirstInitDB_NewMail(mail.Subject, RelevantBodyOnly(mail.Body), mail.SenderEmailAddress, mail.CreationTime, mail.EntryID, "שירות לקוחות");
-                 MessageBox.Show(nameFolder);
-
+                string nameFolder = algorithm.FirstInitDB_NewMail(mail.ConversationTopic, RelevantBodyOnly(mail.Body), mail.SenderEmailAddress, mail.CreationTime, mail.EntryID, "שירות לקוחות");
+                MessageBox.Show(nameFolder);
                 //לאחר הלימוד הראשוני - פניות יכנסו בצורה כזו
                 //string nameFolder= algorithm.NewEmailRequest(currentMail.Subject, RelevantBodyOnly(currentMail.Body), currentMail.SenderEmailAddress, currentMail.CreationTime, currentMail.EntryID);
 
-                  MoveDirectory(mail,nameFolder);
+                MoveDirectory(mail, nameFolder);
             }
 
             //currentMail = (Outlook.MailItem)unReadItems.GetLast();
@@ -70,16 +69,21 @@ namespace AutomaticClassification_Add_in
         /// <returns>Relevant email body only</returns>
         private string RelevantBodyOnly(string body)
         {
-            int startFirstTag = body.IndexOf("<https");
-            string relevantBody = body.Substring(0, startFirstTag);
-            MessageBox.Show("Body: " + relevantBody);
-            return relevantBody;
+            if (body.Contains("---------- Forwarded message ---------"))
+            {
+                int endFarwardMessage = body.IndexOf("To:");
+                endFarwardMessage = body.IndexOf(">", endFarwardMessage + 1);
+                endFarwardMessage = body.IndexOf(">", endFarwardMessage + 1);
+                body = body.Substring(endFarwardMessage + 1);
+            }
+            if (body.Contains("<https"))
+            {
+                int startFirstTag = body.IndexOf("<https");
+                body = body.Substring(0, startFirstTag);
+            }
 
-
-            //לטפל במקרה שהמייל מועבר/ מתקבל בצורה שונה עם תוספות בתחילה
-            //body= body.Substring(startFirstTag, body.Length);
-            //int endFirstTag = body.IndexOf(">");
-            //return body.Substring(endFirstTag, body.Length);
+            MessageBox.Show("Body: " + body);
+            return body;
         }
 
 
