@@ -47,8 +47,8 @@ namespace BLL
                 //לבדוק אם יש אופציה שיתחלק באפס
                 if (wpc.AmountOfUse == 0)
                     db.WordPerCategory_tbl.Remove(wpc);
-                else
-                    wpc.MatchPercentage = wpc.AmountOfUse / numRequestsForThisCategory;
+                //else
+                    //wpc.MatchPercentage = wpc.AmountOfUse / numRequestsForThisCategory;
                 db.SaveChanges();
             }
         }

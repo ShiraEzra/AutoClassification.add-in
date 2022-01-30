@@ -187,7 +187,7 @@ namespace BLL
         public float[] CalcProbabilityForCategory(List<string> contentWords_lst, Dictionary<string, Word_tbl> allWords, float[] categoryProbability_arr, float[,] probability_mat)
         {
             Word_tbl word;
-            float prob_similiarWords = 0, prob = 0;
+            float prob_similiarWords = 0;
             //לבדוק האם מילה קיימת בדטה בייס. אם כן- להכפיל בערך של המיקום שלו במטריצה. אם לא- לבדוק באתר מילים דומות. ואם גם זה לא להכפיל ב- 0.00001
             foreach (var w in contentWords_lst)
             {

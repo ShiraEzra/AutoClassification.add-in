@@ -24,6 +24,7 @@ namespace AutomaticClassification_Add_in
         /// </summary>
         void GetNewMail()
         {
+            MessageBox.Show("understood");
             Outlook.Items oItems = oInbox.Items;
             Outlook.Items unReadItems = oItems.Restrict("[Unread]=true");
             List<Outlook.MailItem> unReadMails = new List<Outlook.MailItem>();
@@ -105,11 +106,13 @@ namespace AutomaticClassification_Add_in
             if (p is Outlook.MAPIFolder folder)
             {
                 //EmailRequest_tbl req = db.EmailRequest_tbl.Single(e => e.EntryId == ((Outlook.MailItem)item).EntryID);
-                //if (folder.Name == req.Category_tbl.Name_category)
+                //if (folder.Name != req.Category_tbl.Name_category)
                 //    ReducingProbability.ChangeCategory(req, folder.Name);
 
                 //שם התקיה יהיה שם התקיה החדשה שאליה הועבר המייל
             }
+
+            //לראות אם לאפשר העברת מייל לדואר נכנס - ז"א להוריד את אחוזי ההסתברות ולא להוסיף לשום קטגוריה= להשאיר בדואר הנכנס
         }
 
 
@@ -123,6 +126,24 @@ namespace AutomaticClassification_Add_in
 
 
         /// <summary>
+        /// The function goes through the folders of the categories.
+        ///And loads  AddMailToDirectory method for each category.
+        ///To allow manual change of address to another category.
+        /// </summary>
+        private void LoadAddItemMethodToAllCategoryFolders()
+        {
+            var categories_lst = db.Category_tbl.ToList();
+            Outlook.MAPIFolder destFolder;
+            foreach (var category in categories_lst)
+            {
+                destFolder = oInbox.Folders[category.Name_category];
+                //העמסת המתודה לאירוע שיתרחש בכל פעם שיתווסף מייל חדש לתקיה זו
+                destFolder.Items.ItemAdd += AddMailToDirectory;
+            }
+        }
+
+
+        /// <summary>
         /// A function that is performed when opening the Outlook application
         /// </summary>
         /// <param name="sender"></param>
@@ -130,16 +151,15 @@ namespace AutomaticClassification_Add_in
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
             //העמסת מתודה שתתבצע בכל פעם שיכנס מייל חדש
-            this.Application.NewMail += GetNewMail;
+            this.Application.NewMail += GetNewMail;   //מה הההבדל בין שני הסוגים?
+            //this.Application.NewMail += new Microsoft.Office.Interop.Outlook.ApplicationEvents_11_NewMailEventHandler(GetNewMail);
 
             Outlook.NameSpace oNS = this.Application.GetNamespace("mapi");
             oInbox = oNS.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderInbox);
 
             //oInbox.Items.ItemAdd += GetNewMail;
 
-            Outlook.MAPIFolder destFolder = oInbox.Folders["שירות לקוחות"];
-            //העמסת המתודה לאירוע שיתרחש בכל פעם שיתווסף מייל חדש לתקיה זו
-            destFolder.Items.ItemAdd += AddMailToDirectory;
+            LoadAddItemMethodToAllCategoryFolders();
 
             ////העמסת המתודה לאירוע שיתרחש בכל פעם שימחק מייל  מתקיה זו
             //destFolder.Items.ItemRemove += ChangeMailFromDirectory;

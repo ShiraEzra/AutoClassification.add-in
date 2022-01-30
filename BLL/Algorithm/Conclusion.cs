@@ -111,7 +111,7 @@ namespace BLL
         public void IncreasePercentageMatching(WordPerCategory_tbl wpc, int numRequestsForThisCategory)
         {
             wpc.AmountOfUse++;
-            wpc.MatchPercentage = wpc.AmountOfUse / numRequestsForThisCategory;
+            //wpc.MatchPercentage = wpc.AmountOfUse / numRequestsForThisCategory;
             db.SaveChanges();
         }
 
@@ -168,7 +168,7 @@ namespace BLL
                 ID_word = word.ID_word,
                 ID_category = category_id,
                 AmountOfUse = 0,   //צריך לאתחל?
-                MatchPercentage = 0   //צריך לאתחל?
+                //MatchPercentage = 0   //צריך לאתחל?
             };
             db.WordPerCategory_tbl.Add(wordPerCategory);
             db.SaveChanges();

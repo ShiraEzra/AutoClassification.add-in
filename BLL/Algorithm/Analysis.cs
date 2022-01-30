@@ -117,7 +117,6 @@ namespace BLL
         }
 
 
-
         /// <summary>
         /// The function removes the irrelevant words from the sentence.
         /// </summary>
@@ -213,7 +212,7 @@ namespace BLL
         {
             foreach (var word in wordsOptions)
             {
-                if (word.PartOfSpeech == PartOfSpeech.PARTICLE)
+                if (word.PartOfSpeech == PartOfSpeech.PARTICLE || word.PartOfSpeech == PartOfSpeech.INTERJECTION || word.PartOfSpeech == PartOfSpeech.PROPER_NOUN)
                     return word;
             }
             return null;
@@ -230,7 +229,7 @@ namespace BLL
         {
             if (word != null)
             {
-                List<string> commonWords = new List<string>() { "הי", "היי", "שלום", "תודה", "בבקשה", "בברכה", "רב", "רבה" };
+                List<string> commonWords = new List<string>() { "הי", "היי", "שלומ", "תודה", "בבקשה", "ברכה", "רב", "רבה" };
                 //List<string> commonPairWords = new List<string>() { "תודה רבה", "שבת שלום", "בוקר טוב", "בוקר אור", "צהריים טובים", "ערב טוב" };
                 if (commonWords.Contains(word.BaseWord))
                     return true;

@@ -131,8 +131,14 @@ namespace BLL
             probability_mat = new float[max_IdWord, max_IdCategory];
             List<WordPerCategory_tbl> wpc_lst = db.WordPerCategory_tbl.ToList();
             int wpc_count = wpc_lst.Count();
+            int idWord, idCategory;
             for (int i = 0; i < wpc_count; i++)
-                probability_mat[wpc_lst[i].ID_word - 1, wpc_lst[i].ID_category - 1] = (float)wpc_lst[i].MatchPercentage; //קוד המילה/ הקטגוריה הוא המיקום של המילה/ הקטגוריה ברשימה שלהם- כי זה מספור אוטומטי רודף.
+            {
+                idWord = wpc_lst[i].ID_word - 1;
+                idCategory = wpc_lst[i].ID_category - 1;
+                //קוד המילה/ הקטגוריה הוא המיקום של המילה/ הקטגוריה ברשימה שלהם- כי זה מספור אוטומטי רודף.
+                probability_mat[idWord, idCategory] = (float)wpc_lst[i].AmountOfUse / firstInit_arr[idCategory]; 
+            }
         }
 
 
@@ -181,9 +187,9 @@ namespace BLL
             probability_arr = new float[firstInit_arr.Length];
             if (flag)
                 firstInit_arr.CopyTo(probability_arr, 0);
-            else    //לבדוק אם באמת צריך לאפס
-                for (int i = 0; i < probability_arr.Length; i++)
-                    probability_arr[i] = 0;
+            //else    //לבדוק אם באמת צריך לאפס
+            //    for (int i = 0; i < probability_arr.Length; i++)
+            //        probability_arr[i] = 0;
             return probability_arr;
         }
 
@@ -273,7 +279,7 @@ namespace BLL
         /// <returns>index of the category with the highest probability.</returns>
         public int IndexMaxProbability(float[] probability_arr)  //לא השתמשתי עדיין
         {
-            //לראות אולי צאיך לבצע בדיקה יותר חחכמה מחיפוש שרירותי אחר המקסימום
+            //לראות אולי צריך לבצע בדיקה יותר חחכמה מחיפוש שרירותי אחר המקסימום
             //אם יש כמה קטגוריות שקרובות למקס, צריך לבצע בדיקות נוספות לדוגמא: אנשי קשר
 
             float maxValue = probability_arr.Max();
