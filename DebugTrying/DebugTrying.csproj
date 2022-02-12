@@ -101,6 +101,10 @@
       <Project>{CF768E90-29D6-4D70-BDCF-6062C31FC8DE}</Project>
       <Name>DAL</Name>
     </ProjectReference>
+    <ProjectReference Include="..\HebrewNLP\HebrewNLP\HebrewNLP.csproj">
+      <Project>{D096CC36-7C7F-49F5-879A-4A55E6CF20C0}</Project>
+      <Name>HebrewNLP</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

@@ -17,6 +17,7 @@ namespace BLL
         readonly float[] firstInit_arr;      //An initialized array with the number of email requests for each category.
         RequestAnalysis req_Analysis;    //Object containing the request analysis.
         public static Dictionary<string, Word_tbl> allWords;   //All words from word_tbl as dictionary.
+        const int numEndSentences = 3;
 
         public NaiveBaiseAlgorithm()
         {
@@ -39,6 +40,7 @@ namespace BLL
         /// <param name="categoryName">the category to which this email request belongs</param>
         public string FirstInitDB_NewMail(string subject, string body, string sender, DateTime date, string entryId, string categoryName)
         {
+            //EmailRequest_tbl request = db.EmailRequest_tbl.Single(er => er.ID_emailRequest == 4);
             EmailRequest_tbl request = new EmailRequest_tbl { EmailSubject = subject, EmailContent = body, SenderEmail = sender, Date = date, EntryId = entryId };
             request.ID_category = db.Category_tbl.FirstOrDefault(c => c.Name_category == categoryName)?.ID_category;
             SubjetcAnalysis(request.EmailSubject);
@@ -86,6 +88,7 @@ namespace BLL
         /// <param name="subject">email subject</param>
         public void SubjetcAnalysis(string subject)
         {
+            subject = subject.RemoveOpeningWords();
             req_Analysis.NormalizedSubjectWords = subject.AnalysisSentece();
         }
 
@@ -99,11 +102,17 @@ namespace BLL
             List<string> bodySplitToSentences = body.SplitToSentences();
             //לטפל במקרה שחוזר נאל= לא מצליח לגשת לספריית אןאלפי
             req_Analysis.BodyAnalysis = new BodyContent[(int)(bodySplitToSentences?.Count())];
-            int i = 0, numCategories = db.Category_tbl.Count();
+            int i = 0, numCategories = db.Category_tbl.Count(), numSentences = bodySplitToSentences.Count();
+            string s;
             foreach (var sentence in bodySplitToSentences)
             {
+                s = sentence;
+                if (i == 0)  //משפט פתיחה
+                    s = sentence.RemoveOpeningWords();
+                if (i > numSentences - numEndSentences) //שלושת המשפטים האחרונים- משפטי סיום
+                    s = s.RemoveEndWords();
                 req_Analysis.BodyAnalysis[i] = new BodyContent(numCategories);
-                req_Analysis.BodyAnalysis[i].NormalizedBodyWords = sentence.AnalysisSentece();
+                req_Analysis.BodyAnalysis[i].NormalizedBodyWords = s.AnalysisSentece();
                 i++;
             }
         }
@@ -137,7 +146,7 @@ namespace BLL
                 idWord = wpc_lst[i].ID_word - 1;
                 idCategory = wpc_lst[i].ID_category - 1;
                 //קוד המילה/ הקטגוריה הוא המיקום של המילה/ הקטגוריה ברשימה שלהם- כי זה מספור אוטומטי רודף.
-                probability_mat[idWord, idCategory] = (float)wpc_lst[i].AmountOfUse / firstInit_arr[idCategory]; 
+                probability_mat[idWord, idCategory] = (float)wpc_lst[i].AmountOfUse / firstInit_arr[idCategory];
             }
         }
 
@@ -204,7 +213,7 @@ namespace BLL
             float[] probability_arr = new float[db.Category_tbl.Count()];
             for (int i = 0; i < probability_arr.Length; i++)
             {
-                int numRequestsForCategory = db.EmailRequest_tbl.Where(e => e.ID_category == i+1).Count();
+                int numRequestsForCategory = db.EmailRequest_tbl.Where(e => e.ID_category == i + 1).Count();
                 probability_arr[i] = numRequestsForCategory;
             }
             return probability_arr;
@@ -297,7 +306,7 @@ namespace BLL
         public void InsertConclusionToDB(EmailRequest_tbl request, bool isAutomat)
         {
             Conclusion conclusion = new Conclusion(req_Analysis, request, isAutomat);
-            conclusion.AddEmailRequest_tbl(request);
+            // conclusion.AddEmailRequest_tbl(request);
             conclusion.LearningForNext();
             conclusion.AddSendingHistory_tbl(-1);
         }

@@ -64,15 +64,15 @@ namespace BLL
         /// <returns>analyzed sentence   (as MorphInfo list)</returns>
         public static List<List<MorphInfo>> AnalyzeSentence(string sentence)
         {
-            try
-            {
-                HebrewNLP.HebrewNLP.Password = "3BGkxLKouDk3l7B";
-                return HebrewMorphology.AnalyzeSentence(sentence);
-            }
-            catch (Exception)
-            {
-                return null;
-            }
+            //try
+            //{
+            HebrewNLP.HebrewNLP.Password = "3BGkxLKouDk3l7B";
+            return HebrewMorphology.AnalyzeSentence(sentence);
+            //}
+            //catch (Exception)
+            //{
+            //    return null;
+            //}
         }
 
 
@@ -235,6 +235,33 @@ namespace BLL
                     return true;
             }
             return false;
+        }
+
+        public static string RemoveOpeningWords(this string sentence)
+        {
+            //איך עושים ניתוב יחסי?
+            string[] openingWords = System.IO.File.ReadAllLines(@"C:\Users\Public\TestFolder\WriteLines2.txt");
+            return RemoveWords(sentence, openingWords);
+        }
+
+        public static string RemoveEndWords(this string sentence)
+        {
+            //איך עושים ניתוב יחסי?
+            string[] endWords = System.IO.File.ReadAllLines(@"C:\Users\Public\TestFolder\WriteLines2.txt");
+            return RemoveWords(sentence, endWords);
+        }
+
+        public static string RemoveWords(string sentence, string[] WordsToRemove)
+        {
+            int start;
+            foreach (var item in WordsToRemove)
+            {
+                //לראות האם יש פונקתיה שמוציאה מחזרוזת מסוימת מתוך מחרוזת
+                start = sentence.IndexOf(item);
+                if (start >= 0)
+                    sentence = sentence.Substring(0, start) + sentence.Substring(start + item.Length);
+            }
+            return sentence;
         }
     }
 }

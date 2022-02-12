@@ -19,6 +19,8 @@ namespace AutomaticClassification_Add_in
         AutomaticClassificationDBEntities db = AutomaticClassificationDBEntities.Instance;
 
 
+        //לבטל את ה-4 מילים הראשונות מהמייל בדואר נכנס, ולהריץ אותו מהפרויטק הרצה - לבדוק למה נפל
+
         /// <summary>
         /// Function performed when entering a new email
         /// </summary>
