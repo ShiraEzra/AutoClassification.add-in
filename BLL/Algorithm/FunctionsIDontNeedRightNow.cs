@@ -30,9 +30,9 @@ namespace BLL
         /// <returns></returns>
         public string[] RemovingIrrelevantCharacters(string sentence)
         {
-            string result = Regex.Replace(sentence, @"[!-@, [-`, {-~]", " "); // delete every char that suitable to the condition.
+            sentence = Regex.Replace(sentence, @"[!-@, [-`, {-~]", " "); // delete every char that suitable to the condition.
             char[] separators = new char[] { ' ', '\n', '\t', '\r' };
-            string[] wordsSentence = result.Split(separators);     //take out the separators.
+            string[] wordsSentence = sentence.Split(separators);     //take out the separators.
             //wordsSentence= wordsSentence.Where(w => w.Length > 1).ToArray(); //remove words with 1 character (=not words);
             //return ConnectingArrayItemsToSentence(wordsSentence);      //return the sentence with out IrrelevantCharacters.
             return wordsSentence.Where(w => w.Length > 1).ToArray();
@@ -209,5 +209,19 @@ namespace BLL
             return categoryProbability_arr;
         }
 
+
+        /// <summary>
+        /// The function goes through all the words similar to the words from the email request which existing  in DB,
+        /// and adds them to WordPerCategory table
+        /// </summary>
+        /// <param name="similiarwords">List of similar words</param>
+        public void SavingSimiliarwordsForRequest(List<Word_tbl> similiarwords)
+        {
+            foreach (var simWord in similiarwords)
+            {
+               // AddWordPerRequest(request.ID_emailRequest, simWord.ID_word);
+
+            }
+        }
     }
 }

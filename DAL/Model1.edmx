@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="AutomaticClassificationDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="AutomaticClassificationDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="Category_tbl">
           <Key>
             <PropertyRef Name="ID_category" />
@@ -76,7 +76,7 @@
           </Key>
           <Property Name="ID_wordPerCategory" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="ID_category" Type="int" Nullable="false" />
-          <Property Name="AmountOfUse" Type="int" />
+          <Property Name="AmountOfUse" Type="real" />
           <Property Name="MatchPercentage" Type="real" />
           <Property Name="ID_word" Type="int" Nullable="false" />
         </EntityType>
@@ -86,7 +86,8 @@
           </Key>
           <Property Name="Id_wordPerRequest" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="Request_id" Type="int" Nullable="false" />
-          <Property Name="word_id" Type="int" Nullable="false" />
+          <Property Name="Word_id" Type="int" Nullable="false" />
+          <Property Name="IsSimilarWord" Type="bit" Nullable="false" />
         </EntityType>
         <Association Name="FK_EmailRequest_tbl_Category_tbl">
           <End Role="Category_tbl" Type="Self.Category_tbl" Multiplicity="0..1" />
@@ -192,7 +193,7 @@
               <PropertyRef Name="ID_word" />
             </Principal>
             <Dependent Role="WordPerRequest_tbl">
-              <PropertyRef Name="word_id" />
+              <PropertyRef Name="Word_id" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -259,8 +260,7 @@
             <End Role="WordPerRequest_tbl" EntitySet="WordPerRequest_tbl" />
           </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="AutomaticClassificationDBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -351,7 +351,7 @@
           </Key>
           <Property Name="ID_wordPerCategory" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="ID_category" Type="Int32" Nullable="false" />
-          <Property Name="AmountOfUse" Type="Int32" />
+          <Property Name="AmountOfUse" Type="Single" />
           <Property Name="MatchPercentage" Type="Single" />
           <Property Name="ID_word" Type="Int32" Nullable="false" />
           <NavigationProperty Name="Category_tbl" Relationship="Self.FK_WordPerCategory_Category_tbl" FromRole="WordPerCategory_tbl" ToRole="Category_tbl" />
@@ -363,7 +363,8 @@
           </Key>
           <Property Name="Id_wordPerRequest" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="Request_id" Type="Int32" Nullable="false" />
-          <Property Name="word_id" Type="Int32" Nullable="false" />
+          <Property Name="Word_id" Type="Int32" Nullable="false" />
+          <Property Name="IsSimilarWord" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="EmailRequest_tbl" Relationship="Self.FK_WordPerRequest_WordPerRequest" FromRole="WordPerRequest_tbl" ToRole="EmailRequest_tbl" />
           <NavigationProperty Name="Word_tbl" Relationship="Self.FK_WordPerRequest_Word_tbl" FromRole="WordPerRequest_tbl" ToRole="Word_tbl" />
         </EntityType>
@@ -483,7 +484,7 @@
               <PropertyRef Name="ID_word" />
             </Principal>
             <Dependent Role="WordPerRequest_tbl">
-              <PropertyRef Name="word_id" />
+              <PropertyRef Name="Word_id" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -632,7 +633,8 @@
               <MappingFragment StoreEntitySet="WordPerRequest_tbl">
                 <ScalarProperty Name="Id_wordPerRequest" ColumnName="Id_wordPerRequest" />
                 <ScalarProperty Name="Request_id" ColumnName="Request_id" />
-                <ScalarProperty Name="word_id" ColumnName="word_id" />
+                <ScalarProperty Name="Word_id" ColumnName="Word_id" />
+                <ScalarProperty Name="IsSimilarWord" ColumnName="IsSimilarWord" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

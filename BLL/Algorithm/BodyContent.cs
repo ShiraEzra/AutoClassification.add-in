@@ -9,9 +9,9 @@ namespace BLL
     public class BodyContent
     {
         public List<string> NormalizedBodyWords { get; set; }
-        public float[] ProbabilitybSentenceForCategory { get; set; }
+        public float[] ProbabilitybSentenceForCategory { get; set; } //init on use
 
-        public BodyContent(int numCategories)
+        public BodyContent()
         {
             this.NormalizedBodyWords = new List<string>();
         }

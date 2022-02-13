@@ -16,7 +16,7 @@ namespace DAL
     {
         public int ID_wordPerCategory { get; set; }
         public int ID_category { get; set; }
-        public Nullable<int> AmountOfUse { get; set; }
+        public Nullable<float> AmountOfUse { get; set; }
         public Nullable<float> MatchPercentage { get; set; }
         public int ID_word { get; set; }
     

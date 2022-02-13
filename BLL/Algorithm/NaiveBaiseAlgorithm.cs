@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BLL
 {
-    public enum Percent { Body_VS_Subject = 50, Similiar = 40, Common = 60 }
+    public enum Percent { Body_VS_Subject = 50, Similiar = 30, Common = 70 }
 
     public class NaiveBaiseAlgorithm
     {
@@ -40,7 +40,6 @@ namespace BLL
         /// <param name="categoryName">the category to which this email request belongs</param>
         public string FirstInitDB_NewMail(string subject, string body, string sender, DateTime date, string entryId, string categoryName)
         {
-            //EmailRequest_tbl request = db.EmailRequest_tbl.Single(er => er.ID_emailRequest == 4);
             EmailRequest_tbl request = new EmailRequest_tbl { EmailSubject = subject, EmailContent = body, SenderEmail = sender, Date = date, EntryId = entryId };
             request.ID_category = db.Category_tbl.FirstOrDefault(c => c.Name_category == categoryName)?.ID_category;
             SubjetcAnalysis(request.EmailSubject);
@@ -61,7 +60,7 @@ namespace BLL
         public string NewEmailRequest(string subject, string body, string sender, DateTime date, string entryId)
         {
             EmailRequest_tbl request = new EmailRequest_tbl { EmailSubject = subject, EmailContent = body, SenderEmail = sender, Date = date, EntryId = entryId };
-            request.ID_category = AssociateRequestToCategory(request);
+            request.ID_category = AssociateRequestToCategory(request)+1;
             InsertConclusionToDB(request, true);
             return request.Category_tbl.Name_category;
         }
@@ -89,6 +88,7 @@ namespace BLL
         public void SubjetcAnalysis(string subject)
         {
             subject = subject.RemoveOpeningWords();
+            subject = subject.RemoveEndingWords();
             req_Analysis.NormalizedSubjectWords = subject.AnalysisSentece();
         }
 
@@ -102,7 +102,7 @@ namespace BLL
             List<string> bodySplitToSentences = body.SplitToSentences();
             //לטפל במקרה שחוזר נאל= לא מצליח לגשת לספריית אןאלפי
             req_Analysis.BodyAnalysis = new BodyContent[(int)(bodySplitToSentences?.Count())];
-            int i = 0, numCategories = db.Category_tbl.Count(), numSentences = bodySplitToSentences.Count();
+            int i = 0, numSentences = bodySplitToSentences.Count();
             string s;
             foreach (var sentence in bodySplitToSentences)
             {
@@ -110,8 +110,8 @@ namespace BLL
                 if (i == 0)  //משפט פתיחה
                     s = sentence.RemoveOpeningWords();
                 if (i > numSentences - numEndSentences) //שלושת המשפטים האחרונים- משפטי סיום
-                    s = s.RemoveEndWords();
-                req_Analysis.BodyAnalysis[i] = new BodyContent(numCategories);
+                    s = s.RemoveEndingWords();
+                req_Analysis.BodyAnalysis[i] = new BodyContent();
                 req_Analysis.BodyAnalysis[i].NormalizedBodyWords = s.AnalysisSentece();
                 i++;
             }
@@ -159,7 +159,7 @@ namespace BLL
         public float[] CalcProbabilityForCategory(List<string> contentWords_lst, float[] categoryProbability_arr)
         {
             Word_tbl word;
-            float prob_similiarWords, prob;
+            float prob, prob_similiarWords;
             //בעבור כל מילה הקיימת בדטה בייס - מחשבים את ההסתברות שלה + ההסתברות של המילים הדומות לה הקיימות ב-דטה בייס
             if (contentWords_lst.Count() == 0)
                 InitProbability_arr(categoryProbability_arr, false);
@@ -195,7 +195,7 @@ namespace BLL
         {
             probability_arr = new float[firstInit_arr.Length];
             if (flag)
-                firstInit_arr.CopyTo(probability_arr, 0);
+                firstInit_arr.CopyTo(probability_arr, 0); //לברר שה העתקה ממש, ולא רק הפניות
             //else    //לבדוק אם באמת צריך לאפס
             //    for (int i = 0; i < probability_arr.Length; i++)
             //        probability_arr[i] = 0;
@@ -244,16 +244,17 @@ namespace BLL
             if (similarWords == null)
                 return 0;
             List<string> normalizedSimWords = similarWords.ToArray().AnalysisWords();
+            req_Analysis.Similarwords = normalizedSimWords;
             float prob = 0;
             int count = 0;
             foreach (var item in normalizedSimWords)
             {
                 bool isExsist = allWords.TryGetValue(item, out Word_tbl wordFromDic);
-                if (isExsist && probability_mat[wordFromDic.ID_word - 1, category_id] != 0)
+                if (isExsist /*&& probability_mat[wordFromDic.ID_word - 1, category_id] != 0*/)
                 {
                     prob += probability_mat[wordFromDic.ID_word - 1, category_id];
                     count++;
-                    req_Analysis.SimiliarwordsExsistDB.Add(wordFromDic);
+                   // req_Analysis.SimiliarwordsExsistDB.Add(wordFromDic);
                 }
             }
             return prob / count;
@@ -286,7 +287,7 @@ namespace BLL
         /// </summary>
         /// <param name="probability_arr">An array of probabilities for each category.</param>
         /// <returns>index of the category with the highest probability.</returns>
-        public int IndexMaxProbability(float[] probability_arr)  //לא השתמשתי עדיין
+        public int IndexMaxProbability(float[] probability_arr) 
         {
             //לראות אולי צריך לבצע בדיקה יותר חחכמה מחיפוש שרירותי אחר המקסימום
             //אם יש כמה קטגוריות שקרובות למקס, צריך לבצע בדיקות נוספות לדוגמא: אנשי קשר
@@ -306,7 +307,7 @@ namespace BLL
         public void InsertConclusionToDB(EmailRequest_tbl request, bool isAutomat)
         {
             Conclusion conclusion = new Conclusion(req_Analysis, request, isAutomat);
-            // conclusion.AddEmailRequest_tbl(request);
+            conclusion.AddEmailRequest_tbl(request);
             conclusion.LearningForNext();
             conclusion.AddSendingHistory_tbl(-1);
         }

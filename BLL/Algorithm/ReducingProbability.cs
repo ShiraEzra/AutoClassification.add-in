@@ -39,16 +39,15 @@ namespace BLL
         public static void ReduceProbability(EmailRequest_tbl req, int oldCategoryId, List<WordPerRequest_tbl> requestWords)
         {
             WordPerCategory_tbl wpc;
-            int numRequestsForThisCategory = db.EmailRequest_tbl.Where(er => er.ID_category == oldCategoryId).Count();
             foreach (var wpr in requestWords)
             {
-                wpc = db.WordPerCategory_tbl.Single(w => w.ID_category == oldCategoryId && w.ID_word == wpr.word_id);
-                wpc.AmountOfUse--;
-                //לבדוק אם יש אופציה שיתחלק באפס
+                wpc = db.WordPerCategory_tbl.Single(w => w.ID_category == oldCategoryId && w.ID_word == wpr.Word_id);
+                if (wpr.IsSimilarWord)   
+                    wpc.AmountOfUse -= 0.3f;
+                else
+                    wpc.AmountOfUse--;
                 if (wpc.AmountOfUse == 0)
                     db.WordPerCategory_tbl.Remove(wpc);
-                //else
-                    //wpc.MatchPercentage = wpc.AmountOfUse / numRequestsForThisCategory;
                 db.SaveChanges();
             }
         }

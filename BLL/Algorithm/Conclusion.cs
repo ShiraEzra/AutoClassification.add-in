@@ -50,12 +50,12 @@ namespace BLL
         /// <param name="category_id">The number of the category to which the email request belongs</param>
         public void LearningForNext()
         {
-            SavingConclusionsInDB(reqAnalysis.NormalizedSubjectWords);
+            SavingConclusionsInDB(reqAnalysis.NormalizedSubjectWords, false);
             List<string> bodyWords = new List<string>();
             foreach (var item in reqAnalysis.BodyAnalysis)
                 bodyWords.AddRange(item.NormalizedBodyWords);
-            SavingConclusionsInDB(bodyWords);
-            SavingSimiliarwordsForRequest(reqAnalysis.SimiliarwordsExsistDB);
+            SavingConclusionsInDB(bodyWords, false);
+            SavingConclusionsInDB(reqAnalysis.Similarwords, true);
         }
 
 
@@ -65,12 +65,11 @@ namespace BLL
         /// We will increase the matching percentage of the word to a category.
         /// </summary>
         /// <param name="words_lst">List of words</param>
-        public void SavingConclusionsInDB(List<string> words_lst)
+        public void SavingConclusionsInDB(List<string> words_lst, bool isSimilarWord)
         {
             WordPerCategory_tbl wordPerCategory = null;
             Word_tbl word = null;
             bool isExsist;
-            int numRequestsForThisCategory = db.EmailRequest_tbl.Where(er => er.ID_category == request.ID_category).Count();
             foreach (var w in words_lst)
             {
                 isExsist = NaiveBaiseAlgorithm.allWords.TryGetValue(w, out word);
@@ -79,8 +78,8 @@ namespace BLL
                 wordPerCategory = db.WordPerCategory_tbl.Where(wpc => wpc.ID_word == word.ID_word && wpc.ID_category == request.ID_category).FirstOrDefault();
                 if (wordPerCategory == null)
                     wordPerCategory = AddWordPerCategory_tbl(word, (int)request.ID_category);
-                IncreasePercentageMatching(wordPerCategory, numRequestsForThisCategory);
-                AddWordPerRequest(request.ID_emailRequest, word.ID_word);
+                IncreasePercentageMatching(wordPerCategory, isSimilarWord);
+                AddWordPerRequest(request.ID_emailRequest, word.ID_word, isSimilarWord);
             }
         }
 
@@ -90,16 +89,18 @@ namespace BLL
         /// </summary>
         public void SavingConclusionsInDB()
         {
-            int numRequestsForThisCategory = db.EmailRequest_tbl.Where(er => er.ID_category == request.ID_category).Count();
             WordPerCategory_tbl wordPerCategory = null;
             Word_tbl word = null;
             foreach (var wpr in requestWord_lst)
             {
                 word = wpr.Word_tbl;
-                wordPerCategory = db.WordPerCategory_tbl.Where(wpc => wpc.ID_word == wpr.word_id && wpc.ID_category == request.ID_category).FirstOrDefault();
+                wordPerCategory = db.WordPerCategory_tbl.Where(wpc => wpc.ID_word == wpr.Word_id && wpc.ID_category == request.ID_category).FirstOrDefault();
                 if (wordPerCategory == null)
                     wordPerCategory = AddWordPerCategory_tbl(word, (int)request.ID_category);
-                IncreasePercentageMatching(wordPerCategory, numRequestsForThisCategory);
+                if (wpr.IsSimilarWord)  
+                    IncreasePercentageMatching(wordPerCategory, true);
+                else
+                    IncreasePercentageMatching(wordPerCategory, false);
             }
         }
 
@@ -108,25 +109,15 @@ namespace BLL
         /// The function increases the percentage of fit of the word to the category
         /// </summary>
         /// <param name="wpc">instance of table wordPerCategory</param>
-        public void IncreasePercentageMatching(WordPerCategory_tbl wpc, int numRequestsForThisCategory)
+        public void IncreasePercentageMatching(WordPerCategory_tbl wpc, bool isSimilarWord)
         {
-            wpc.AmountOfUse++;
-            //wpc.MatchPercentage = wpc.AmountOfUse / numRequestsForThisCategory;
+            if (isSimilarWord)
+                wpc.AmountOfUse += 0.3f;
+            else
+                wpc.AmountOfUse++;
             db.SaveChanges();
         }
 
-
-        /// <summary>
-        /// The function goes through all the words similar to the words from the email request which existing  in DB,
-        /// and adds them to WordPerCategory table
-        /// </summary>
-        /// <param name="similiarwords">List of similar words</param>
-        public void SavingSimiliarwordsForRequest(List<Word_tbl> similiarwords)
-        {
-            foreach (var simWord in similiarwords)
-                AddWordPerRequest(request.ID_emailRequest, simWord.ID_word);
-            //צריך להוסיף גם למילים הדומות את אחוזי ההתאמה??
-        }
 
 
         /// <summary>
@@ -154,7 +145,7 @@ namespace BLL
             return word;
         }
 
-      
+
         /// <summary>
         /// Add instance to wordPerCategory_tbl
         /// </summary>
@@ -163,13 +154,9 @@ namespace BLL
         /// <returns></returns>
         public WordPerCategory_tbl AddWordPerCategory_tbl(Word_tbl word, int category_id)
         {
-            WordPerCategory_tbl wordPerCategory = new WordPerCategory_tbl
-            {
-                ID_word = word.ID_word,
-                ID_category = category_id,
-                AmountOfUse = 0,   //צריך לאתחל?
-                //MatchPercentage = 0   //צריך לאתחל?
-            };
+            WordPerCategory_tbl wordPerCategory = new WordPerCategory_tbl() { ID_word = word.ID_word, ID_category = category_id, AmountOfUse = 0 };
+            //צריך לאתחל amountOfUse?
+            //MatchPercentage = 0   //צריך לאתחל?      למחוק מהדטה בייס
             db.WordPerCategory_tbl.Add(wordPerCategory);
             db.SaveChanges();
             return wordPerCategory;
@@ -211,9 +198,9 @@ namespace BLL
         /// </summary>
         /// <param name="request_id">reqest id</param>
         /// <param name="word_id">word id</param>
-        public void AddWordPerRequest(int request_id, int word_id)
+        public void AddWordPerRequest(int request_id, int word_id, bool isSimilsrWords)
         {
-            WordPerRequest_tbl wpr = new WordPerRequest_tbl() { Request_id = request_id, word_id = word_id };
+            WordPerRequest_tbl wpr = new WordPerRequest_tbl() { Request_id = request_id, Word_id = word_id, IsSimilarWord = isSimilsrWords };
             db.WordPerRequest_tbl.Add(wpr);
             db.SaveChanges();
         }

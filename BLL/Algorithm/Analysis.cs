@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace BLL
@@ -64,15 +65,15 @@ namespace BLL
         /// <returns>analyzed sentence   (as MorphInfo list)</returns>
         public static List<List<MorphInfo>> AnalyzeSentence(string sentence)
         {
-            //try
-            //{
-            HebrewNLP.HebrewNLP.Password = "3BGkxLKouDk3l7B";
-            return HebrewMorphology.AnalyzeSentence(sentence);
-            //}
-            //catch (Exception)
-            //{
-            //    return null;
-            //}
+            try
+            {
+                HebrewNLP.HebrewNLP.Password = "3BGkxLKouDk3l7B";
+                return HebrewMorphology.AnalyzeSentence(sentence);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
 
@@ -103,7 +104,7 @@ namespace BLL
         public static NameInfo NameRecognition(string maybeName)
         {
             string[] arrName = new string[] { maybeName };
-            List<NameInfo> options = null;
+            List<NameInfo> options;
             HebrewNLP.HebrewNLP.Password = "3BGkxLKouDk3l7B";
             try
             {
@@ -225,41 +226,59 @@ namespace BLL
         /// </summary>
         /// <param name="word">word (as MorphInfo)</param>
         /// <returns>whether the word she received is an opening / closing word or not.</returns>
-        public static bool OpeningAndclosingWords(MorphInfo word)
+        public static bool OpeningAndclosingWords(MorphInfo word)  //לשנות כאן למיליות , כמו בבקשה וכו
         {
             if (word != null)
             {
-                List<string> commonWords = new List<string>() { "הי", "היי", "שלומ", "תודה", "בבקשה", "ברכה", "רב", "רבה" };
-                //List<string> commonPairWords = new List<string>() { "תודה רבה", "שבת שלום", "בוקר טוב", "בוקר אור", "צהריים טובים", "ערב טוב" };
+                List<string> commonWords = new List<string>() {"בבקשה"};
                 if (commonWords.Contains(word.BaseWord))
                     return true;
             }
             return false;
         }
 
+
+        /// <summary>
+        /// The function takes a list of opening words from a file.
+        /// And delivery from the sentence that received the opening words existing in it.
+        /// </summary>
+        /// <param name="sentence">Sentence (subject / first sentence from the body of the email)</param>
+        /// <returns>A sentence without opening words</returns>
         public static string RemoveOpeningWords(this string sentence)
         {
-            //איך עושים ניתוב יחסי?
-            string[] openingWords = System.IO.File.ReadAllLines(@"C:\Users\Public\TestFolder\WriteLines2.txt");
+            string[] openingWords = System.IO.File.ReadAllLines(Environment.CurrentDirectory + @"\Data\openningWords.txt");
             return RemoveWords(sentence, openingWords);
         }
 
-        public static string RemoveEndWords(this string sentence)
+
+        /// <summary>
+        /// The function takes a list of ending words from a file.
+        /// And delivery from the sentence that received the ending words existing in it.
+        /// </summary>
+        /// <param name="sentence">Sentence (from the subject / the last three sentences from the body of the email)</param>
+        /// <returns>A sentence without ending words</returns>
+        public static string RemoveEndingWords(this string sentence)
         {
-            //איך עושים ניתוב יחסי?
-            string[] endWords = System.IO.File.ReadAllLines(@"C:\Users\Public\TestFolder\WriteLines2.txt");
-            return RemoveWords(sentence, endWords);
+            string[] endingWords = System.IO.File.ReadAllLines(Environment.CurrentDirectory + @"\Data\endingWords.txt");
+            return RemoveWords(sentence, endingWords);
         }
 
-        public static string RemoveWords(string sentence, string[] WordsToRemove)
+
+        /// <summary>
+        /// The function receives a sentence and a array of words to remove.
+        ///The function returns a sentence without the words to be removed.
+        /// </summary>
+        /// <param name="sentence">sentence (string)</param>
+        /// <param name="WordsToRemove">WordsToRemove (string[])</param>
+        /// <returns>A sentence without the words to be removed.</returns>
+        public static string RemoveWords(string sentence, string[] wordsToRemove)
         {
-            int start;
-            foreach (var item in WordsToRemove)
+            sentence = Regex.Replace(sentence, @"[!-/,:-@, [-`, {-~]", " "); // delete every char that suitable to the condition.
+            var wordsToRemove_lst= wordsToRemove.OrderBy(x => x.Length);
+            foreach (var item in wordsToRemove_lst)
             {
-                //לראות האם יש פונקתיה שמוציאה מחזרוזת מסוימת מתוך מחרוזת
-                start = sentence.IndexOf(item);
-                if (start >= 0)
-                    sentence = sentence.Substring(0, start) + sentence.Substring(start + item.Length);
+                if (sentence.Contains(item + " ") || sentence.Contains(" " + item) || sentence.Contains(" " + item + " "))
+                    sentence = sentence.Replace(item, "");
             }
             return sentence;
         }

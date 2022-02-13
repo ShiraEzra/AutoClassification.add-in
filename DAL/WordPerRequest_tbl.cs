@@ -16,7 +16,8 @@ namespace DAL
     {
         public int Id_wordPerRequest { get; set; }
         public int Request_id { get; set; }
-        public int word_id { get; set; }
+        public int Word_id { get; set; }
+        public bool IsSimilarWord { get; set; }
     
         public virtual EmailRequest_tbl EmailRequest_tbl { get; set; }
         public virtual Word_tbl Word_tbl { get; set; }

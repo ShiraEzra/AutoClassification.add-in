@@ -10,13 +10,13 @@ namespace BLL
     public class RequestAnalysis
     {
         public List<string> NormalizedSubjectWords { get; set; }
-        public List<Word_tbl> SimiliarwordsExsistDB { get; set; }
-        public float[] ProbabilitybSubjectForCategory { get; set; }
+        public List<string> Similarwords { get; set; }
+        public float[] ProbabilitybSubjectForCategory { get; set; }  //init on use
         public BodyContent[] BodyAnalysis { get; set; }
         public RequestAnalysis()
         {
             this.NormalizedSubjectWords = new List<string>();
-            this.SimiliarwordsExsistDB = new List<Word_tbl>();
+            this.Similarwords = new List<string>();
         }
     }
 }

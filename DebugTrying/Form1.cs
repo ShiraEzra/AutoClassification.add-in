@@ -27,7 +27,7 @@ namespace DebugTrying
         private void btn_invokeFuncGetNewMail_Click(object sender, EventArgs e)
         {
             NaiveBaiseAlgorithm algorithm = new NaiveBaiseAlgorithm();
-            algorithm.FirstInitDB_NewMail("מצב חשבון", "היי מיכל, תשלחי לי בבקשה מצב חשבון עדכני תודה ויום טוב טל גרנדה זייגרמן 0502915246", "shira0556791045@gmail.com", DateTime.Now, "36636520gfvhgj", "שירות לקוחות");
+            algorithm.FirstInitDB_NewMail("הוא שילם 5000 שח", "היי מיכל, תשלחי לי בבקשה מצב חשבון עדכני תודה ויום טוב טל גרנדה זייגרמן 0502915246", "shira0556791045@gmail.com", DateTime.Now, "36636520gfvhgj", "שירות לקוחות");
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -115,6 +115,21 @@ namespace DebugTrying
             //    //return null;
             //}
             ////return options.Firs
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            var wpr_lst = db.WordPerRequest_tbl;
+            foreach (var wpr in wpr_lst)
+            {
+                wpr.IsSimilarWord = false;
+                db.SaveChanges();
+            }
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            var lst = SimilarWords.GetSimilarWords("בבקשה");
         }
     }
 }

@@ -9,7 +9,7 @@ namespace BLL
 {
     public class SimilarWords
     {
-        const int numOfSimiliarWords = 10;
+        const int numOfSimiliarWords = 5;
         static string[] notFoundResponses = new string[] { "<h1>האם התכוונת ל-</h1>", "<h1>לא נמצאו תוצאות</h1>" };
 
 
