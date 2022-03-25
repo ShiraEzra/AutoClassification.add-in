@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-    <Schema Namespace="AutomaticClassificationDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+      <Schema Namespace="AutomaticClassificationDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="Category_tbl">
           <Key>
             <PropertyRef Name="ID_category" />
@@ -77,7 +77,6 @@
           <Property Name="ID_wordPerCategory" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="ID_category" Type="int" Nullable="false" />
           <Property Name="AmountOfUse" Type="real" />
-          <Property Name="MatchPercentage" Type="real" />
           <Property Name="ID_word" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="WordPerRequest_tbl">
@@ -260,7 +259,8 @@
             <End Role="WordPerRequest_tbl" EntitySet="WordPerRequest_tbl" />
           </AssociationSet>
         </EntityContainer>
-      </Schema></edmx:StorageModels>
+      </Schema>
+    </edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="AutomaticClassificationDBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -352,7 +352,6 @@
           <Property Name="ID_wordPerCategory" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="ID_category" Type="Int32" Nullable="false" />
           <Property Name="AmountOfUse" Type="Single" />
-          <Property Name="MatchPercentage" Type="Single" />
           <Property Name="ID_word" Type="Int32" Nullable="false" />
           <NavigationProperty Name="Category_tbl" Relationship="Self.FK_WordPerCategory_Category_tbl" FromRole="WordPerCategory_tbl" ToRole="Category_tbl" />
           <NavigationProperty Name="Word_tbl" Relationship="Self.FK_WordPerCategory_tbl_Word_tbl" FromRole="WordPerCategory_tbl" ToRole="Word_tbl" />
@@ -623,7 +622,6 @@
                 <ScalarProperty Name="ID_wordPerCategory" ColumnName="ID_wordPerCategory" />
                 <ScalarProperty Name="ID_category" ColumnName="ID_category" />
                 <ScalarProperty Name="AmountOfUse" ColumnName="AmountOfUse" />
-                <ScalarProperty Name="MatchPercentage" ColumnName="MatchPercentage" />
                 <ScalarProperty Name="ID_word" ColumnName="ID_word" />
               </MappingFragment>
             </EntityTypeMapping>
