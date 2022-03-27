@@ -209,7 +209,7 @@
         zl4viKQAAAAASUVORK5CYII=
 </value>
   </data>
-  <data name="exitDM_btn.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+  <data name="exit_btn.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAABOoAAALDCAYAAACrce8bAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAS
         dAAAEnQB3mYfeAAAE9tJREFUeF7t2CEBhEAUQEEKUnsDEOJXQHLuDGh4YsSUmG1mLgAAAADgW/+oW2sB
@@ -300,7 +300,7 @@
         zl4viKQAAAAASUVORK5CYII=
 </value>
   </data>
-  <data name="exit_btn.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+  <data name="exitDM_btn.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAABOoAAALDCAYAAACrce8bAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAS
         dAAAEnQB3mYfeAAAE9tJREFUeF7t2CEBhEAUQEEKUnsDEOJXQHLuDGh4YsSUmG1mLgAAAADgW/+oW2sB

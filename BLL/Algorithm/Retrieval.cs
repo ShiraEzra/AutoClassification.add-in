@@ -14,7 +14,7 @@ namespace BLL
 
         public int GetIdEmailRequestByConversationID(string conversationID)
         {
-            EmailRequest_tbl req= db.EmailRequest_tbl.FirstOrDefault(e => e.EntryId == conversationID);
+            EmailRequest_tbl req = db.EmailRequest_tbl.FirstOrDefault(e => e.EntryId == conversationID);
             if (req == null)
                 return -1;
             return req.ID_emailRequest;
@@ -22,7 +22,7 @@ namespace BLL
 
         public string GetCategoryNameOfEmailRequest(int reqID)
         {
-            if (reqID!=-1)
+            if (reqID != -1)
             {
                 return db.EmailRequest_tbl.Single(e => e.ID_emailRequest == reqID).Category_tbl.Name_category;
             }
@@ -72,26 +72,33 @@ namespace BLL
         }
 
 
-        public int GetManagerCode(string password,out int permissionLevel, out string managerName)
+        public void GetManager(string password, out int managerCode, out int permissionLevel, out string managerName, out int id_category, out string id_user)
         {
             User_tbl user = db.User_tbl.FirstOrDefault(u => u.Password == password);
-            if (user!=null)
+            if (user != null)
             {
+                managerCode = user.Code;
                 permissionLevel = user.ID_premissionLevel;
                 managerName = user.Name_user;
-                return user.Code;
+                id_category = user.ID_category==null? -1 :(int)user.ID_category;
+                id_user = user.ID_user;
             }
-            permissionLevel = -1;
-            managerName = null;
-            return -1;
+            else
+            {
+                managerCode = -1;
+                permissionLevel = -1;
+                managerName = null;
+                id_category = -1;
+                id_user = null;
+            }
         }
 
-        public void GetManagerNameAndPL(int managerCode, out int permissionLevel, out string managerName)
-        {
-            User_tbl user = db.User_tbl.FirstOrDefault(u => u.Code == managerCode);
-            permissionLevel = user.ID_premissionLevel;
-            managerName = user.Name_user;
+        //public void GetManagerNameAndPL(int managerCode, out int permissionLevel, out string managerName)
+        //{
+        //    User_tbl user = db.User_tbl.FirstOrDefault(u => u.Code == managerCode);
+        //    permissionLevel = user.ID_premissionLevel;
+        //    managerName = user.Name_user;
 
-        }
+        //}
     }
 }

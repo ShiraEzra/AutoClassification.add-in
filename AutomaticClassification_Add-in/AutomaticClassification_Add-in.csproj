@@ -171,22 +171,29 @@
     can be found.
   -->
   <ItemGroup>
-    <Compile Include="Forms\AddNewCategory.cs">
+    <Compile Include="UI\AddNewCategory.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Forms\AddNewCategory.Designer.cs">
+    <Compile Include="UI\AddNewCategory.Designer.cs">
       <DependentUpon>AddNewCategory.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Forms\UI_Pane.cs">
+    <Compile Include="UI\AddNewUserM.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Forms\UI_Pane.Designer.cs">
+    <Compile Include="UI\AddNewUserM.Designer.cs">
+      <DependentUpon>AddNewUserM.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\UI_Pane.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\UI_Pane.Designer.cs">
       <DependentUpon>UI_Pane.cs</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="Forms\AddNewCategory.resx">
+    <Compile Include="UI\User.cs" />
+    <EmbeddedResource Include="UI\AddNewCategory.resx">
       <DependentUpon>AddNewCategory.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -198,7 +205,10 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="Forms\UI_Pane.resx">
+    <EmbeddedResource Include="UI\AddNewUserM.resx">
+      <DependentUpon>AddNewUserM.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\UI_Pane.resx">
       <DependentUpon>UI_Pane.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="App.config" />

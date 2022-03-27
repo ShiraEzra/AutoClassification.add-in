@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using AutomaticClassification_Add_in.Forms;
+using AutomaticClassification_Add_in.UI;
 
 namespace AutomaticClassification_Add_in
 {
@@ -137,29 +138,40 @@ namespace AutomaticClassification_Add_in
 
         }
 
-        public void AddNewCategory_paneShow(int managerCode)
+        public void AddNewCategory_paneShow(User user)
         {
-            this.CustomTaskPanes.Remove(this.taskpane);
-            this.control = new AddNewCategory(managerCode);
+            this.control = new AddNewCategory(user);
             (this.control as AddNewCategory).UI_PaneToShow += UI_paneShow;
-            this.taskpane = this.CustomTaskPanes.Add(new AddNewCategory(managerCode), "welcome!");
-            this.taskpane.Width = 325;
-            this.taskpane.Visible = true;
+            GUI();
         }
 
-        public void UI_paneShow(int managerCode)
+        public void AddNewUserM_paneShow(User user)
         {
-            this.CustomTaskPanes.Remove(this.taskpane);
-            this.control = new UI_Pane(managerCode);
-            (this.control as UI_Pane).AddNewCategory_PaneToShow += AddNewCategory_paneShow;
-            this.taskpane = this.CustomTaskPanes.Add(this.control, "Auto classification");
-            this.taskpane.Width = 325;
-            this.taskpane.Visible = true;
+            this.control = new AddNewUserM(user);
+            (this.control as AddNewUserM).UI_PaneToShow += UI_paneShow;
+            GUI();
+        }
+
+        public void UI_paneShow(User user)
+        {
+            this.control = new UI_Pane(user);
+            UI_pane();
         }
         public void UI_paneShow()
         {
             this.control = new UI_Pane();
+            UI_pane();
+        }
+
+        public void UI_pane()
+        {
             (this.control as UI_Pane).AddNewCategory_PaneToShow += AddNewCategory_paneShow;
+            (this.control as UI_Pane).AddNewUserM_PaneToShow += AddNewUserM_paneShow;
+            GUI();
+        }
+        public void GUI()
+        {
+            this.CustomTaskPanes.Remove(this.taskpane);
             this.taskpane = this.CustomTaskPanes.Add(this.control, "Auto classification");
             this.taskpane.Width = 325;
             this.taskpane.Visible = true;

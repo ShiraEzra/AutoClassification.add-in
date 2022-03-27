@@ -40,18 +40,18 @@ namespace AutomaticClassification_Add_in
             this.addNewCategory_rb = new System.Windows.Forms.RadioButton();
             this.addNewDM_rd = new System.Windows.Forms.RadioButton();
             this.exit_btn = new System.Windows.Forms.Button();
-            this.pb_logo = new System.Windows.Forms.PictureBox();
-            this.password_pl = new System.Windows.Forms.Panel();
             this.DepartmentManager_gb = new System.Windows.Forms.GroupBox();
             this.updateYourDetailsDM_rb = new System.Windows.Forms.RadioButton();
             this.addRequestsForExample_rb = new System.Windows.Forms.RadioButton();
             this.exitDM_btn = new System.Windows.Forms.Button();
+            this.pb_logo = new System.Windows.Forms.PictureBox();
+            this.password_pl = new System.Windows.Forms.Panel();
             this.welcome_lbl = new System.Windows.Forms.Label();
             this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
             this.GeneralManager_gb.SuspendLayout();
+            this.DepartmentManager_gb.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pb_logo)).BeginInit();
             this.password_pl.SuspendLayout();
-            this.DepartmentManager_gb.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -91,7 +91,6 @@ namespace AutomaticClassification_Add_in
             // GeneralManager_gb
             // 
             this.GeneralManager_gb.BackColor = System.Drawing.Color.Transparent;
-            this.GeneralManager_gb.Controls.Add(this.DepartmentManager_gb);
             this.GeneralManager_gb.Controls.Add(this.updateDetails_rb);
             this.GeneralManager_gb.Controls.Add(this.updateYourDetails_rb);
             this.GeneralManager_gb.Controls.Add(this.addNewCategory_rb);
@@ -152,6 +151,7 @@ namespace AutomaticClassification_Add_in
             this.addNewDM_rd.TabStop = true;
             this.addNewDM_rd.Text = "הוספת מנהל מחלקה חדש";
             this.addNewDM_rd.UseVisualStyleBackColor = true;
+            this.addNewDM_rd.CheckedChanged += new System.EventHandler(this.addNewDM_rd_CheckedChanged);
             // 
             // exit_btn
             // 
@@ -165,28 +165,6 @@ namespace AutomaticClassification_Add_in
             this.exit_btn.UseVisualStyleBackColor = false;
             this.exit_btn.Click += new System.EventHandler(this.exit_btn_Click);
             // 
-            // pb_logo
-            // 
-            this.pb_logo.BackColor = System.Drawing.Color.Transparent;
-            this.pb_logo.Image = ((System.Drawing.Image)(resources.GetObject("pb_logo.Image")));
-            this.pb_logo.Location = new System.Drawing.Point(15, 11);
-            this.pb_logo.Name = "pb_logo";
-            this.pb_logo.Size = new System.Drawing.Size(290, 88);
-            this.pb_logo.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pb_logo.TabIndex = 0;
-            this.pb_logo.TabStop = false;
-            // 
-            // password_pl
-            // 
-            this.password_pl.BackColor = System.Drawing.Color.Transparent;
-            this.password_pl.Controls.Add(this.managerPwd_lbl);
-            this.password_pl.Controls.Add(this.managerPwd_txt);
-            this.password_pl.Controls.Add(this.ok_btn);
-            this.password_pl.Location = new System.Drawing.Point(15, 113);
-            this.password_pl.Name = "password_pl";
-            this.password_pl.Size = new System.Drawing.Size(290, 83);
-            this.password_pl.TabIndex = 7;
-            // 
             // DepartmentManager_gb
             // 
             this.DepartmentManager_gb.BackColor = System.Drawing.Color.Transparent;
@@ -195,7 +173,7 @@ namespace AutomaticClassification_Add_in
             this.DepartmentManager_gb.Controls.Add(this.exitDM_btn);
             this.DepartmentManager_gb.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
             this.DepartmentManager_gb.ForeColor = System.Drawing.Color.Black;
-            this.DepartmentManager_gb.Location = new System.Drawing.Point(12, 100);
+            this.DepartmentManager_gb.Location = new System.Drawing.Point(15, 485);
             this.DepartmentManager_gb.Name = "DepartmentManager_gb";
             this.DepartmentManager_gb.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.DepartmentManager_gb.Size = new System.Drawing.Size(290, 136);
@@ -238,6 +216,28 @@ namespace AutomaticClassification_Add_in
             this.exitDM_btn.UseVisualStyleBackColor = false;
             this.exitDM_btn.Click += new System.EventHandler(this.exitDM_btn_Click);
             // 
+            // pb_logo
+            // 
+            this.pb_logo.BackColor = System.Drawing.Color.Transparent;
+            this.pb_logo.Image = ((System.Drawing.Image)(resources.GetObject("pb_logo.Image")));
+            this.pb_logo.Location = new System.Drawing.Point(15, 11);
+            this.pb_logo.Name = "pb_logo";
+            this.pb_logo.Size = new System.Drawing.Size(290, 88);
+            this.pb_logo.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pb_logo.TabIndex = 0;
+            this.pb_logo.TabStop = false;
+            // 
+            // password_pl
+            // 
+            this.password_pl.BackColor = System.Drawing.Color.Transparent;
+            this.password_pl.Controls.Add(this.managerPwd_lbl);
+            this.password_pl.Controls.Add(this.managerPwd_txt);
+            this.password_pl.Controls.Add(this.ok_btn);
+            this.password_pl.Location = new System.Drawing.Point(15, 113);
+            this.password_pl.Name = "password_pl";
+            this.password_pl.Size = new System.Drawing.Size(290, 83);
+            this.password_pl.TabIndex = 7;
+            // 
             // welcome_lbl
             // 
             this.welcome_lbl.AutoSize = true;
@@ -259,19 +259,20 @@ namespace AutomaticClassification_Add_in
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
+            this.Controls.Add(this.DepartmentManager_gb);
             this.Controls.Add(this.welcome_lbl);
             this.Controls.Add(this.password_pl);
             this.Controls.Add(this.GeneralManager_gb);
             this.Controls.Add(this.pb_logo);
             this.Name = "UI_Pane";
-            this.Size = new System.Drawing.Size(714, 588);
+            this.Size = new System.Drawing.Size(319, 681);
             this.GeneralManager_gb.ResumeLayout(false);
             this.GeneralManager_gb.PerformLayout();
+            this.DepartmentManager_gb.ResumeLayout(false);
+            this.DepartmentManager_gb.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pb_logo)).EndInit();
             this.password_pl.ResumeLayout(false);
             this.password_pl.PerformLayout();
-            this.DepartmentManager_gb.ResumeLayout(false);
-            this.DepartmentManager_gb.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

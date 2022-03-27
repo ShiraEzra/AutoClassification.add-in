@@ -7,18 +7,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using AutomaticClassification_Add_in.UI;
 
 namespace AutomaticClassification_Add_in.Forms
 {
     public partial class AddNewCategory : UserControl
     {
-        public delegate void EventHandler(int managerID);
+        public delegate void EventHandler(User user);
         public event EventHandler UI_PaneToShow;
-        int managerCode;
-        public AddNewCategory(int managerCode)
+        User user;
+
+        public AddNewCategory(User user)
         {
             InitializeComponent();
-            this.managerCode = managerCode;
+            this.user = user;
         }
 
         private void requestsForExample_lnkLbl_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -39,7 +41,7 @@ namespace AutomaticClassification_Add_in.Forms
 
         private void pb_logo_Click(object sender, EventArgs e)
         {
-            UI_PaneToShow?.Invoke(managerCode);
+            UI_PaneToShow?.Invoke(this.user);
 
         }
     }
