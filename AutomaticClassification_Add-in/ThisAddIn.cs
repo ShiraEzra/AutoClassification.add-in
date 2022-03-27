@@ -1,91 +1,56 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
+﻿using System.Collections.Generic;
 using Outlook = Microsoft.Office.Interop.Outlook;
-using Office = Microsoft.Office.Core;
 using BLL;
 using System.Windows.Forms;
-using DAL;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Runtime.InteropServices;
+using AutomaticClassification_Add_in.Forms;
 
 namespace AutomaticClassification_Add_in
 {
     public partial class ThisAddIn
     {
 
-        //Outlook.MailItem currentMail = null;
-        Outlook.MAPIFolder oInbox = null;
-        AutomaticClassificationDBEntities db = AutomaticClassificationDBEntities.Instance;
+        Outlook.MAPIFolder oInbox;
+        Retrieval retrieval;
+        static List<Outlook.MAPIFolder> allFolders;
 
+        private UserControl control;
+        private Microsoft.Office.Tools.CustomTaskPane taskpane;
 
-        //לבטל את ה-4 מילים הראשונות מהמייל בדואר נכנס, ולהריץ אותו מהפרויטק הרצה - לבדוק למה נפל
 
         /// <summary>
         /// Function performed when entering a new email
         /// </summary>
         void GetNewMail()
         {
-            MessageBox.Show("understood");
-            Outlook.Items oItems = oInbox.Items;
-            Outlook.Items unReadItems = oItems.Restrict("[Unread]=true");
-            List<Outlook.MailItem> unReadMails = new List<Outlook.MailItem>();
-            foreach (var unRead in unReadItems)
-                unReadMails.Add((Outlook.MailItem)unRead);
-            foreach (var mail in unReadMails)
+            Task task = Task.Run(() =>
             {
-                MessageBox.Show("got a new mail.  Activates the algorithm.\n " + mail.Subject);
-                NaiveBaiseAlgorithm algorithm = new NaiveBaiseAlgorithm();
+                Thread.Sleep(3000);
+                Outlook.Items oItems = oInbox.Items;
+                Outlook.Items unReadItems = oItems.Restrict("[Unread]=true");
+                List<Outlook.MailItem> unReadMails = new List<Outlook.MailItem>();
+                foreach (var unRead in unReadItems)
+                    unReadMails.Add((Outlook.MailItem)unRead);
 
-                //הכנסה  ל-דטה בייס בעבור לימוד ראשוני
-                string nameFolder = algorithm.FirstInitDB_NewMail(mail.ConversationTopic, RelevantBodyOnly(mail.Body), mail.SenderEmailAddress, mail.CreationTime, mail.EntryID, "שירות לקוחות");
-                MessageBox.Show(nameFolder);
-                //לאחר הלימוד הראשוני - פניות יכנסו בצורה כזו
-                //string nameFolder= algorithm.NewEmailRequest(currentMail.Subject, RelevantBodyOnly(currentMail.Body), currentMail.SenderEmailAddress, currentMail.CreationTime, currentMail.EntryID);
+                Marshal.ReleaseComObject(oItems);
+                Marshal.ReleaseComObject(unReadItems);
 
-                MoveDirectory(mail, nameFolder);
-            }
-
-            //currentMail = (Outlook.MailItem)unReadItems.GetLast();
-            //if (currentMail != null)
-            //{
-            //    MessageBox.Show("got a new mail.  Activates the algorithm");
-            //    NaiveBaiseAlgorithm algorithm = new NaiveBaiseAlgorithm();
-            //    //הכנסה  ל-דטה בייס בעבור לימוד ראשוני
-
-            //    string nameFolder = algorithm.FirstInitDB_NewMail(currentMail.Subject, RelevantBodyOnly(currentMail.Body), currentMail.SenderEmailAddress, currentMail.CreationTime, currentMail.EntryID, "שירות לקוחות");
-            //    MessageBox.Show(nameFolder);
-
-            //    //לאחר הלימוד הראשוני - פניות יכנסו בצורה כזו
-            //    //string nameFolder= algorithm.NewEmailRequest(currentMail.Subject, RelevantBodyOnly(currentMail.Body), currentMail.SenderEmailAddress, currentMail.CreationTime, currentMail.EntryID);
-
-            //    MoveDirectory(nameFolder);
-            //}
-        }
-
-
-        /// <summary>
-        /// Function that removes irrelevant things from the body of the email.
-        /// </summary>
-        /// <param name="body">The body of the email</param>
-        /// <returns>Relevant email body only</returns>
-        private string RelevantBodyOnly(string body)
-        {
-            if (body.Contains("---------- Forwarded message ---------"))
-            {
-                int endFarwardMessage = body.IndexOf("To:");
-                endFarwardMessage = body.IndexOf(">", endFarwardMessage + 1);
-                endFarwardMessage = body.IndexOf(">", endFarwardMessage + 1);
-                body = body.Substring(endFarwardMessage + 1);
-            }
-            if (body.Contains("<https"))
-            {
-                int startFirstTag = body.IndexOf("<https");
-                body = body.Substring(0, startFirstTag);
-            }
-
-            MessageBox.Show("Body: " + body);
-            return body;
+                foreach (var mail in unReadMails)
+                {
+                    NaiveBaiseAlgorithm algorithm = new NaiveBaiseAlgorithm();
+                    string nameFolder = algorithm.NewEmailRequest(mail.ConversationTopic, retrieval.RelevantBodyOnly(mail.Body), mail.SenderEmailAddress, mail.CreationTime, mail.ConversationID);
+                    MoveDirectory(mail, nameFolder);
+                }
+                Marshal.ReleaseComObject(unReadMails);
+            });
+            //Task t = Task.Run(() =>
+            // {
+            //     Thread.Sleep(12000);
+            //     UnLoadAddItemMethodToAllCategoryFolders();
+            //     LoadAddItemMethodToAllCategoryFolders();
+            // });
         }
 
 
@@ -97,6 +62,7 @@ namespace AutomaticClassification_Add_in
         {
             Outlook.MAPIFolder destFolder = oInbox.Folders[nameFolder];
             mail.Move(destFolder);
+            Marshal.ReleaseComObject(destFolder);
         }
 
 
@@ -108,17 +74,14 @@ namespace AutomaticClassification_Add_in
         {
             MessageBox.Show("hii - tryin notify when new mail arrived to this directory");
             var p = ((Outlook.MailItem)item).Parent;
-
-            if (p is Outlook.MAPIFolder folder)
+            if (p is Outlook.MAPIFolder folder && item is Outlook.MailItem)
             {
-                //EmailRequest_tbl req = db.EmailRequest_tbl.Single(e => e.EntryId == ((Outlook.MailItem)item).EntryID);
-                //if (folder.Name != req.Category_tbl.Name_category)
-                //    ReducingProbability.ChangeCategory(req, folder.Name);
-
-                //שם התקיה יהיה שם התקיה החדשה שאליה הועבר המייל
+                //int reqID = retrieval.GetIdEmailRequestByConversationID(((Outlook.MailItem)item).ConversationID);
+                //string categoryName = retrieval.GetCategoryNameOfEmailRequest(reqID);
+                //if (reqID != -1 && folder.Name != categoryName)
+                //    ReducingProbability.ChangeCategory(reqID, folder.Name);
             }
-
-            //לראות אם לאפשר העברת מייל לדואר נכנס - ז"א להוריד את אחוזי ההסתברות ולא להוסיף לשום קטגוריה= להשאיר בדואר הנכנס
+            Marshal.ReleaseComObject(p);
         }
 
 
@@ -138,16 +101,69 @@ namespace AutomaticClassification_Add_in
         /// </summary>
         private void LoadAddItemMethodToAllCategoryFolders()
         {
-            var categories_lst = db.Category_tbl.ToList();
-            Outlook.MAPIFolder destFolder;
-            foreach (var category in categories_lst)
+            var categoriesNames_lst = retrieval.GetAllCategoriesNames();
+            Outlook.MAPIFolder destFolder = null;
+            foreach (var categoryName in categoriesNames_lst)
             {
-                destFolder = oInbox.Folders[category.Name_category];
+                destFolder = oInbox.Folders[categoryName];
                 //העמסת המתודה לאירוע שיתרחש בכל פעם שיתווסף מייל חדש לתקיה זו
                 destFolder.Items.ItemAdd += AddMailToDirectory;
+                allFolders.Add(destFolder);
             }
+            Marshal.ReleaseComObject(destFolder);
+        //https://stackoverflow.com/questions/42663830/outlook-2016-vsto-folder-add-event-fires-only-once
         }
 
+        //private void UnLoadAddItemMethodToAllCategoryFolders()
+        //{
+        //    var categoriesNames_lst = retrieval.GetAllCategoriesNames();
+        //    Outlook.MAPIFolder destFolder = null;
+        //    foreach (var categoryName in categoriesNames_lst)
+        //    {
+        //        destFolder = oInbox.Folders[categoryName];
+        //        destFolder.Items.ItemAdd -= AddMailToDirectory;
+        //    }
+        //}
+
+        public void NewFolder(Outlook.MAPIFolder newFolder)
+        {
+            MessageBox.Show("hii - tryin notify when  new folder is openning");
+
+        }
+
+        public void DeleteFolder()
+        {
+            MessageBox.Show("hii - tryin notify when  new folder is openning");
+
+        }
+
+        public void AddNewCategory_paneShow(int managerCode)
+        {
+            this.CustomTaskPanes.Remove(this.taskpane);
+            this.control = new AddNewCategory(managerCode);
+            (this.control as AddNewCategory).UI_PaneToShow += UI_paneShow;
+            this.taskpane = this.CustomTaskPanes.Add(new AddNewCategory(managerCode), "welcome!");
+            this.taskpane.Width = 325;
+            this.taskpane.Visible = true;
+        }
+
+        public void UI_paneShow(int managerCode)
+        {
+            this.CustomTaskPanes.Remove(this.taskpane);
+            this.control = new UI_Pane(managerCode);
+            (this.control as UI_Pane).AddNewCategory_PaneToShow += AddNewCategory_paneShow;
+            this.taskpane = this.CustomTaskPanes.Add(this.control, "Auto classification");
+            this.taskpane.Width = 325;
+            this.taskpane.Visible = true;
+        }
+        public void UI_paneShow()
+        {
+            this.control = new UI_Pane();
+            (this.control as UI_Pane).AddNewCategory_PaneToShow += AddNewCategory_paneShow;
+            this.taskpane = this.CustomTaskPanes.Add(this.control, "Auto classification");
+            this.taskpane.Width = 325;
+            this.taskpane.Visible = true;
+        }
 
         /// <summary>
         /// A function that is performed when opening the Outlook application
@@ -156,22 +172,32 @@ namespace AutomaticClassification_Add_in
         /// <param name="e"></param>
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
-            //העמסת מתודה שתתבצע בכל פעם שיכנס מייל חדש
-            this.Application.NewMail += GetNewMail;   //מה הההבדל בין שני הסוגים?
-            //this.Application.NewMail += new Microsoft.Office.Interop.Outlook.ApplicationEvents_11_NewMailEventHandler(GetNewMail);
-
             Outlook.NameSpace oNS = this.Application.GetNamespace("mapi");
             oInbox = oNS.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderInbox);
 
-            //oInbox.Items.ItemAdd += GetNewMail;
+            //העמסת מתודה שתתבצע בכל פעם שיכנס מייל חדש
+            this.Application.NewMail += GetNewMail;
 
+
+            retrieval = new Retrieval();
+
+           
+            allFolders = new List<Outlook.MAPIFolder>();
             LoadAddItemMethodToAllCategoryFolders();
 
             ////העמסת המתודה לאירוע שיתרחש בכל פעם שימחק מייל  מתקיה זו
             //destFolder.Items.ItemRemove += ChangeMailFromDirectory;
 
-            //GetNewMail();
-            //MoveDirectory("שירות לקוחות");
+            //Marshal.ReleaseComObject(oNS);
+
+
+            //העמסת מתודה שתתבצע בכל פעם שיוסיפו תקייה חדשה= קטגוריה חדשה
+            oInbox.Folders.FolderAdd += NewFolder;
+            oInbox.Folders.FolderRemove += DeleteFolder;
+
+
+            //user interface
+            UI_paneShow();
         }
 
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)

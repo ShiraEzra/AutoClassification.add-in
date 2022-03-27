@@ -18,7 +18,7 @@ namespace DebugTrying
     public partial class Form1 : Form
     {
         AutomaticClassificationDBEntities db = AutomaticClassificationDBEntities.Instance;
-  
+
         public Form1()
         {
             InitializeComponent();
@@ -27,7 +27,7 @@ namespace DebugTrying
         private void btn_invokeFuncGetNewMail_Click(object sender, EventArgs e)
         {
             NaiveBaiseAlgorithm algorithm = new NaiveBaiseAlgorithm();
-            algorithm.FirstInitDB_NewMail("הוא שילם 5000 שח", "היי מיכל, תשלחי לי בבקשה מצב חשבון עדכני תודה ויום טוב טל גרנדה זייגרמן 0502915246", "shira0556791045@gmail.com", DateTime.Now, "36636520gfvhgj", "שירות לקוחות");
+            algorithm.NewEmailRequest("", "בניין 5 דירה מספר 7", "shira0556791045@gmail.com", DateTime.Now, "36636520gfvhgj");
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -76,7 +76,7 @@ namespace DebugTrying
 
         private void btnTryingDuplicateWord_Click(object sender, EventArgs e)
         {
-            Word_tbl w= AddDuplicateWord_tbl("דִּירָה");
+            Word_tbl w = AddDuplicateWord_tbl("דִּירָה");
         }
 
 
@@ -125,11 +125,56 @@ namespace DebugTrying
                 wpr.IsSimilarWord = false;
                 db.SaveChanges();
             }
+
+
+
+            //string str = null;
+            //if (str.Contains("hii"))     //ייצור שגיאה בגלל שנאל
+            //{
+            //    MessageBox.Show("OK");
+            //}
         }
 
         private void button5_Click(object sender, EventArgs e)
         {
-            var lst = SimilarWords.GetSimilarWords("בבקשה");
+            var lst = SimilarWords.GetSimilarWords("קרצטועילךל");
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            //LikeTranzakia();
+
+
+
+
+            //NaiveBaiseAlgorithm algorithm = new NaiveBaiseAlgorithm();
+            //Conclusion c = new Conclusion();
+            //List<string> lst = new List<string>() { "קַבְּלָנ" , "קַבְּלָנ" };
+            //c.SavingConclusionsInDB(lst, 1);
+        }
+
+
+        public void LikeTranzakia()
+        {
+            EmailRequest_tbl request = db.EmailRequest_tbl.Single(x => x.ID_emailRequest == 53);
+            var lst = db.WordPerRequest_tbl.Where(x => x.Request_id == request.ID_emailRequest).ToList();
+            WordPerCategory_tbl wpr;
+            foreach (var item in lst)
+            {
+                wpr = db.WordPerCategory_tbl.FirstOrDefault(x => x.ID_category == request.ID_category && x.ID_word == item.Word_id);
+                if (wpr != null)
+                {
+                    if (item.IsSimilarWord == true)
+                        wpr.AmountOfUse -= 0.3f;
+                    else
+                        wpr.AmountOfUse -= 1;
+                    if (wpr.AmountOfUse == 0)
+                        db.WordPerCategory_tbl.Remove(wpr);
+                    db.SaveChanges();
+                }
+            }
+            db.WordPerRequest_tbl.RemoveRange(lst);
+            db.SaveChanges();
         }
     }
 }

@@ -43,6 +43,7 @@
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -53,24 +54,24 @@
   <ItemGroup>
     <Compile Include="Algorithm\NaiveBaiseAlgorithm.cs" />
     <Compile Include="Algorithm\Analysis.cs" />
-    <Compile Include="Algorithm\BodyContent.cs" />
+    <Compile Include="Algorithm\Retrieval.cs" />
+    <Compile Include="Algorithm\SentenceInBody.cs" />
     <Compile Include="Algorithm\Conclusion.cs" />
-    <Compile Include="Algorithm\FunctionsIDontNeedRightNow.cs" />
     <Compile Include="Algorithm\ReducingProbability.cs" />
     <Compile Include="Algorithm\RequestAnalysis.cs" />
     <Compile Include="Algorithm\SimilarWords.cs" />
-    <Compile Include="DbRetrieval.cs" />
+    <Compile Include="Algorithm\Subject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RequestResult.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DAL\DAL.csproj">
       <Project>{cf768e90-29d6-4d70-bdcf-6062c31fc8de}</Project>
       <Name>DAL</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\DTO\DTO.csproj">
-      <Project>{27b70f1a-7a42-44f3-a216-7d1d5a5b0c44}</Project>
-      <Name>DTO</Name>
     </ProjectReference>
     <ProjectReference Include="..\HebrewNLP\HebrewNLP\HebrewNLP.csproj">
       <Project>{d096cc36-7c7f-49f5-879a-4a55e6cf20c0}</Project>
@@ -79,7 +80,13 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="ClassDiagram1.cd" />
+    <None Include="ClassDiagram2.cd" />
     <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

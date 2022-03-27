@@ -1,56 +1,38 @@
 ﻿using DAL;
-using DTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace BLL
 {
-    public enum Percent { Body_VS_Subject = 50, Similiar = 30, Common = 70 }
+    public enum Percent { MaxProbability = 1, Subject_VS_Body = 2, NameOfCategoryManager = 20, Similiar = 30, Common = 70, EmailContent = 80, Hundred = 100 }
 
     public class NaiveBaiseAlgorithm
     {
         readonly AutomaticClassificationDBEntities db = AutomaticClassificationDBEntities.Instance;
-        float[,] probability_mat;   //A matrix that contains in each cell the probability of a word to belong to a specific category.
-        readonly float[] firstInit_arr;      //An initialized array with the number of email requests for each category.
-        RequestAnalysis req_Analysis;    //Object containing the request analysis.
         public static Dictionary<string, Word_tbl> allWords;   //All words from word_tbl as dictionary.
-        const int numEndSentences = 3;
+        float[,] probability_mat;          //A matrix that contains in each cell the probability of a word to belong to a specific category.
+        readonly float[] firstInit_arr;   //An initialized array with the number of email requests for each category.
+        EmailRequest_tbl request;        //Object containing the request.
+        RequestAnalysis req_Analysis;   //Object containing the request analysis.
+        const int numOpenningSentence = 0, numEndingSentences = 3;
+        const float justNotToReset = 0.00001f;
 
         public NaiveBaiseAlgorithm()
         {
-            req_Analysis = new RequestAnalysis();
-            allWords = GetAllWordsAsDictionary();
+            req_Analysis = new RequestAnalysis(db.Category_tbl.Count());
+            allWords = db.Word_tbl.ToDictionary(x => x.Value_word, x => x);
             firstInit_arr = FirstInitProbability_arr();
             BuildProbabilityMat();
         }
 
 
-        /// <summary>
-        /// The function receives an email request and the category to which it belongs.
-        ///The function puts the data into the DB, to teach the system first.
-        /// </summary>
-        /// <param name="subject">email subject</param>
-        /// <param name="body">email body</param>
-        /// <param name="sender">email sender</param>
-        /// <param name="date">email date</param>
-        /// <param name="entryId">entryId of this mail</param>
-        /// <param name="categoryName">the category to which this email request belongs</param>
-        public string FirstInitDB_NewMail(string subject, string body, string sender, DateTime date, string entryId, string categoryName)
-        {
-            EmailRequest_tbl request = new EmailRequest_tbl { EmailSubject = subject, EmailContent = body, SenderEmail = sender, Date = date, EntryId = entryId };
-            request.ID_category = db.Category_tbl.FirstOrDefault(c => c.Name_category == categoryName)?.ID_category;
-            SubjetcAnalysis(request.EmailSubject);
-            BodyAnalysis(request.EmailContent);
-            InsertConclusionToDB(request, false);
-            return request.Category_tbl.Name_category;
-        }
-
 
         /// <summary>
         /// The function gets a new mail and move the email from an inbox to the selected category folder.
+        /// (The category is selected by the <see cref="NaiveBaiseAlgorithm"></see>)
         /// </summary>
         /// <param name="subject">email subject</param>
         /// <param name="body">email body</param>
@@ -59,9 +41,9 @@ namespace BLL
         /// <param name="entryId">entryId of this mail</param>
         public string NewEmailRequest(string subject, string body, string sender, DateTime date, string entryId)
         {
-            EmailRequest_tbl request = new EmailRequest_tbl { EmailSubject = subject, EmailContent = body, SenderEmail = sender, Date = date, EntryId = entryId };
-            request.ID_category = AssociateRequestToCategory(request)+1;
-            InsertConclusionToDB(request, true);
+            request = new EmailRequest_tbl { EmailSubject = subject, EmailContent = body, SenderEmail = sender, Date = date, EntryId = entryId };
+            request.ID_category = AssociateRequestToCategory() + 1;
+            InsertConclusionToDB(true);
             return request.Category_tbl.Name_category;
         }
 
@@ -69,51 +51,116 @@ namespace BLL
         /// <summary>
         /// The function associates the email request to category.
         /// </summary>
-        /// <param name="request">email request</param>
         /// <returns>id of the most suitable category</returns>
-        public int AssociateRequestToCategory(EmailRequest_tbl request)
+        public int AssociateRequestToCategory()
         {
-            SubjetcAnalysis(request.EmailSubject);
-            BodyAnalysis(request.EmailContent);
+            EmailRequestAnalysis();
             CallFuncCalcProbabilityForAllPartsRequest();
-            float[] totalProbability = TotalProbability();
-            return IndexMaxProbability(totalProbability);  //צריך להחזיר את הקטגוריה
+            double[] totalProbability = TotalProbability();
+            return IndexMaxProbability(totalProbability);
         }
 
 
         /// <summary>
-        /// Call for a sentence analysis function from class Analysis.
+        /// The function analyzes the email (email request)
+        /// </summary>
+        public void EmailRequestAnalysis()
+        {
+            HandlingNamesOfCategoryManagerName();
+            SubjetcAnalysis(request.EmailSubject);
+            BodyAnalysis(request.EmailContent);
+        }
+
+
+        /// <summary>
+        /// The function checks whether the email request mentions a request to one of the category managers.
+        /// </summary>
+        public void HandlingNamesOfCategoryManagerName()
+        {
+            if (request.EmailSubject == null)
+                request.EmailSubject = "";
+            if (!IsContainContent(request.EmailContent))
+                request.EmailContent = "";
+            string requestContent = request.EmailSubject + " " + request.EmailContent;
+            char[] separators = new char[] { ' ', '\n', '\t', '\r', '-', ',', '.' };
+            string[] wordsSentence = requestContent.Split(separators);     //take out the separators.
+            //var category_lst = db.Category_tbl.ToList();
+            //foreach (var category in category_lst)
+            //{
+            //    if (wordsSentence.Contains(category.ManagerName_category))
+            //        req_Analysis.IsContainCategoryManagerID[category.ID_category - 1] = true;
+            //}
+            var user_lst = db.User_tbl.ToList();
+            foreach (var user in user_lst)
+            {
+                if (user.ID_category!=null && wordsSentence.Contains(user.Name_user))
+                    req_Analysis.IsContainCategoryManagerID[(int)user.ID_category - 1] = true;
+            }
+        }
+
+
+        /// <summary>
+        /// The function checks whether the string it received contains real content, and not just spaces, etc.
+        /// </summary>
+        /// <param name="body">body of the email</param>
+        /// <returns>True: if contains real content.  else - False</returns>
+        public bool IsContainContent(string body)
+        {
+            if (body != null)
+            {
+                string onlyContent = body.Trim();
+                if (onlyContent.Length > 1)
+                    return true;
+            }
+            return false;
+        }
+
+
+        /// <summary>
+        /// The function analyzes the subject of the email.
         /// </summary>
         /// <param name="subject">email subject</param>
         public void SubjetcAnalysis(string subject)
         {
-            subject = subject.RemoveOpeningWords();
-            subject = subject.RemoveEndingWords();
-            req_Analysis.NormalizedSubjectWords = subject.AnalysisSentece();
+            if (subject != "")
+            {
+                subject = subject.RemoveOpeningWords();
+                subject = subject.RemoveEndingWords();
+                req_Analysis.Subject.NormalizedSubjectWords = subject.AnalysisSentece();
+            }
         }
 
 
         /// <summary>
-        /// The function analyzes the body of the email, And calls a function analysis function from class Analysis.
+        /// The function analyzes the body of the email.
         /// </summary>
         /// <param name="body">email body</param>
         public void BodyAnalysis(string body)
         {
-            List<string> bodySplitToSentences = body.SplitToSentences();
-            //לטפל במקרה שחוזר נאל= לא מצליח לגשת לספריית אןאלפי
-            req_Analysis.BodyAnalysis = new BodyContent[(int)(bodySplitToSentences?.Count())];
-            int i = 0, numSentences = bodySplitToSentences.Count();
-            string s;
-            foreach (var sentence in bodySplitToSentences)
+            if (body != "")
             {
-                s = sentence;
-                if (i == 0)  //משפט פתיחה
-                    s = sentence.RemoveOpeningWords();
-                if (i > numSentences - numEndSentences) //שלושת המשפטים האחרונים- משפטי סיום
-                    s = s.RemoveEndingWords();
-                req_Analysis.BodyAnalysis[i] = new BodyContent();
-                req_Analysis.BodyAnalysis[i].NormalizedBodyWords = s.AnalysisSentece();
-                i++;
+                List<string> bodySplitToSentences = body.SplitToSentences();
+                bodySplitToSentences.RemoveAll(x => x.Length < 2);
+                if (bodySplitToSentences.Count() == 0)   //In a case that fails to access the Hebrew NLP library
+                    return;
+                int i = 0, numSentences = bodySplitToSentences.Count();
+                string s;
+                foreach (var sentence in bodySplitToSentences)
+                {
+                    s = sentence;
+                    if (i <= numOpenningSentence)  //משפט פתיחה
+                        s = sentence.RemoveOpeningWords();
+                    if (i >= numSentences - numEndingSentences) //שלושת המשפטים האחרונים- משפטי סיום
+                        s = s.RemoveEndingWords();
+                    if (s.Length > 1)  //שלא הוסר כל התוכן שלו
+                    {
+                        SentenceInBody sentenceInBody = new SentenceInBody();
+                        sentenceInBody.NormalizedBodyWords = s.AnalysisSentece();
+                        if (sentenceInBody.NormalizedBodyWords.Count() > 0)
+                            req_Analysis.Body.Add(sentenceInBody);
+                    }
+                    i++;
+                }
             }
         }
 
@@ -123,10 +170,89 @@ namespace BLL
         /// </summary>
         public void CallFuncCalcProbabilityForAllPartsRequest()
         {
-            //זו הפונקציה שבמידת הצורך אחלק לתהליכונים
-            req_Analysis.ProbabilitybSubjectForCategory = CalcProbabilityForCategory(req_Analysis.NormalizedSubjectWords, req_Analysis.ProbabilitybSubjectForCategory);
-            foreach (var sentence in req_Analysis.BodyAnalysis)
-                sentence.ProbabilitybSentenceForCategory = CalcProbabilityForCategory(sentence.NormalizedBodyWords, sentence.ProbabilitybSentenceForCategory);
+            req_Analysis.Subject.ProbabilitybSubjectForCategory = CalcProbabilityForCategory(req_Analysis.Subject.NormalizedSubjectWords);
+            int i = 0;
+            List<Task<double[]>> tasks = new List<Task<double[]>>();
+            foreach (var sentence in req_Analysis.Body)
+            {
+                Task<double[]> task = Task.Run(() => { return CalcProbabilityForCategory(sentence.NormalizedBodyWords); });
+                tasks.Add(task);
+            }
+            foreach (var task in tasks)
+            {
+                task.Wait();
+                req_Analysis.Body[i].ProbabilitybSentenceForCategory = task.Result;
+                i++;
+            }
+        }
+
+
+        /// <summary>
+        /// The function calculates for each category the probability of the sentence to belong to it.
+        /// </summary>
+        /// <param name="contentWords_lst">A list of strings containing the sentence.</param>
+        /// <returns>An array that contains for each category its probability of belonging to this a category.</returns>
+        public double[] CalcProbabilityForCategory(List<string> contentWords_lst)
+        {
+            double[] categoryProbability_arr = InitProbability_arr();
+            Task[] tasks = new Task[contentWords_lst.Count()];
+            int indexArr = 0;
+            //בעבור כל מילה הקיימת בדטה בייס - מחשבים את ההסתברות שלה + ההסתברות של המילים הדומות לה הקיימות ב-דטה בייס
+            foreach (var w in contentWords_lst)
+            {
+                Task task = Task.Run(() =>
+                {
+                    float prob, prob_similiarWords;
+                    bool isExsist = allWords.TryGetValue(w, out Word_tbl word);
+                    List<string> similarWords = GetAnalayzedSimWords(w);
+                    for (int i = 0; i < categoryProbability_arr.Length; i++)
+                    {
+                        prob_similiarWords = SimiliarWords_probability(i, similarWords);
+                        if (isExsist && probability_mat[word.ID_word - 1, i] != 0)
+                            prob = probability_mat[word.ID_word - 1, i];
+                        else
+                            prob = justNotToReset;
+                        //משקל של 70% להסתברות של המילה עצמה, ו-30% להסתברות של המילים הדומות.
+                        prob = prob * ((float)Percent.Common) / (int)Percent.Hundred + prob_similiarWords * ((float)Percent.Similiar) / (int)Percent.Hundred;
+                        lock (categoryProbability_arr)
+                        {
+                            categoryProbability_arr[i] *= prob;
+                        }
+                    }
+                });
+                tasks[indexArr++] = task;
+            }
+            Task.WaitAll(tasks);
+            return categoryProbability_arr;
+        }
+
+
+        /// <summary>
+        /// Function initializes the array of categories - with copies values as firstInit_arr   (istead of calculate it few times)
+        /// </summary>
+        /// <returns>For each category the num of the email requests to belong to it</returns>
+        public double[] InitProbability_arr()
+        {
+            double[] probability_arr = new double[firstInit_arr.Length];
+            firstInit_arr.CopyTo(probability_arr, 0); //לברר שזה העתקה ממש, ולא רק הפניות
+            return probability_arr;
+        }
+
+
+        /// <summary>
+        /// Function initializes the array of categories - for each category the number of email requests sent to this category.  
+        /// arr[i]= P(c).  We will not make the division into the general number of email requests because this division is equal for all categories and there is no point in doing so.
+        /// </summary>
+        /// <returns>The array of probabilities - for each category the num of the email requests to belong to it.</returns>
+        public float[] FirstInitProbability_arr()
+        {
+            float[] probability_arr = new float[db.Category_tbl.Count()];
+            for (int i = 0; i < probability_arr.Length; i++)
+            {
+                int numRequestsForCategory = db.EmailRequest_tbl.Where(e => e.ID_category == i + 1).Count();
+                probability_arr[i] = numRequestsForCategory;
+            }
+            return probability_arr;
         }
 
 
@@ -152,111 +278,46 @@ namespace BLL
 
 
         /// <summary>
-        /// The function calculates for each category the probability of the sentence to belong to it.
+        /// The function receives a word, and returns a list of analyzed words (by hebrew NLP) that are similar to it.
         /// </summary>
-        /// <param name="contentWords_lst">A list of strings containing the sentence.</param>
-        /// <returns>An array that contains for each category its probability of belonging to this a category.</returns>
-        public float[] CalcProbabilityForCategory(List<string> contentWords_lst, float[] categoryProbability_arr)
+        /// <param name="w">A word</param>
+        /// <returns>A list of analyzed words that are similar to it.</returns>
+        public List<string> GetAnalayzedSimWords(string w)
         {
-            Word_tbl word;
-            float prob, prob_similiarWords;
-            //בעבור כל מילה הקיימת בדטה בייס - מחשבים את ההסתברות שלה + ההסתברות של המילים הדומות לה הקיימות ב-דטה בייס
-            if (contentWords_lst.Count() == 0)
-                InitProbability_arr(categoryProbability_arr, false);
-            else
-                InitProbability_arr(categoryProbability_arr, true);
-            foreach (var w in contentWords_lst)
-            {
-                word = null;
-                bool isExsist = allWords.TryGetValue(w, out word);
-                for (int i = 0; i < categoryProbability_arr.Length; i++)
-                {
-                    prob_similiarWords = SimiliarWords_probability(w, i);
-                    if (isExsist)
-                        prob = probability_mat[word.ID_word - 1, i];
-                    else
-                        prob = 0.00001f;
-                    prob = prob * ((float)Percent.Common) / 100 + prob_similiarWords * ((float)Percent.Similiar) / 100;   //משקל של 60% להסתברות של המילה עצמה, ו-40% להסתברות של המילים הדומות.
-                    categoryProbability_arr[i] *= prob;
-                }
-            }
-            return categoryProbability_arr;
-        }
-
-
-        /// <summary>
-        /// If flag=true:  Function initializes the array of categories - with copies values as firstInit_arr   (istead of calculate it few times)
-        /// If flag=false: Init arr to zero.
-        /// </summary>
-        /// <param name="probability_arr">arr</param>
-        /// <param name="flag">init to num requests for category or init to 0</param>
-        /// <returns>The array of probabilities - for each category the num of the email requests to belong to it, or array init to 0. it'w up to the flag </returns>
-        public float[] InitProbability_arr(float[] probability_arr, bool flag)
-        {
-            probability_arr = new float[firstInit_arr.Length];
-            if (flag)
-                firstInit_arr.CopyTo(probability_arr, 0); //לברר שה העתקה ממש, ולא רק הפניות
-            //else    //לבדוק אם באמת צריך לאפס
-            //    for (int i = 0; i < probability_arr.Length; i++)
-            //        probability_arr[i] = 0;
-            return probability_arr;
-        }
-
-
-        /// <summary>
-        /// Function initializes the array of categories - for each category the number of email requests sent to this category.  
-        /// arr[i]= P(c).  We will not make the division into the general number of email requests because this division is equal for all categories and there is no point in doing so.
-        /// </summary>
-        /// <returns>The array of probabilities - for each category the num of the email requests to belong to it.</returns>
-        public float[] FirstInitProbability_arr()
-        {
-            float[] probability_arr = new float[db.Category_tbl.Count()];
-            for (int i = 0; i < probability_arr.Length; i++)
-            {
-                int numRequestsForCategory = db.EmailRequest_tbl.Where(e => e.ID_category == i + 1).Count();
-                probability_arr[i] = numRequestsForCategory;
-            }
-            return probability_arr;
-        }
-
-
-        /// <summary>
-        /// A function that converts a list to a dictionary
-        /// </summary>
-        /// <returns>A dictionary that contains all DB words</returns>
-        public Dictionary<string, Word_tbl> GetAllWordsAsDictionary()
-        {
-            var allWords_lst = db.Word_tbl.ToList();
-            return allWords_lst.ToDictionary(x => x.Value_word, x => x);
+            List<string> simWords = SimilarWords.GetSimilarWords(w);
+            if (simWords == null)
+                return null;
+            List<string> normalizedSimWords = simWords.ToArray().AnalysisWords();
+            return normalizedSimWords;
         }
 
 
         /// <summary>
         /// Calculating the probability of words similar to the word.
         /// </summary>
-        /// <param name="word">word</param>
-        /// <param name="category_id">category id</param>
-        /// <returns>the probability of words similar to the word</returns>
-        public float SimiliarWords_probability(string word, int category_id)
+        /// <param name="category_id">Category id</param>
+        /// <param name="normalizedSimWords">List of similar words</param>
+        /// <returns>The probability of the all words similar to the word together</returns>
+        public float SimiliarWords_probability(int category_id, List<string> normalizedSimWords)
         {
             //על המילים הדומות שמקבלים צריך לבדוק שוב האם קיימות ב-דטה בייס לקטגוריה זו, ולהחזיר את ההסתברות, אם לא קיימות  להחזיר 0
-            List<string> similarWords = SimilarWords.GetSimilarWords(word);
-            if (similarWords == null)
+            if (normalizedSimWords == null)
                 return 0;
-            List<string> normalizedSimWords = similarWords.ToArray().AnalysisWords();
-            req_Analysis.Similarwords = normalizedSimWords;
             float prob = 0;
             int count = 0;
             foreach (var item in normalizedSimWords)
             {
                 bool isExsist = allWords.TryGetValue(item, out Word_tbl wordFromDic);
-                if (isExsist /*&& probability_mat[wordFromDic.ID_word - 1, category_id] != 0*/)
+                if (isExsist && probability_mat[wordFromDic.ID_word - 1, category_id] != 0)
                 {
                     prob += probability_mat[wordFromDic.ID_word - 1, category_id];
                     count++;
-                   // req_Analysis.SimiliarwordsExsistDB.Add(wordFromDic);
+                    if (!req_Analysis.SimiliarwordsExsistDB.Contains(wordFromDic))  //כי יש מצב שהכניס כבר בעבור קטגוריה אחרת
+                        req_Analysis.SimiliarwordsExsistDB.Add(wordFromDic);
                 }
             }
+            if (count == 0)
+                return 0;
             return prob / count;
         }
 
@@ -265,20 +326,69 @@ namespace BLL
         /// The function calculates the total general probability for the email request for each category.
         /// </summary>
         /// <returns>Returns an array that contains for each category the final probability of the email request to belong to it.</returns>
-        public float[] TotalProbability()
+        public double[] TotalProbability()
         {
-            float[] totalProbability = new float[firstInit_arr.Length];   //צריך לאפס?
+            double[] totalProbability = new double[firstInit_arr.Length];
+            int realSizeBodySentences = AmountOfRealSizeSentencesInBody();
+            float percentsForSubject = 0, percentsEachSentence = 0;
+            PercentageOfSubjectAndBody(realSizeBodySentences, ref percentsForSubject, ref percentsEachSentence);
             for (int i = 0; i < totalProbability.Length; i++)
             {
-                //חיבור ההסתברויות של כל המשפטים בגוף המייל
-                foreach (var sentence in req_Analysis.BodyAnalysis)
-                    totalProbability[i] += sentence.ProbabilitybSentenceForCategory[i];
-                totalProbability[i] /= req_Analysis.BodyAnalysis.Count();
-                totalProbability[i] *= ((float)Percent.Body_VS_Subject) / 100;  //gives 50% for the body
-                //חיבור ההסתברות של גוף המייל עם הנושא
-                totalProbability[i] += req_Analysis.ProbabilitybSubjectForCategory[i] * (((float)Percent.Body_VS_Subject) / 100);  //gives 50% for the subject
+                foreach (var sentence in req_Analysis.Body)
+                {
+                    if (sentence.NormalizedBodyWords.Count() != 0) //בעבור משפטים שנוטרלו בשלמותם
+                        totalProbability[i] += sentence.ProbabilitybSentenceForCategory[i] * percentsEachSentence;
+                }
+                totalProbability[i] += req_Analysis.Subject.ProbabilitybSubjectForCategory[i] * percentsForSubject;
+                if (req_Analysis.IsContainCategoryManagerID[i])
+                {
+                    totalProbability[i] *= (float)Percent.EmailContent / (int)Percent.Hundred;
+                    totalProbability[i] += (float)Percent.NameOfCategoryManager / (int)Percent.Hundred;
+                }
             }
             return totalProbability;
+        }
+
+
+        /// <summary>
+        /// The function counts how many (non-empty) sentences have content in the body of the email.
+        /// </summary>
+        /// <returns>The number of sentences with content (non-empty) in the body of the email.</returns>
+        public int AmountOfRealSizeSentencesInBody()
+        {
+            int count = 0;
+            foreach (var sentence in req_Analysis.Body)
+            {
+                if (sentence.NormalizedBodyWords.Count() != 0) //בעבור משפטים שנוטרלו בשלמותם
+                    count++;
+            }
+            return count;
+        }
+
+
+        /// <summary>
+        /// The function calculates in relation to the number of sentences in the body of the e-mail
+        /// the weight that the subject will receive and each sentence from the e-mail
+        /// out of the total probable probability of email request to each category.
+        /// The subject of the email is given twice the weight of each sentence in the body of the email.
+        /// </summary>
+        /// <param name="realSizeBodySentences">A number of sentences with content in the body of the email</param>
+        /// <param name="percentsForSubject">The weight given to the subject of the email out of the complete probability</param>
+        /// <param name="percentsEachSentence">The weight given to each sentence from the body of the email out of the complete probability</param>
+        public void PercentageOfSubjectAndBody(int realSizeBodySentences, ref float percentsForSubject, ref float percentsEachSentence)
+        {
+            if (realSizeBodySentences == 0)
+                percentsForSubject = (float)Percent.MaxProbability;
+            else
+            {
+                if (req_Analysis.Subject.NormalizedSubjectWords.Count() == 0)
+                    percentsEachSentence = (float)Percent.MaxProbability / realSizeBodySentences;
+                else
+                {
+                    percentsEachSentence = (float)Percent.MaxProbability / realSizeBodySentences + (int)Percent.Subject_VS_Body;
+                    percentsForSubject = percentsEachSentence * (int)Percent.Subject_VS_Body;
+                }
+            }
         }
 
 
@@ -287,12 +397,9 @@ namespace BLL
         /// </summary>
         /// <param name="probability_arr">An array of probabilities for each category.</param>
         /// <returns>index of the category with the highest probability.</returns>
-        public int IndexMaxProbability(float[] probability_arr) 
+        public int IndexMaxProbability(double[] probability_arr)
         {
-            //לראות אולי צריך לבצע בדיקה יותר חחכמה מחיפוש שרירותי אחר המקסימום
-            //אם יש כמה קטגוריות שקרובות למקס, צריך לבצע בדיקות נוספות לדוגמא: אנשי קשר
-
-            float maxValue = probability_arr.Max();
+            double maxValue = probability_arr.Max();
             for (int i = 0; i < probability_arr.Length; i++)
                 if (probability_arr[i] == maxValue)
                     return i;
@@ -303,8 +410,8 @@ namespace BLL
         /// <summary>
         /// The function calls the functions of Conclusion class, in order to enter into the DB the data of the current email request for system improvement from now on.
         /// </summary>
-        /// <param name="request">The emaill request</param>
-        public void InsertConclusionToDB(EmailRequest_tbl request, bool isAutomat)
+        /// <param name="isAutomat">True: if it's automatic sending.  else - false.</param>
+        public void InsertConclusionToDB(bool isAutomat)
         {
             Conclusion conclusion = new Conclusion(req_Analysis, request, isAutomat);
             conclusion.AddEmailRequest_tbl(request);

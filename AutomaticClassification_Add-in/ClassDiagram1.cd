@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="AutomaticClassification_Add_in.Forms.AddNewCategory">
+    <Position X="4.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAABAAAGAAQABAAACAQABCQACCAAQAEAIEAAAAAAA=</HashCode>
+      <FileName>Forms\AddNewCategory.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AutomaticClassification_Add_in.UI_Pane">
+    <Position X="2.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EgQAoQAAEGAIAAAAAACIAAACCAAgAABAAACAAAEQIAI=</HashCode>
+      <FileName>Forms\UI_Pane.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AutomaticClassification_Add_in.ThisAddIn">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAwGgCSCBAgFQAgAQAAgFiAgBAgABASAAgAIAIAACg=</HashCode>
+      <FileName>ThisAddIn.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AutomaticClassification_Add_in.Globals" Collapsed="true">
+    <Position X="7" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAgAgAAAAgAAAAAAIAAAAAAAAAAAgAAAAAACAAAAgAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AutomaticClassification_Add_in.ThisRibbonCollection" Collapsed="true">
+    <Position X="6.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AutomaticClassification_Add_in.ThisFormRegionCollection" Collapsed="true">
+    <Position X="8.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AutomaticClassification_Add_in.WindowFormRegionCollection" Collapsed="true">
+    <Position X="8.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AutomaticClassification_Add_in.Properties.Resources" Collapsed="true">
+    <Position X="8.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAABEAAAAQAAAAAAAAAAAAAAAIA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AutomaticClassification_Add_in.Properties.Settings" Collapsed="true">
+    <Position X="6.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAIAAAAAABAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Enum Name="AutomaticClassification_Add_in.ManagerPl">
+    <Position X="4.25" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAgAAABAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Forms\UI_Pane.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

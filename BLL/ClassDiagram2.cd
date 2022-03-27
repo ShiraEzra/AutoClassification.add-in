@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="BLL.Analysis" Collapsed="true">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAACCIAgAAgQABAQIAAAAAAAAAAIAAAAECFAIBAAAAA=</HashCode>
+      <FileName>Algorithm\Analysis.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BLL.Conclusion" Collapsed="true">
+    <Position X="2.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAyAAAIAAAAQAAAAAAAAIgSACAQAAAABAAAAAAAABAA=</HashCode>
+      <FileName>Algorithm\Conclusion.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BLL.NaiveBaiseAlgorithm" Collapsed="true">
+    <Position X="4" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>A0IAgBBCAAAYBEEEAIAAAwWABAAAAoAAAAAQAAAIACA=</HashCode>
+      <FileName>Algorithm\NaiveBaiseAlgorithm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BLL.ReducingProbability" Collapsed="true">
+    <Position X="5.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAQAAAAAAAAACAAAAAAAAAEAAAAAAAAAAA=</HashCode>
+      <FileName>Algorithm\ReducingProbability.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BLL.RequestAnalysis" Collapsed="true">
+    <Position X="0.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACAAAAAAAEAAAAAAAIABAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Algorithm\RequestAnalysis.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BLL.Retrieval" Collapsed="true">
+    <Position X="2.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gIAAAABAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAIAACAA=</HashCode>
+      <FileName>Algorithm\Retrieval.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BLL.SentenceInBody" Collapsed="true">
+    <Position X="4" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAgAAAAAgAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Algorithm\SentenceInBody.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BLL.SimilarWords">
+    <Position X="0.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEAAAAAAAAAAAAAAAAAAAAAAAgAACAAAAAAAAAQ=</HashCode>
+      <FileName>Algorithm\SimilarWords.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BLL.Subject" Collapsed="true">
+    <Position X="2.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAA=</HashCode>
+      <FileName>Algorithm\Subject.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BLL.Properties.Settings" Collapsed="true">
+    <Position X="8.75" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACCAAAAAAAAAAQAAAAIAAAAAABAAAAACAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Enum Name="BLL.StatusKind" Collapsed="true">
+    <Position X="8.75" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAAAQAAA=</HashCode>
+      <FileName>Algorithm\Conclusion.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="BLL.Percent" Collapsed="true">
+    <Position X="7" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAACAAAAAAAQAAACAAAAAAAAAgAAAAGAAAAAAAA=</HashCode>
+      <FileName>Algorithm\NaiveBaiseAlgorithm.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

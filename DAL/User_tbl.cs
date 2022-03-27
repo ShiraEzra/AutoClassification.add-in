@@ -14,10 +14,14 @@ namespace DAL
     
     public partial class User_tbl
     {
-        public int ID_user { get; set; }
+        public int Code { get; set; }
         public string Name_user { get; set; }
         public int ID_premissionLevel { get; set; }
+        public Nullable<int> ID_category { get; set; }
+        public string ID_user { get; set; }
+        public string Password { get; set; }
     
+        public virtual Category_tbl Category_tbl { get; set; }
         public virtual PermissionLevel_tbl PermissionLevel_tbl { get; set; }
     }
 }

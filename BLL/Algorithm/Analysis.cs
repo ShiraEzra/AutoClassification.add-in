@@ -1,11 +1,9 @@
 ﻿using HebrewNLP.Morphology;
-using HebrewNLP.Names;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+
 
 namespace BLL
 {
@@ -20,7 +18,6 @@ namespace BLL
         public static List<string> AnalysisSentece(this string sentence)
         {
             List<List<MorphInfo>> analyzedSentence = AnalyzeSentence(sentence);
-            //לטפל במקרה שחוזר נאל= לא מצליח לגשת לספריית אןאלפי
             return RemoveIrrelevantWords(analyzedSentence);
         }
 
@@ -28,12 +25,11 @@ namespace BLL
         /// <summary>
         /// The function receives an array of words , activates the AnalyzeSentence function on it. And returns it analyzed without any irrelevant words.
         /// </summary>
-        /// <param name="words">word to analysis</param>
+        /// <param name="words">array of word to analysis</param>
         /// <returns>list of the analyzed words without any irrelevant words.</returns>
         public static List<string> AnalysisWords(this string[] words)
         {
             List<List<MorphInfo>> analyzedWords = AnalyzeWords(words);
-            //לטפל במקרה שחוזר נאל= לא מצליח לגשת לספריית אןאלפי
             return RemoveIrrelevantWords(analyzedWords);
         }
 
@@ -53,7 +49,7 @@ namespace BLL
             }
             catch (Exception)
             {
-                return null;
+                return new List<string>();
             }
         }
 
@@ -62,7 +58,7 @@ namespace BLL
         /// The function analyzes the sentence.
         /// </summary>
         /// <param name="sentence">sentence</param>
-        /// <returns>analyzed sentence   (as MorphInfo list)</returns>
+        /// <returns>List with analyzed words from the  sentence. (as MorphInfo list)</returns>
         public static List<List<MorphInfo>> AnalyzeSentence(string sentence)
         {
             try
@@ -72,7 +68,7 @@ namespace BLL
             }
             catch (Exception)
             {
-                return null;
+                return new List<List<MorphInfo>>();
             }
         }
 
@@ -91,30 +87,8 @@ namespace BLL
             }
             catch (Exception)
             {
-                return null;
+                return new List<List<MorphInfo>>();
             }
-        }
-
-
-        /// <summary>
-        /// The function analyzes this string and recognize if it's a name using the HebrewNLP library.
-        /// </summary>
-        /// <param name="maybeName">string</param>
-        /// <returns>NameIfo - analysis of maybeName</returns>
-        public static NameInfo NameRecognition(string maybeName)
-        {
-            string[] arrName = new string[] { maybeName };
-            List<NameInfo> options;
-            HebrewNLP.HebrewNLP.Password = "3BGkxLKouDk3l7B";
-            try
-            {
-                options = NameAnalyzer.Analyze(arrName);
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-            return options.FirstOrDefault();
         }
 
 
@@ -125,44 +99,19 @@ namespace BLL
         /// <returns>A list of strings containing the words relevant to the classification.</returns>
         public static List<string> RemoveIrrelevantWords(List<List<MorphInfo>> analyzedSentence)
         {
-            //לסדר תיעוד
             List<string> rellevantWords = new List<string>();
-            bool isLastwasfirstName = true;
-            if (analyzedSentence != null)
-                foreach (var item in analyzedSentence)
+            foreach (var item in analyzedSentence)
+            {
+                if (IsRrelavantPartOfSpeach(item.FirstOrDefault()))
                 {
-                    //לראות איך אפשר לייעל את הבחירה מבין האופציות שחוזרות לי מהספרייה
-                    if (IsRrelavantPartOfSpeach(item.FirstOrDefault()))  //אם המילה רלוונטית
+                    MorphInfo word = CheckParticle(item);   //מילת הקריאה אם קיימת באופציות, אחרת - נאל
+                    if (!ParticleWords(word))   //אם לא קיימת אופציה של מילת קריאה, או שהמילה אינה באמת מילת קריאה - ניקח באופן שרירותי את האופציה הראשונה ברשימה
                     {
-                        MorphInfo word = CheckName(item);
-                        if (word != null)
-                        {
-                            if (isLastwasfirstName)  //אם המילה הקודמת הייתה שם פרטי, ועכשיו המילה היא שם משפחה
-                            {
-                                string fullName = rellevantWords.Last() + word.BaseWordMenukad == null ? word.BaseWord : word.BaseWordMenukad;
-                                rellevantWords[rellevantWords.Count() - 1] = fullName;   //מוסיפים את השם משפחה לשם הפרטי כמילה אחת
-                                isLastwasfirstName = false;
-                            }
-                            else
-                            {
-                                rellevantWords.Add(word.BaseWordMenukad == null ? word.BaseWord : word.BaseWordMenukad);
-                                isLastwasfirstName = false;
-                            }
-                        }
-                        else
-                        {
-                            word = CheckParticle(item);   //מילת הקריאה אם קיימת באופציות, אחרת - נאל
-                            if (!OpeningAndclosingWords(word))   //אם לא קיימת אופציה של מילת קריאה, או שהמילה אינה באמת מילת קריאה - ניקח באופן שרירותי את האופציה הראשונה ברשימה
-                            {
-                                word = item.FirstOrDefault();
-                                rellevantWords.Add(word.BaseWordMenukad == null ? word.BaseWord : word.BaseWordMenukad);
-                                isLastwasfirstName = word.PartOfSpeech == PartOfSpeech.PROPER_NOUN ? true : false;
-                            }
-                            else
-                                isLastwasfirstName = false;
-                        }
+                        word = item.FirstOrDefault();
+                        rellevantWords.Add(word.BaseWordMenukad != null ? word.BaseWordMenukad : word.BaseWord);
                     }
                 }
+            }
             return rellevantWords;
         }
 
@@ -171,41 +120,15 @@ namespace BLL
         /// The function checks whether the word is relevant according to the analysis of the word.
         /// </summary>
         /// <param name="morphInfo">Analyzed word</param>
-        /// <returns>True- If the word is captivating and relevant. Otherwise - False</returns>
+        /// <returns>True- If the word is relevant. Otherwise - False</returns>
         public static bool IsRrelavantPartOfSpeach(MorphInfo morphInfo)
         {
-            //לראות איך להתייחס למספר
-            //MODAL
             return morphInfo.PartOfSpeech == PartOfSpeech.VERB || morphInfo.PartOfSpeech == PartOfSpeech.NOUN || morphInfo.PartOfSpeech == PartOfSpeech.ADJECTIVE || morphInfo.PartOfSpeech == PartOfSpeech.PROPER_NOUN;
         }
 
 
         /// <summary>
-        /// The function gets a list of analysis options for a particular word.
-        ///The function checks if one of the options contains a name.
-        ///If so - sends to a name identification function.If not returns NULL
-        /// </summary>
-        /// <param name="wordsOptions">a list of options of analyzed words</param>
-        /// <returns>word / null</returns>
-        public static MorphInfo CheckName(List<MorphInfo> wordsOptions)
-        {
-            foreach (var word in wordsOptions)
-            {
-                if (word.PartOfSpeech == PartOfSpeech.PROPER_NOUN)
-                {
-                    NameInfo nameInfo = NameRecognition(word.BaseWord);
-                    if (nameInfo == null)
-                        return null;
-                    if (nameInfo.FirstName > 8 || nameInfo.LastName > 8 || (nameInfo.FirstName >= 5 && nameInfo.LastName >= 5))
-                        return word;
-                }
-            }
-            return null;
-        }
-
-
-        /// <summary>
-        /// The function receives a list of options of analyzed words and returns true if one of all the options is a word, otherwise false.
+        /// The function receives a list of options of analyzed words and returns the object of MorphInfo if one of all the options is a particle word, otherwise NULL.
         /// </summary>
         /// <param name="wordsOptions">a list of options of analyzed words</param>
         /// <returns>word / null</returns>
@@ -221,21 +144,24 @@ namespace BLL
 
 
         /// <summary>
-        /// The function builds a list of opening words and ending words.
-        ///Returns whether the word she received is an opening / closing word or not.
+        /// The function builds a list of particle words.
+        ///Returns whether the word it received is a particle word or not.
         /// </summary>
         /// <param name="word">word (as MorphInfo)</param>
-        /// <returns>whether the word she received is an opening / closing word or not.</returns>
-        public static bool OpeningAndclosingWords(MorphInfo word)  //לשנות כאן למיליות , כמו בבקשה וכו
+        /// <returns>whether the word it received is a particle word or not.</returns>
+        public static bool ParticleWords(MorphInfo word)
         {
             if (word != null)
             {
-                List<string> commonWords = new List<string>() {"בבקשה"};
+                List<string> commonWords = new List<string>() { "בבקשה" };  //לראות אלו מילים יש להוסיף לכאן
                 if (commonWords.Contains(word.BaseWord))
                     return true;
             }
             return false;
         }
+
+        static string openningPathWindows = @"\..\..\Data\openningWords.txt"; //להוציא לאפפ קונפיג
+        static string openningPath = @"\Data\openningWords.txt";
 
 
         /// <summary>
@@ -246,9 +172,36 @@ namespace BLL
         /// <returns>A sentence without opening words</returns>
         public static string RemoveOpeningWords(this string sentence)
         {
-            string[] openingWords = System.IO.File.ReadAllLines(Environment.CurrentDirectory + @"\Data\openningWords.txt");
-            return RemoveWords(sentence, openingWords);
+            string[] openningWords = null;
+            try
+            {
+                openningWords = System.IO.File.ReadAllLines(Environment.CurrentDirectory + openningPathWindows);
+            }
+            catch (Exception)
+            {
+                try
+                {
+                    openningWords = System.IO.File.ReadAllLines(Environment.CurrentDirectory + openningPath);
+                }
+                catch (Exception)
+                {
+                    try
+                    {
+                        openningWords = System.IO.File.ReadAllLines(Environment.CurrentDirectory +openningPath);
+                    }
+                    catch (Exception)
+                    {
+                        //MessageBox.Show("openning -File routing error project " + Environment.CurrentDirectory);
+                    }
+                }
+            }
+            return RemoveWords(sentence, openningWords);
         }
+
+
+        //העברתי לאפפ קונפיג, אבל לא מצליח לקחת משם.
+        static string endingPathWindows = @"\..\..\Data\endingWords.txt";   
+        static string endingPath = @"\Data\endingWords.txt";
 
 
         /// <summary>
@@ -259,7 +212,29 @@ namespace BLL
         /// <returns>A sentence without ending words</returns>
         public static string RemoveEndingWords(this string sentence)
         {
-            string[] endingWords = System.IO.File.ReadAllLines(Environment.CurrentDirectory + @"\Data\endingWords.txt");
+            string[] endingWords = null;
+            try
+            {
+                endingWords = File.ReadAllLines(Environment.CurrentDirectory + endingPathWindows);
+            }
+            catch (Exception)
+            {
+                try
+                {
+                    endingWords = File.ReadAllLines(Environment.CurrentDirectory + endingPath);
+                }
+                catch (Exception)
+                {
+                    try
+                    {
+                        endingWords = File.ReadAllLines(Environment.CurrentDirectory + endingPath);
+                    }
+                    catch (Exception)
+                    {
+                        //MessageBox.Show("ending -File routing error project " + Environment.CurrentDirectory);
+                    }
+                }
+            }
             return RemoveWords(sentence, endingWords);
         }
 
@@ -273,14 +248,36 @@ namespace BLL
         /// <returns>A sentence without the words to be removed.</returns>
         public static string RemoveWords(string sentence, string[] wordsToRemove)
         {
-            sentence = Regex.Replace(sentence, @"[!-/,:-@, [-`, {-~]", " "); // delete every char that suitable to the condition.
-            var wordsToRemove_lst= wordsToRemove.OrderBy(x => x.Length);
-            foreach (var item in wordsToRemove_lst)
+            //sentence = Regex.Replace(sentence, @"[!-/,:-@, [-`, {-~]", " "); // delete every char that suitable to the condition.
+            //צריך לשלוח פונקציית השוואה למיון, איך עושים??
+            if (wordsToRemove != null)
             {
-                if (sentence.Contains(item + " ") || sentence.Contains(" " + item) || sentence.Contains(" " + item + " "))
-                    sentence = sentence.Replace(item, "");
+                //var wordsToRemove_lst = wordsToRemove.OrderBy(x => x.Length);
+                //var orderedWordsToRemove = wordsToRemove_lst.Reverse();
+                Array.Sort(wordsToRemove, Compare);
+                foreach (var item in wordsToRemove)
+                {
+                    if (sentence.Contains(item))
+                        sentence = sentence.Replace(item, "");
+                }
             }
             return sentence;
         }
+
+
+        /// <summary>
+        /// The function compares the lengths of the strings.
+        ///The function returns a number greater than 0 if the length of the x string is greater than the length of the y string.
+        ///If the lengths of the strings are equal - the function returns 0.
+        ///Otherwise - No. less than 0.
+        /// </summary>
+        /// <param name="x">string</param>
+        /// <param name="y">string</param>
+        /// <returns></returns>
+        public static int Compare(string x, string y)
+        {
+            return y.Length - x.Length;
+        }
+
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading.Tasks;
+
 
 namespace BLL
 {
@@ -21,6 +21,8 @@ namespace BLL
         public static List<string> GetSimilarWords(string word)
         {
             string html_ans = GetDataFromSimilarWordsSite(word);
+            if (html_ans == null)
+                return null;
             foreach (var item in notFoundResponses)
             {
                 if (html_ans.Contains(item))
@@ -28,6 +30,8 @@ namespace BLL
             }
             List<string> similarWords = new List<string>();
             int start = html_ans.IndexOf("data-word");
+            if (start < 0)
+                return null;
             html_ans = html_ans.Substring(start);
             start = 0;
             int end;
@@ -54,8 +58,16 @@ namespace BLL
             string html_ans;
             using (WebClient client = new WebClient())
             {
-                var data = client.DownloadData("https://synonyms.reverso.net/%D7%9E%D7%9C%D7%99%D7%9D-%D7%A0%D7%A8%D7%93%D7%A4%D7%95%D7%AA/he/" + word);
-                html_ans = Encoding.UTF8.GetString(data);
+                try
+                {
+                    var data = client.DownloadData("https://synonyms.reverso.net/%D7%9E%D7%9C%D7%99%D7%9D-%D7%A0%D7%A8%D7%93%D7%A4%D7%95%D7%AA/he/" + word);
+                    html_ans = Encoding.UTF8.GetString(data);
+                }
+                catch (Exception)
+                {
+                    return null;
+                }
+
             }
             return html_ans;
         }

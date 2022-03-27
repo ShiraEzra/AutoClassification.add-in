@@ -171,9 +171,24 @@
     can be found.
   -->
   <ItemGroup>
+    <Compile Include="Forms\AddNewCategory.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\AddNewCategory.Designer.cs">
+      <DependentUpon>AddNewCategory.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Forms\UI_Pane.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\UI_Pane.Designer.cs">
+      <DependentUpon>UI_Pane.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="Forms\AddNewCategory.resx">
+      <DependentUpon>AddNewCategory.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -183,8 +198,12 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="Forms\UI_Pane.resx">
+      <DependentUpon>UI_Pane.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="App.config" />
     <None Include="AutomaticClassification_Add-in_TemporaryKey.pfx" />
+    <None Include="ClassDiagram1.cd" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

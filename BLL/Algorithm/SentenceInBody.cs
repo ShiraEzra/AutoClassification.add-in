@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace BLL
 {
-    public class BodyContent
+    public class SentenceInBody
     {
         public List<string> NormalizedBodyWords { get; set; }
-        public float[] ProbabilitybSentenceForCategory { get; set; } //init on use
+        public double[] ProbabilitybSentenceForCategory { get; set; } //init on use
 
-        public BodyContent()
+        public SentenceInBody()
         {
             this.NormalizedBodyWords = new List<string>();
         }

@@ -1,11 +1,8 @@
 ﻿using DAL;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity.Infrastructure;
-using System.Data.SqlClient;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace BLL
 {
@@ -18,6 +15,7 @@ namespace BLL
         RequestAnalysis reqAnalysis;
         List<WordPerRequest_tbl> requestWord_lst;
         bool IsFirstOrAutomat;  //If true: AutomatSend, else:FirstLearning;
+
 
         /// <summary>
         /// Constractor triggered from class Algorithm.
@@ -50,22 +48,22 @@ namespace BLL
         /// <param name="category_id">The number of the category to which the email request belongs</param>
         public void LearningForNext()
         {
-            SavingConclusionsInDB(reqAnalysis.NormalizedSubjectWords, false);
+            SavingConclusionsInDB(reqAnalysis.Subject.NormalizedSubjectWords);
             List<string> bodyWords = new List<string>();
-            foreach (var item in reqAnalysis.BodyAnalysis)
+            foreach (var item in reqAnalysis.Body)
                 bodyWords.AddRange(item.NormalizedBodyWords);
-            SavingConclusionsInDB(bodyWords, false);
-            SavingConclusionsInDB(reqAnalysis.Similarwords, true);
+            SavingConclusionsInDB(bodyWords);
+            IncreasePercentageMatchingForSimWords(reqAnalysis.SimiliarwordsExsistDB);
         }
 
 
         /// <summary>
         /// Go over the list words, If the word does not exist at all in DB we will add the word to DB to the word table.
         /// If the word is not yet associated with this category we will add an entry of the word association to the category.
-        /// We will increase the matching percentage of the word to a category.
+        /// We will increase the matching percentage of the word to a category, and add entry to WordPerRequest table.
         /// </summary>
         /// <param name="words_lst">List of words</param>
-        public void SavingConclusionsInDB(List<string> words_lst, bool isSimilarWord)
+        public void SavingConclusionsInDB(List<string> words_lst)
         {
             WordPerCategory_tbl wordPerCategory = null;
             Word_tbl word = null;
@@ -74,12 +72,15 @@ namespace BLL
             {
                 isExsist = NaiveBaiseAlgorithm.allWords.TryGetValue(w, out word);
                 if (!isExsist)
+                {
                     word = AddWord_tbl(w);
+                    NaiveBaiseAlgorithm.allWords.Add(word.Value_word, word);
+                }
                 wordPerCategory = db.WordPerCategory_tbl.Where(wpc => wpc.ID_word == word.ID_word && wpc.ID_category == request.ID_category).FirstOrDefault();
                 if (wordPerCategory == null)
                     wordPerCategory = AddWordPerCategory_tbl(word, (int)request.ID_category);
-                IncreasePercentageMatching(wordPerCategory, isSimilarWord);
-                AddWordPerRequest(request.ID_emailRequest, word.ID_word, isSimilarWord);
+                IncreasePercentageMatching(wordPerCategory, false);
+                AddWordPerRequest(request.ID_emailRequest, word.ID_word, false);
             }
         }
 
@@ -97,7 +98,7 @@ namespace BLL
                 wordPerCategory = db.WordPerCategory_tbl.Where(wpc => wpc.ID_word == wpr.Word_id && wpc.ID_category == request.ID_category).FirstOrDefault();
                 if (wordPerCategory == null)
                     wordPerCategory = AddWordPerCategory_tbl(word, (int)request.ID_category);
-                if (wpr.IsSimilarWord)  
+                if (wpr.IsSimilarWord)
                     IncreasePercentageMatching(wordPerCategory, true);
                 else
                     IncreasePercentageMatching(wordPerCategory, false);
@@ -106,7 +107,28 @@ namespace BLL
 
 
         /// <summary>
-        /// The function increases the percentage of fit of the word to the category
+        /// The function receives a list of similar words (for words from the email request) that exist in the DB.
+        ///The function goes through the list, and every word that exists in DB in this category, we add 0.3 percent probability to it.
+        /// </summary>
+        /// <param name="simWords">List of similar words</param>
+        public void IncreasePercentageMatchingForSimWords(List<Word_tbl> simWords)
+        {
+            WordPerCategory_tbl wordPerCategory = null;
+            foreach (var w in simWords)
+            {
+                wordPerCategory = db.WordPerCategory_tbl.Where(wpc => wpc.ID_word == w.ID_word && wpc.ID_category == request.ID_category).FirstOrDefault();
+                if (wordPerCategory != null)
+                {
+                    IncreasePercentageMatching(wordPerCategory, true);
+                    AddWordPerRequest(request.ID_emailRequest, w.ID_word, true);
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// The function increases the percentage of fit of the word to the category.
+        /// if it a similar word - add only 0.3 to the amount of use (instead of 1 -in case of word from the email request).
         /// </summary>
         /// <param name="wpc">instance of table wordPerCategory</param>
         public void IncreasePercentageMatching(WordPerCategory_tbl wpc, bool isSimilarWord)
@@ -114,17 +136,16 @@ namespace BLL
             if (isSimilarWord)
                 wpc.AmountOfUse += 0.3f;
             else
-                wpc.AmountOfUse++;
+                wpc.AmountOfUse += 1;
             db.SaveChanges();
         }
-
 
 
         /// <summary>
         /// Add instance to word_tbl
         /// </summary>
         /// <param name="w">word  (value = string)</param>
-        /// <returns></returns>
+        /// <returns>The word added to DB</returns>
         public Word_tbl AddWord_tbl(string w)
         {
             Word_tbl word = new Word_tbl { Value_word = w };
@@ -133,63 +154,51 @@ namespace BLL
                 db.Word_tbl.Add(word);
                 db.SaveChanges();
             }
-            catch (DbUpdateException e)
-                    when (e.InnerException?.InnerException is SqlException sqlEx &&
-                    (sqlEx.Number == 2601 || sqlEx.Number == 2627))
+            catch (Exception ex)
             {
-                //catch this errors:
-                // 2627- Unique constraint error
-                //2601- Duplicated key row error
-                return db.Word_tbl.FirstOrDefault(wt => wt.Value_word == word.Value_word);
+                MessageBox.Show("error in adding item to Word_tbl" + ex.Message);
             }
             return word;
         }
 
 
         /// <summary>
-        /// Add instance to wordPerCategory_tbl
+        /// Add instance to wordPerCategory_tbl.
         /// </summary>
         /// <param name="word">word -instance of word_tbl</param>
         /// <param name="category_id">category id</param>
-        /// <returns></returns>
+        /// <returns>The WordPerCategory added to DB</returns>
         public WordPerCategory_tbl AddWordPerCategory_tbl(Word_tbl word, int category_id)
         {
             WordPerCategory_tbl wordPerCategory = new WordPerCategory_tbl() { ID_word = word.ID_word, ID_category = category_id, AmountOfUse = 0 };
-            //צריך לאתחל amountOfUse?
-            //MatchPercentage = 0   //צריך לאתחל?      למחוק מהדטה בייס
-            db.WordPerCategory_tbl.Add(wordPerCategory);
-            db.SaveChanges();
+            try
+            {
+                db.WordPerCategory_tbl.Add(wordPerCategory);
+                db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("error in adding item to WordPerCategory_tbl" + ex.Message);
+            }
             return wordPerCategory;
         }
 
 
         /// <summary>
-        /// Add an instance to emailRequest_tbl
+        /// Add an instance to EmailRequest_tbl.
         /// </summary>
-        /// <param name="req"></param>
+        /// <param name="req">The EmailRequest added to DB</param>
         public void AddEmailRequest_tbl(EmailRequest_tbl req)
         {
-            db.EmailRequest_tbl.Add(req);
-            db.SaveChanges();
-        }
-
-
-        /// <summary>
-        /// Add an instance to SendingHistory_tbl
-        /// </summary>
-        /// <param name="sentFrom">s first time classified = -1. Otherwise -  id of the category to which it belonged the previous time.</param>
-        public void AddSendingHistory_tbl(int sentFrom)
-        {
-            SendingHistory_tbl history;
-            if (sentFrom == -1)
+            try
             {
-                int statusSending_id = (int)(IsFirstOrAutomat ? StatusKind.AutomatSend : StatusKind.FirstLearning);
-                history = new SendingHistory_tbl { ID_category = (int)request.ID_category, ID_emailRequest = request.ID_emailRequest, Date = new DateTime(), ID_StatusSending = statusSending_id };
+                db.EmailRequest_tbl.Add(req);
+                db.SaveChanges();
             }
-            else
-                history = new SendingHistory_tbl { ID_category = (int)request.ID_category, ID_emailRequest = request.ID_emailRequest, Date = new DateTime(), ID_StatusSending = (int)StatusKind.MenuallSent, SentFrom = sentFrom };
-            db.SendingHistory_tbl.Add(history);
-            db.SaveChanges();
+            catch (Exception)
+            {
+                MessageBox.Show("error in updating EmailRequest_tbl table");
+            }
         }
 
 
@@ -200,8 +209,34 @@ namespace BLL
         /// <param name="word_id">word id</param>
         public void AddWordPerRequest(int request_id, int word_id, bool isSimilsrWords)
         {
-            WordPerRequest_tbl wpr = new WordPerRequest_tbl() { Request_id = request_id, Word_id = word_id, IsSimilarWord = isSimilsrWords };
-            db.WordPerRequest_tbl.Add(wpr);
+            try
+            {
+                WordPerRequest_tbl wpr = new WordPerRequest_tbl() { Request_id = request_id, Word_id = word_id, IsSimilarWord = isSimilsrWords };
+                db.WordPerRequest_tbl.Add(wpr);
+                db.SaveChanges();
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("error in updating AddWordPerRequest table");
+            }
+        }
+
+
+        /// <summary>
+        /// Add an instance to SendingHistory_tbl.
+        /// </summary>
+        /// <param name="sentFrom">first time classified = -1. Otherwise -  id of the category to which it belonged the previous time.</param>
+        public void AddSendingHistory_tbl(int sentFrom)
+        {
+            SendingHistory_tbl history;
+            if (sentFrom == -1)
+            {
+                int statusSending_id = (int)(IsFirstOrAutomat ? StatusKind.AutomatSend : StatusKind.FirstLearning);
+                history = new SendingHistory_tbl { ID_category = (int)request.ID_category, ID_emailRequest = request.ID_emailRequest, Date = DateTime.Now, ID_StatusSending = statusSending_id };
+            }
+            else
+                history = new SendingHistory_tbl { ID_category = (int)request.ID_category, ID_emailRequest = request.ID_emailRequest, Date = DateTime.Now, ID_StatusSending = (int)StatusKind.MenuallSent, SentFrom = sentFrom };
+            db.SendingHistory_tbl.Add(history);
             db.SaveChanges();
         }
     }

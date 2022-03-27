@@ -9,14 +9,16 @@ namespace BLL
 {
     public class RequestAnalysis
     {
-        public List<string> NormalizedSubjectWords { get; set; }
-        public List<string> Similarwords { get; set; }
-        public float[] ProbabilitybSubjectForCategory { get; set; }  //init on use
-        public BodyContent[] BodyAnalysis { get; set; }
-        public RequestAnalysis()
+        public Subject Subject { get; set; }
+        public List<SentenceInBody> Body { get; set; }
+        public List<Word_tbl> SimiliarwordsExsistDB { get; set; }
+        public bool[] IsContainCategoryManagerID { get; set; }
+        public RequestAnalysis(int numCategories)
         {
-            this.NormalizedSubjectWords = new List<string>();
-            this.Similarwords = new List<string>();
+            this.Subject = new Subject();
+            this.Body = new List<SentenceInBody>();
+            this.SimiliarwordsExsistDB = new List<Word_tbl>();
+            this.IsContainCategoryManagerID = new bool[numCategories];
         }
     }
 }

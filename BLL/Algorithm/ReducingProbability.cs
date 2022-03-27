@@ -18,13 +18,13 @@ namespace BLL
         /// </summary>
         /// <param name="req">The email request that changes its fit to the category</param>
         /// <param name="newFolder">The new category to which the email request was referenced</param>
-        public static void ChangeCategory(EmailRequest_tbl req, string newFolder)
+        public static void ChangeCategory(int reqID, string newFolder)
         {
+            EmailRequest_tbl req = db.EmailRequest_tbl.Single(e => e.ID_emailRequest == reqID);
             int sentFrom = (int)req.ID_category;
-            int newCategoryId = db.Category_tbl.Single(c => c.Name_category == newFolder).ID_category;
-            req.ID_category = newCategoryId;
+            req.ID_category = db.Category_tbl.Single(c => c.Name_category == newFolder).ID_category;
             List<WordPerRequest_tbl> requestWords = db.WordPerRequest_tbl.Where(w => w.Request_id == req.ID_emailRequest).ToList();
-            ReduceProbability(req, sentFrom, requestWords);
+            ReduceProbability(sentFrom, requestWords);
 
             Conclusion conclusion = new Conclusion(req, requestWords);
             conclusion.SavingConclusionsInDB();
@@ -36,7 +36,7 @@ namespace BLL
         /// A function that goes over the list of email request words and lowers the percentage of matches for that email request following the cancellation of the match.
         /// </summary>
         /// <param name="req">The email request that changes its fit to the category</param>
-        public static void ReduceProbability(EmailRequest_tbl req, int oldCategoryId, List<WordPerRequest_tbl> requestWords)
+        public static void ReduceProbability(int oldCategoryId, List<WordPerRequest_tbl> requestWords)
         {
             WordPerCategory_tbl wpc;
             foreach (var wpr in requestWords)
