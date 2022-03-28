@@ -34,6 +34,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AutoMapper">
+      <HintPath>..\..\ASP project\AutomaticClassification\DTO\bin\Debug\AutoMapper.dll</HintPath>
+    </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
@@ -61,6 +64,9 @@
     <Compile Include="Algorithm\RequestAnalysis.cs" />
     <Compile Include="Algorithm\SimilarWords.cs" />
     <Compile Include="Algorithm\Subject.cs" />
+    <Compile Include="DTO\Category.cs" />
+    <Compile Include="DTO\PermissionLevel.cs" />
+    <Compile Include="DTO\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>

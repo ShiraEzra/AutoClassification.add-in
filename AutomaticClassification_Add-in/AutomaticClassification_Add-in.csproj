@@ -192,7 +192,6 @@
     <Compile Include="UI\UI_Pane.Designer.cs">
       <DependentUpon>UI_Pane.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\User.cs" />
     <EmbeddedResource Include="UI\AddNewCategory.resx">
       <DependentUpon>AddNewCategory.cs</DependentUpon>
     </EmbeddedResource>

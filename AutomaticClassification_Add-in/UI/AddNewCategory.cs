@@ -1,4 +1,6 @@
-﻿using System;
+﻿using BLL;
+using BLL.DTO;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -7,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using AutomaticClassification_Add_in.UI;
+
 
 namespace AutomaticClassification_Add_in.Forms
 {
@@ -15,6 +17,7 @@ namespace AutomaticClassification_Add_in.Forms
     {
         public delegate void EventHandler(User user);
         public event EventHandler UI_PaneToShow;
+        public event EventHandler AddNewUserMToShow;
         User user;
 
         public AddNewCategory(User user)
@@ -43,6 +46,11 @@ namespace AutomaticClassification_Add_in.Forms
         {
             UI_PaneToShow?.Invoke(this.user);
 
+        }
+
+        private void associateDM_lnkLbl_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            AddNewUserMToShow?.Invoke(this.user, true);
         }
     }
 }

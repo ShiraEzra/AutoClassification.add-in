@@ -1,4 +1,5 @@
-﻿using DAL;
+﻿using BLL.DTO;
+using DAL;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -71,34 +72,40 @@ namespace BLL
             return body;
         }
 
-
-        public void GetManager(string password, out int managerCode, out int permissionLevel, out string managerName, out int id_category, out string id_user)
+        public List<Category> GetAllCategories()
         {
-            User_tbl user = db.User_tbl.FirstOrDefault(u => u.Password == password);
-            if (user != null)
-            {
-                managerCode = user.Code;
-                permissionLevel = user.ID_premissionLevel;
-                managerName = user.Name_user;
-                id_category = user.ID_category==null? -1 :(int)user.ID_category;
-                id_user = user.ID_user;
-            }
-            else
-            {
-                managerCode = -1;
-                permissionLevel = -1;
-                managerName = null;
-                id_category = -1;
-                id_user = null;
-            }
+            var categoryTbl_lst = db.Category_tbl.ToList();
+            List<Category> category_lst = new List<Category>();
+            categoryTbl_lst.ForEach(c => category_lst.Add(Category.DalToDto(c)));
+            return category_lst;
         }
 
-        //public void GetManagerNameAndPL(int managerCode, out int permissionLevel, out string managerName)
-        //{
-        //    User_tbl user = db.User_tbl.FirstOrDefault(u => u.Code == managerCode);
-        //    permissionLevel = user.ID_premissionLevel;
-        //    managerName = user.Name_user;
+        public List<PermissionLevel> GetAllPL()
+        {
+            var plTbl_lst = db.PermissionLevel_tbl.ToList();
+            List<PermissionLevel> pl_lst = new List<PermissionLevel>();
+            plTbl_lst.ForEach(p => pl_lst.Add(PermissionLevel.DalToDto(p)));
+            return pl_lst;
+        }
 
-        //}
+        public User_tbl GetUserByPassword(string password)
+        {
+            return db.User_tbl.FirstOrDefault(u => u.Password == password);
+        }
+
+        public List<User> GetAllUsers()
+        {
+            //var userTbl_lst = db.User_tbl.ToList();
+            //User[] user_arr = new User[userTbl_lst.Count];
+            //int i = 0;
+            //foreach (var user_tbl in userTbl_lst)
+            //    user_arr[i++] = User.DalToDto(user_tbl);
+            //return user_arr;
+
+            var userTbl_lst = db.User_tbl.ToList();
+            List<User> user_lst = new List<User>();
+            userTbl_lst.ForEach(u => user_lst.Add(User.DalToDto(u)));
+            return user_lst;
+        }
     }
 }

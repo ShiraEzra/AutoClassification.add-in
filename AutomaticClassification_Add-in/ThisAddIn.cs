@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using AutomaticClassification_Add_in.Forms;
 using AutomaticClassification_Add_in.UI;
+using BLL.DTO;
 
 namespace AutomaticClassification_Add_in
 {
@@ -155,6 +156,7 @@ namespace AutomaticClassification_Add_in
         public void UI_paneShow(User user)
         {
             this.control = new UI_Pane(user);
+            this.CustomTaskPanes.Remove(this.taskpane);
             UI_pane();
         }
         public void UI_paneShow()
@@ -167,12 +169,14 @@ namespace AutomaticClassification_Add_in
         {
             (this.control as UI_Pane).AddNewCategory_PaneToShow += AddNewCategory_paneShow;
             (this.control as UI_Pane).AddNewUserM_PaneToShow += AddNewUserM_paneShow;
-            GUI();
+            this.taskpane = this.CustomTaskPanes.Add(this.control, "Auto classification");
+            this.taskpane.Width = 325;
+            this.taskpane.Visible = true;
         }
         public void GUI()
         {
             this.CustomTaskPanes.Remove(this.taskpane);
-            this.taskpane = this.CustomTaskPanes.Add(this.control, "Auto classification");
+             this.taskpane = this.CustomTaskPanes.Add(this.control, "Auto classification");
             this.taskpane.Width = 325;
             this.taskpane.Visible = true;
         }

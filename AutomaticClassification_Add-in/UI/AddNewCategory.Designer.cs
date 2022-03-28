@@ -88,6 +88,7 @@ namespace AutomaticClassification_Add_in.Forms
             this.associateDM_lnkLbl.TabIndex = 8;
             this.associateDM_lnkLbl.TabStop = true;
             this.associateDM_lnkLbl.Text = "שיוך מנהל מחלקה לקטגוריה זו";
+            this.associateDM_lnkLbl.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.associateDM_lnkLbl_LinkClicked);
             // 
             // requestsForExample_lnkLbl
             // 

@@ -1,4 +1,5 @@
 ﻿using BLL;
+using BLL.DTO;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -8,7 +9,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using AutomaticClassification_Add_in.UI;
 
 
 namespace AutomaticClassification_Add_in
@@ -59,12 +59,10 @@ namespace AutomaticClassification_Add_in
 
         private void ok_btn_Click(object sender, EventArgs e)
         {
-            retrieval.GetManager(managerPwd_txt.Text, out int managerCode, out int permissionLevel, out string managerName, out int id_category, out string id_user);
-            if (managerCode != -1)
-            {
-                this.user = new User(managerCode, managerName, permissionLevel, id_category, id_user, managerPwd_txt.Text);
+            errorProvider1.Clear();
+            user=User.DalToDto(retrieval.GetUserByPassword(managerPwd_txt.Text));
+            if (user != null)
                 LogInState();
-            }
             else
                 errorProvider1.SetError(managerPwd_txt, "סיסמא שגויה");
         }
@@ -97,6 +95,11 @@ namespace AutomaticClassification_Add_in
         private void addNewDM_rd_CheckedChanged(object sender, EventArgs e)
         {
             AddNewUserM_PaneToShow?.Invoke(user);
+        }
+
+        private void pb_logo_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

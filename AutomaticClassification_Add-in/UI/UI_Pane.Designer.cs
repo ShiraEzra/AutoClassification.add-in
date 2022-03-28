@@ -226,6 +226,7 @@ namespace AutomaticClassification_Add_in
             this.pb_logo.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pb_logo.TabIndex = 0;
             this.pb_logo.TabStop = false;
+            this.pb_logo.Click += new System.EventHandler(this.pb_logo_Click);
             // 
             // password_pl
             // 
