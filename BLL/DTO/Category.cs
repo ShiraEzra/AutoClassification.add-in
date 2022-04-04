@@ -16,6 +16,9 @@ namespace BLL.DTO
         public string FolderPath_category { get; set; }
         public string Descriptiopn_category { get; set; }
 
+        AutomaticClassificationDBEntities db = AutomaticClassificationDBEntities.Instance;
+
+
         public Category_tbl DtoTODal()
         {
             var config = new MapperConfiguration(cfg =>
@@ -37,6 +40,20 @@ namespace BLL.DTO
         public override string ToString()
         {
             return this.Name_category;
+        }
+
+        public static Category GetCategoryByID(int id)
+        {
+
+
+            return null;
+        }
+
+        public void Add()
+        {
+            db.Category_tbl.Add(this.DtoTODal());
+            db.SaveChanges();
+
         }
     }
 }

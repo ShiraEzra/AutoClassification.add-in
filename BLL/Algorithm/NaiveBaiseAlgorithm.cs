@@ -93,8 +93,8 @@ namespace BLL
             var user_lst = db.User_tbl.ToList();
             foreach (var user in user_lst)
             {
-                if (user.ID_category!=null && wordsSentence.Contains(user.Name_user))
-                    req_Analysis.IsContainCategoryManagerID[(int)user.ID_category - 1] = true;
+                if (wordsSentence.Contains(user.Name))
+                    req_Analysis.IsContainCategoryManagerID[(int)user.Categoty - 1] = true;
             }
         }
 

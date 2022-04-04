@@ -11,13 +11,10 @@ namespace BLL.DTO
     public class User
     {
         public int Code { get; set; }
-        public string Name_user { get; set; }
-        public int ID_premissionLevel { get; set; }
-        public Nullable<int> ID_category { get; set; }
-        public string ID_user { get; set; }
-        public string Password { get; set; }
+        public string Name { get; set; }
+        public int Categoty { get; set; }
 
-        AutomaticClassificationDBEntities db = AutomaticClassificationDBEntities.Instance;
+        static AutomaticClassificationDBEntities db = AutomaticClassificationDBEntities.Instance;
         public User()
         {
 
@@ -26,10 +23,8 @@ namespace BLL.DTO
         public User(User_tbl user_tbl)
         {
             this.Code = user_tbl.Code;
-            this.ID_premissionLevel = user_tbl.ID_premissionLevel;
-            this.Name_user = user_tbl.Name_user;
-            this.ID_category = user_tbl.ID_category == null ? -1 : (int)user_tbl.ID_category;
-            this.ID_user = user_tbl.ID_user;
+            this.Name = user_tbl.Name;
+            this.Categoty = user_tbl.Categoty;
         }
 
         public User_tbl DtoTODal()
@@ -49,16 +44,37 @@ namespace BLL.DTO
             var mapper = new Mapper(config);
             return mapper.Map<User>(u);
         }
-        
+
+        public static bool IsExsistUser()
+        {
+            if (db.User_tbl.Count() > 0)
+                return true;
+            return false;
+        }
+      
 
         public override string ToString()
         {
-            return this.Name_user /*+ " (" + GetNameCategoryByID((int)this.ID_category) + " )"*/;
+            return this.Name /*+ " (" + GetNameCategoryByID((int)this.ID_category) + " )"*/;
         }
 
         public string GetNameCategoryByID(int id)
         {
             return db.Category_tbl.FirstOrDefault(c => c.ID_category == id)?.Name_category;
+        }
+
+        public void Add()
+        {
+            db.User_tbl.Add(this.DtoTODal());
+            db.SaveChanges();
+        }
+
+        public void Update()
+        {
+            User_tbl user_tbl = db.User_tbl.Single(u => u.Code == this.Code);
+            user_tbl.Name = this.Name;
+            user_tbl.Categoty = this.Categoty;
+            db.SaveChanges();
         }
     }
 }

@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-    <Schema Namespace="AutomaticClassificationDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+      <Schema Namespace="AutomaticClassificationDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="Category_tbl">
           <Key>
             <PropertyRef Name="ID_category" />
@@ -27,12 +27,14 @@
           <Property Name="ID_category" Type="int" />
           <Property Name="EntryId" Type="nvarchar" MaxLength="200" Nullable="false" />
         </EntityType>
-        <EntityType Name="PermissionLevel_tbl">
+        <EntityType Name="Manager_tbl">
           <Key>
-            <PropertyRef Name="ID_permissionLevel" />
+            <PropertyRef Name="Code" />
           </Key>
-          <Property Name="ID_permissionLevel" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="Value_pl" Type="nvarchar" MaxLength="30" Nullable="false" />
+          <Property Name="Code" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name_user" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="ID_user" Type="nvarchar" MaxLength="10" Nullable="false" />
+          <Property Name="Password" Type="nvarchar" MaxLength="25" Nullable="false" />
         </EntityType>
         <EntityType Name="SendingHistory_tbl">
           <Key>
@@ -58,11 +60,8 @@
             <PropertyRef Name="Code" />
           </Key>
           <Property Name="Code" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="Name_user" Type="nvarchar" MaxLength="50" Nullable="false" />
-          <Property Name="ID_premissionLevel" Type="int" Nullable="false" />
-          <Property Name="ID_category" Type="int" />
-          <Property Name="ID_user" Type="nvarchar" MaxLength="10" Nullable="false" />
-          <Property Name="Password" Type="nvarchar" MaxLength="25" />
+          <Property Name="Name" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="Categoty" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="Word_tbl">
           <Key>
@@ -150,26 +149,14 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_User_tbl_Category_tbl">
-          <End Role="Category_tbl" Type="Self.Category_tbl" Multiplicity="0..1" />
+          <End Role="Category_tbl" Type="Self.Category_tbl" Multiplicity="1" />
           <End Role="User_tbl" Type="Self.User_tbl" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Category_tbl">
               <PropertyRef Name="ID_category" />
             </Principal>
             <Dependent Role="User_tbl">
-              <PropertyRef Name="ID_category" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_User_tbl_PermissionLevel_tbl">
-          <End Role="PermissionLevel_tbl" Type="Self.PermissionLevel_tbl" Multiplicity="1" />
-          <End Role="User_tbl" Type="Self.User_tbl" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="PermissionLevel_tbl">
-              <PropertyRef Name="ID_permissionLevel" />
-            </Principal>
-            <Dependent Role="User_tbl">
-              <PropertyRef Name="ID_premissionLevel" />
+              <PropertyRef Name="Categoty" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -224,7 +211,7 @@
         <EntityContainer Name="AutomaticClassificationDBModelStoreContainer">
           <EntitySet Name="Category_tbl" EntityType="Self.Category_tbl" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="EmailRequest_tbl" EntityType="Self.EmailRequest_tbl" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="PermissionLevel_tbl" EntityType="Self.PermissionLevel_tbl" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Manager_tbl" EntityType="Self.Manager_tbl" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SendingHistory_tbl" EntityType="Self.SendingHistory_tbl" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="StatusSending_tbl" EntityType="Self.StatusSending_tbl" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="User_tbl" EntityType="Self.User_tbl" Schema="dbo" store:Type="Tables" />
@@ -255,10 +242,6 @@
             <End Role="Category_tbl" EntitySet="Category_tbl" />
             <End Role="User_tbl" EntitySet="User_tbl" />
           </AssociationSet>
-          <AssociationSet Name="FK_User_tbl_PermissionLevel_tbl" Association="Self.FK_User_tbl_PermissionLevel_tbl">
-            <End Role="PermissionLevel_tbl" EntitySet="PermissionLevel_tbl" />
-            <End Role="User_tbl" EntitySet="User_tbl" />
-          </AssociationSet>
           <AssociationSet Name="FK_WordPerCategory_Category_tbl" Association="Self.FK_WordPerCategory_Category_tbl">
             <End Role="Category_tbl" EntitySet="Category_tbl" />
             <End Role="WordPerCategory_tbl" EntitySet="WordPerCategory_tbl" />
@@ -276,7 +259,8 @@
             <End Role="WordPerRequest_tbl" EntitySet="WordPerRequest_tbl" />
           </AssociationSet>
         </EntityContainer>
-      </Schema></edmx:StorageModels>
+      </Schema>
+    </edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="AutomaticClassificationDBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -310,13 +294,14 @@
           <NavigationProperty Name="SendingHistory_tbl" Relationship="Self.FK_SendingHistory_EmailRequest_tbl" FromRole="EmailRequest_tbl" ToRole="SendingHistory_tbl" />
           <NavigationProperty Name="WordPerRequest_tbl" Relationship="Self.FK_WordPerRequest_WordPerRequest" FromRole="EmailRequest_tbl" ToRole="WordPerRequest_tbl" />
         </EntityType>
-        <EntityType Name="PermissionLevel_tbl">
+        <EntityType Name="Manager_tbl">
           <Key>
-            <PropertyRef Name="ID_permissionLevel" />
+            <PropertyRef Name="Code" />
           </Key>
-          <Property Name="ID_permissionLevel" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Value_pl" Type="String" MaxLength="30" FixedLength="false" Unicode="true" Nullable="false" />
-          <NavigationProperty Name="User_tbl" Relationship="Self.FK_User_tbl_PermissionLevel_tbl" FromRole="PermissionLevel_tbl" ToRole="User_tbl" />
+          <Property Name="Code" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name_user" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="ID_user" Type="String" MaxLength="10" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Password" Type="String" MaxLength="25" FixedLength="false" Unicode="true" Nullable="false" />
         </EntityType>
         <EntityType Name="SendingHistory_tbl">
           <Key>
@@ -347,13 +332,9 @@
             <PropertyRef Name="Code" />
           </Key>
           <Property Name="Code" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Name_user" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="ID_premissionLevel" Type="Int32" Nullable="false" />
-          <Property Name="ID_category" Type="Int32" />
-          <Property Name="ID_user" Type="String" MaxLength="10" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Categoty" Type="Int32" Nullable="false" />
           <NavigationProperty Name="Category_tbl" Relationship="Self.FK_User_tbl_Category_tbl" FromRole="User_tbl" ToRole="Category_tbl" />
-          <NavigationProperty Name="PermissionLevel_tbl" Relationship="Self.FK_User_tbl_PermissionLevel_tbl" FromRole="User_tbl" ToRole="PermissionLevel_tbl" />
-          <Property Name="Password" Type="String" MaxLength="25" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="Word_tbl">
           <Key>
@@ -423,14 +404,14 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_User_tbl_Category_tbl">
-          <End Role="Category_tbl" Type="Self.Category_tbl" Multiplicity="0..1" />
+          <End Role="Category_tbl" Type="Self.Category_tbl" Multiplicity="1" />
           <End Role="User_tbl" Type="Self.User_tbl" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Category_tbl">
               <PropertyRef Name="ID_category" />
             </Principal>
             <Dependent Role="User_tbl">
-              <PropertyRef Name="ID_category" />
+              <PropertyRef Name="Categoty" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -467,18 +448,6 @@
             </Principal>
             <Dependent Role="WordPerRequest_tbl">
               <PropertyRef Name="Request_id" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_User_tbl_PermissionLevel_tbl">
-          <End Role="PermissionLevel_tbl" Type="Self.PermissionLevel_tbl" Multiplicity="1" />
-          <End Role="User_tbl" Type="Self.User_tbl" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="PermissionLevel_tbl">
-              <PropertyRef Name="ID_permissionLevel" />
-            </Principal>
-            <Dependent Role="User_tbl">
-              <PropertyRef Name="ID_premissionLevel" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -521,7 +490,7 @@
         <EntityContainer Name="AutomaticClassificationDBEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="Category_tbl" EntityType="Self.Category_tbl" />
           <EntitySet Name="EmailRequest_tbl" EntityType="Self.EmailRequest_tbl" />
-          <EntitySet Name="PermissionLevel_tbl" EntityType="Self.PermissionLevel_tbl" />
+          <EntitySet Name="Manager_tbl" EntityType="Self.Manager_tbl" />
           <EntitySet Name="SendingHistory_tbl" EntityType="Self.SendingHistory_tbl" />
           <EntitySet Name="StatusSending_tbl" EntityType="Self.StatusSending_tbl" />
           <EntitySet Name="User_tbl" EntityType="Self.User_tbl" />
@@ -555,10 +524,6 @@
           <AssociationSet Name="FK_WordPerRequest_WordPerRequest" Association="Self.FK_WordPerRequest_WordPerRequest">
             <End Role="EmailRequest_tbl" EntitySet="EmailRequest_tbl" />
             <End Role="WordPerRequest_tbl" EntitySet="WordPerRequest_tbl" />
-          </AssociationSet>
-          <AssociationSet Name="FK_User_tbl_PermissionLevel_tbl" Association="Self.FK_User_tbl_PermissionLevel_tbl">
-            <End Role="PermissionLevel_tbl" EntitySet="PermissionLevel_tbl" />
-            <End Role="User_tbl" EntitySet="User_tbl" />
           </AssociationSet>
           <AssociationSet Name="FK_SendingHistory_SendingAdjustmentStatus_tbl" Association="Self.FK_SendingHistory_SendingAdjustmentStatus_tbl">
             <End Role="StatusSending_tbl" EntitySet="StatusSending_tbl" />
@@ -603,11 +568,13 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="PermissionLevel_tbl">
-            <EntityTypeMapping TypeName="AutomaticClassificationDBModel.PermissionLevel_tbl">
-              <MappingFragment StoreEntitySet="PermissionLevel_tbl">
-                <ScalarProperty Name="ID_permissionLevel" ColumnName="ID_permissionLevel" />
-                <ScalarProperty Name="Value_pl" ColumnName="Value_pl" />
+          <EntitySetMapping Name="Manager_tbl">
+            <EntityTypeMapping TypeName="AutomaticClassificationDBModel.Manager_tbl">
+              <MappingFragment StoreEntitySet="Manager_tbl">
+                <ScalarProperty Name="Code" ColumnName="Code" />
+                <ScalarProperty Name="Name_user" ColumnName="Name_user" />
+                <ScalarProperty Name="ID_user" ColumnName="ID_user" />
+                <ScalarProperty Name="Password" ColumnName="Password" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -635,12 +602,9 @@
           <EntitySetMapping Name="User_tbl">
             <EntityTypeMapping TypeName="AutomaticClassificationDBModel.User_tbl">
               <MappingFragment StoreEntitySet="User_tbl">
-                <ScalarProperty Name="Password" ColumnName="Password" />
                 <ScalarProperty Name="Code" ColumnName="Code" />
-                <ScalarProperty Name="Name_user" ColumnName="Name_user" />
-                <ScalarProperty Name="ID_premissionLevel" ColumnName="ID_premissionLevel" />
-                <ScalarProperty Name="ID_category" ColumnName="ID_category" />
-                <ScalarProperty Name="ID_user" ColumnName="ID_user" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Categoty" ColumnName="Categoty" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

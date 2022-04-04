@@ -40,16 +40,12 @@ namespace AutomaticClassification_Add_in
             this.addNewCategory_rb = new System.Windows.Forms.RadioButton();
             this.addNewDM_rd = new System.Windows.Forms.RadioButton();
             this.exit_btn = new System.Windows.Forms.Button();
-            this.DepartmentManager_gb = new System.Windows.Forms.GroupBox();
-            this.updateYourDetailsDM_rb = new System.Windows.Forms.RadioButton();
-            this.addRequestsForExample_rb = new System.Windows.Forms.RadioButton();
-            this.exitDM_btn = new System.Windows.Forms.Button();
             this.pb_logo = new System.Windows.Forms.PictureBox();
             this.password_pl = new System.Windows.Forms.Panel();
             this.welcome_lbl = new System.Windows.Forms.Label();
             this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
+            this.signIn_lnkLbl = new System.Windows.Forms.LinkLabel();
             this.GeneralManager_gb.SuspendLayout();
-            this.DepartmentManager_gb.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pb_logo)).BeginInit();
             this.password_pl.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).BeginInit();
@@ -98,7 +94,7 @@ namespace AutomaticClassification_Add_in
             this.GeneralManager_gb.Controls.Add(this.exit_btn);
             this.GeneralManager_gb.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
             this.GeneralManager_gb.ForeColor = System.Drawing.Color.Black;
-            this.GeneralManager_gb.Location = new System.Drawing.Point(15, 262);
+            this.GeneralManager_gb.Location = new System.Drawing.Point(15, 287);
             this.GeneralManager_gb.Name = "GeneralManager_gb";
             this.GeneralManager_gb.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.GeneralManager_gb.Size = new System.Drawing.Size(290, 217);
@@ -117,6 +113,7 @@ namespace AutomaticClassification_Add_in
             this.updateDetails_rb.TabStop = true;
             this.updateDetails_rb.Text = "עדכון פרטי עובד קיים";
             this.updateDetails_rb.UseVisualStyleBackColor = true;
+            this.updateDetails_rb.CheckedChanged += new System.EventHandler(this.updateDetails_rb_CheckedChanged);
             // 
             // updateYourDetails_rb
             // 
@@ -128,6 +125,7 @@ namespace AutomaticClassification_Add_in
             this.updateYourDetails_rb.TabStop = true;
             this.updateYourDetails_rb.Text = "עדכון פרטיך";
             this.updateYourDetails_rb.UseVisualStyleBackColor = true;
+            this.updateYourDetails_rb.CheckedChanged += new System.EventHandler(this.updateYourDetails_rb_CheckedChanged);
             // 
             // addNewCategory_rb
             // 
@@ -144,12 +142,12 @@ namespace AutomaticClassification_Add_in
             // addNewDM_rd
             // 
             this.addNewDM_rd.AutoSize = true;
-            this.addNewDM_rd.Location = new System.Drawing.Point(96, 38);
+            this.addNewDM_rd.Location = new System.Drawing.Point(117, 37);
             this.addNewDM_rd.Name = "addNewDM_rd";
-            this.addNewDM_rd.Size = new System.Drawing.Size(183, 22);
+            this.addNewDM_rd.Size = new System.Drawing.Size(160, 22);
             this.addNewDM_rd.TabIndex = 8;
             this.addNewDM_rd.TabStop = true;
-            this.addNewDM_rd.Text = "הוספת מנהל מחלקה חדש";
+            this.addNewDM_rd.Text = "הוספת אחראי מחלקה";
             this.addNewDM_rd.UseVisualStyleBackColor = true;
             this.addNewDM_rd.CheckedChanged += new System.EventHandler(this.addNewDM_rd_CheckedChanged);
             // 
@@ -165,57 +163,6 @@ namespace AutomaticClassification_Add_in
             this.exit_btn.UseVisualStyleBackColor = false;
             this.exit_btn.Click += new System.EventHandler(this.exit_btn_Click);
             // 
-            // DepartmentManager_gb
-            // 
-            this.DepartmentManager_gb.BackColor = System.Drawing.Color.Transparent;
-            this.DepartmentManager_gb.Controls.Add(this.updateYourDetailsDM_rb);
-            this.DepartmentManager_gb.Controls.Add(this.addRequestsForExample_rb);
-            this.DepartmentManager_gb.Controls.Add(this.exitDM_btn);
-            this.DepartmentManager_gb.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-            this.DepartmentManager_gb.ForeColor = System.Drawing.Color.Black;
-            this.DepartmentManager_gb.Location = new System.Drawing.Point(15, 485);
-            this.DepartmentManager_gb.Name = "DepartmentManager_gb";
-            this.DepartmentManager_gb.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.DepartmentManager_gb.Size = new System.Drawing.Size(290, 136);
-            this.DepartmentManager_gb.TabIndex = 10;
-            this.DepartmentManager_gb.TabStop = false;
-            this.DepartmentManager_gb.Text = "פעולות מנהל";
-            this.DepartmentManager_gb.Visible = false;
-            // 
-            // updateYourDetailsDM_rb
-            // 
-            this.updateYourDetailsDM_rb.AutoSize = true;
-            this.updateYourDetailsDM_rb.Location = new System.Drawing.Point(171, 69);
-            this.updateYourDetailsDM_rb.Name = "updateYourDetailsDM_rb";
-            this.updateYourDetailsDM_rb.Size = new System.Drawing.Size(106, 22);
-            this.updateYourDetailsDM_rb.TabIndex = 9;
-            this.updateYourDetailsDM_rb.TabStop = true;
-            this.updateYourDetailsDM_rb.Text = "עדכון פרטיך";
-            this.updateYourDetailsDM_rb.UseVisualStyleBackColor = true;
-            // 
-            // addRequestsForExample_rb
-            // 
-            this.addRequestsForExample_rb.AutoSize = true;
-            this.addRequestsForExample_rb.Location = new System.Drawing.Point(68, 38);
-            this.addRequestsForExample_rb.Name = "addRequestsForExample_rb";
-            this.addRequestsForExample_rb.Size = new System.Drawing.Size(209, 22);
-            this.addRequestsForExample_rb.TabIndex = 8;
-            this.addRequestsForExample_rb.TabStop = true;
-            this.addRequestsForExample_rb.Text = "הוספת פניות לדוגמא למחלקה";
-            this.addRequestsForExample_rb.UseVisualStyleBackColor = true;
-            // 
-            // exitDM_btn
-            // 
-            this.exitDM_btn.BackColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.exitDM_btn.Image = ((System.Drawing.Image)(resources.GetObject("exitDM_btn.Image")));
-            this.exitDM_btn.Location = new System.Drawing.Point(7, 101);
-            this.exitDM_btn.Name = "exitDM_btn";
-            this.exitDM_btn.Size = new System.Drawing.Size(52, 27);
-            this.exitDM_btn.TabIndex = 7;
-            this.exitDM_btn.Text = "יציאה";
-            this.exitDM_btn.UseVisualStyleBackColor = false;
-            this.exitDM_btn.Click += new System.EventHandler(this.exitDM_btn_Click);
-            // 
             // pb_logo
             // 
             this.pb_logo.BackColor = System.Drawing.Color.Transparent;
@@ -226,7 +173,6 @@ namespace AutomaticClassification_Add_in
             this.pb_logo.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pb_logo.TabIndex = 0;
             this.pb_logo.TabStop = false;
-            this.pb_logo.Click += new System.EventHandler(this.pb_logo_Click);
             // 
             // password_pl
             // 
@@ -234,17 +180,18 @@ namespace AutomaticClassification_Add_in
             this.password_pl.Controls.Add(this.managerPwd_lbl);
             this.password_pl.Controls.Add(this.managerPwd_txt);
             this.password_pl.Controls.Add(this.ok_btn);
-            this.password_pl.Location = new System.Drawing.Point(15, 113);
+            this.password_pl.Location = new System.Drawing.Point(15, 142);
             this.password_pl.Name = "password_pl";
             this.password_pl.Size = new System.Drawing.Size(290, 83);
             this.password_pl.TabIndex = 7;
+            this.password_pl.Visible = false;
             // 
             // welcome_lbl
             // 
             this.welcome_lbl.AutoSize = true;
             this.welcome_lbl.BackColor = System.Drawing.Color.Transparent;
             this.welcome_lbl.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-            this.welcome_lbl.Location = new System.Drawing.Point(209, 210);
+            this.welcome_lbl.Location = new System.Drawing.Point(218, 237);
             this.welcome_lbl.Name = "welcome_lbl";
             this.welcome_lbl.Size = new System.Drawing.Size(87, 20);
             this.welcome_lbl.TabIndex = 8;
@@ -255,12 +202,26 @@ namespace AutomaticClassification_Add_in
             // 
             this.errorProvider1.ContainerControl = this;
             // 
+            // signIn_lnkLbl
+            // 
+            this.signIn_lnkLbl.AutoSize = true;
+            this.signIn_lnkLbl.BackColor = System.Drawing.Color.Transparent;
+            this.signIn_lnkLbl.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+            this.signIn_lnkLbl.ImageKey = "(none)";
+            this.signIn_lnkLbl.Location = new System.Drawing.Point(84, 122);
+            this.signIn_lnkLbl.Name = "signIn_lnkLbl";
+            this.signIn_lnkLbl.Size = new System.Drawing.Size(221, 17);
+            this.signIn_lnkLbl.TabIndex = 9;
+            this.signIn_lnkLbl.TabStop = true;
+            this.signIn_lnkLbl.Text = "הירשמות למערכת בפעם הראשונה";
+            this.signIn_lnkLbl.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.signIn_lnkLbl_LinkClicked);
+            // 
             // UI_Pane
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
-            this.Controls.Add(this.DepartmentManager_gb);
+            this.Controls.Add(this.signIn_lnkLbl);
             this.Controls.Add(this.welcome_lbl);
             this.Controls.Add(this.password_pl);
             this.Controls.Add(this.GeneralManager_gb);
@@ -269,8 +230,6 @@ namespace AutomaticClassification_Add_in
             this.Size = new System.Drawing.Size(319, 681);
             this.GeneralManager_gb.ResumeLayout(false);
             this.GeneralManager_gb.PerformLayout();
-            this.DepartmentManager_gb.ResumeLayout(false);
-            this.DepartmentManager_gb.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pb_logo)).EndInit();
             this.password_pl.ResumeLayout(false);
             this.password_pl.PerformLayout();
@@ -292,11 +251,8 @@ namespace AutomaticClassification_Add_in
         private System.Windows.Forms.ErrorProvider errorProvider1;
         private System.Windows.Forms.RadioButton addNewCategory_rb;
         private System.Windows.Forms.RadioButton addNewDM_rd;
-        private System.Windows.Forms.GroupBox DepartmentManager_gb;
-        private System.Windows.Forms.RadioButton addRequestsForExample_rb;
-        private System.Windows.Forms.Button exitDM_btn;
         private System.Windows.Forms.RadioButton updateDetails_rb;
         private System.Windows.Forms.RadioButton updateYourDetails_rb;
-        private System.Windows.Forms.RadioButton updateYourDetailsDM_rb;
+        private System.Windows.Forms.LinkLabel signIn_lnkLbl;
     }
 }

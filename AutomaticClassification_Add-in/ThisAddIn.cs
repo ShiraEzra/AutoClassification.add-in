@@ -139,26 +139,80 @@ namespace AutomaticClassification_Add_in
 
         }
 
-        public void AddNewCategory_paneShow(User user)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        public void AddNewCategory_paneShow(Manager m)
         {
-            this.control = new AddNewCategory(user);
-            (this.control as AddNewCategory).UI_PaneToShow += UI_paneShow;
+            this.control = new AddNewCategory(m);
+            (this.control as AddNewCategory).Main_UI += UI_paneShow;
+            (this.control as AddNewCategory).WorkerDepartment += AssociateWorkerToCategory;
             GUI();
         }
 
-        public void AddNewUserM_paneShow(User user)
+        public void AssociateWorkerToCategory(Manager m, Category category)
         {
-            this.control = new AddNewUserM(user);
-            (this.control as AddNewUserM).UI_PaneToShow += UI_paneShow;
+            //לטפל בפונקציה זו
+            //הפונקציה צריכה לקרוא לפעולה בונה בטופס 2 -הוספת אחראי מחלקה, עם מצב הוספה ומחלקה זו.
+        }
+
+        //public void AddNewUserM_paneShow(User user)
+        //{
+        //    this.control = new AddNewUserM(user,KindsOfStatesUserPane.AddNewUser);
+        //    (this.control as AddNewUserM).UI_PaneToShow += UI_paneShow;
+        //    GUI();
+        //}
+
+        //public void UpdateUser(User user)
+        //{
+        //    this.control = new AddNewUserM(user, KindsOfStatesUserPane.UpdateUserDetails);
+        //    (this.control as AddNewUserM).UI_PaneToShow += UI_paneShow;
+        //    GUI();
+        //}
+
+        //public void UpdateYourdetails(User user)
+        //{
+        //    this.control = new AddNewUserM(user, KindsOfStatesUserPane.UpdateYourDetails);
+        //    (this.control as AddNewUserM).UI_PaneToShow += UI_paneShow;
+        //    GUI();
+        //}
+
+        public void GeneralManager_paneShow(Manager m)
+        {
+            //אם מקבל נאל - הוספת מנהל כללי חדש
+            //אם מקבל מנהל - עדכון פרטיו 
+            this.control = new GeneralManager(m);
+            (this.control as GeneralManager).Main_UI += UI_paneShow;
             GUI();
         }
 
-        public void UI_paneShow(User user)
+        public void WorkerDepartment_paneShow(Manager m, bool flag)
         {
-            this.control = new UI_Pane(user);
+           //אם מקבל אמת - מצב הוספת אחראי מחלקה
+           //אם מקבל שקר - מצב עדכון אחראי מחלקה
+        }
+
+        public void UI_paneShow(Manager m)
+        {
+            this.control = new UI_Pane(m);
             this.CustomTaskPanes.Remove(this.taskpane);
             UI_pane();
         }
+
         public void UI_paneShow()
         {
             this.control = new UI_Pane();
@@ -167,16 +221,19 @@ namespace AutomaticClassification_Add_in
 
         public void UI_pane()
         {
-            (this.control as UI_Pane).AddNewCategory_PaneToShow += AddNewCategory_paneShow;
-            (this.control as UI_Pane).AddNewUserM_PaneToShow += AddNewUserM_paneShow;
+            (this.control as UI_Pane).AddNewCategory += AddNewCategory_paneShow;
+            (this.control as UI_Pane).GeneralManager += GeneralManager_paneShow;
+            (this.control as UI_Pane).WorkerDepartment += WorkerDepartment_paneShow;
+
             this.taskpane = this.CustomTaskPanes.Add(this.control, "Auto classification");
             this.taskpane.Width = 325;
             this.taskpane.Visible = true;
         }
+
         public void GUI()
         {
             this.CustomTaskPanes.Remove(this.taskpane);
-             this.taskpane = this.CustomTaskPanes.Add(this.control, "Auto classification");
+            this.taskpane = this.CustomTaskPanes.Add(this.control, "Auto classification");
             this.taskpane.Width = 325;
             this.taskpane.Visible = true;
         }

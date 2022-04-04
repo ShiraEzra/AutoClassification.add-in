@@ -180,17 +180,23 @@
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="UI\AddNewUserM.cs">
+    <Compile Include="UI\GeneralManager.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\AddNewUserM.Designer.cs">
-      <DependentUpon>AddNewUserM.cs</DependentUpon>
+    <Compile Include="UI\GeneralManager.Designer.cs">
+      <DependentUpon>GeneralManager.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\UI_Pane.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="UI\UI_Pane.Designer.cs">
       <DependentUpon>UI_Pane.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\WorkerDepartment.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\WorkerDepartment.Designer.cs">
+      <DependentUpon>WorkerDepartment.cs</DependentUpon>
     </Compile>
     <EmbeddedResource Include="UI\AddNewCategory.resx">
       <DependentUpon>AddNewCategory.cs</DependentUpon>
@@ -204,11 +210,14 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="UI\AddNewUserM.resx">
-      <DependentUpon>AddNewUserM.cs</DependentUpon>
+    <EmbeddedResource Include="UI\GeneralManager.resx">
+      <DependentUpon>GeneralManager.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\UI_Pane.resx">
       <DependentUpon>UI_Pane.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\WorkerDepartment.resx">
+      <DependentUpon>WorkerDepartment.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="App.config" />
     <None Include="AutomaticClassification_Add-in_TemporaryKey.pfx" />

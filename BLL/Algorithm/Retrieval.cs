@@ -80,17 +80,17 @@ namespace BLL
             return category_lst;
         }
 
-        public List<PermissionLevel> GetAllPL()
-        {
-            var plTbl_lst = db.PermissionLevel_tbl.ToList();
-            List<PermissionLevel> pl_lst = new List<PermissionLevel>();
-            plTbl_lst.ForEach(p => pl_lst.Add(PermissionLevel.DalToDto(p)));
-            return pl_lst;
-        }
+        //public List<PermissionLevel> GetAllPL()
+        //{
+        //    var plTbl_lst = db.PermissionLevel_tbl.ToList();
+        //    List<PermissionLevel> pl_lst = new List<PermissionLevel>();
+        //    plTbl_lst.ForEach(p => pl_lst.Add(PermissionLevel.DalToDto(p)));
+        //    return pl_lst;
+        //}
 
-        public User_tbl GetUserByPassword(string password)
+        public Manager_tbl GetManagerByPassword(string password)
         {
-            return db.User_tbl.FirstOrDefault(u => u.Password == password);
+            return db.Manager_tbl.FirstOrDefault(m => m.Password == password);
         }
 
         public List<User> GetAllUsers()

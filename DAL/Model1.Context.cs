@@ -27,7 +27,7 @@ namespace DAL
     
         public virtual DbSet<Category_tbl> Category_tbl { get; set; }
         public virtual DbSet<EmailRequest_tbl> EmailRequest_tbl { get; set; }
-        public virtual DbSet<PermissionLevel_tbl> PermissionLevel_tbl { get; set; }
+        public virtual DbSet<Manager_tbl> Manager_tbl { get; set; }
         public virtual DbSet<SendingHistory_tbl> SendingHistory_tbl { get; set; }
         public virtual DbSet<StatusSending_tbl> StatusSending_tbl { get; set; }
         public virtual DbSet<User_tbl> User_tbl { get; set; }

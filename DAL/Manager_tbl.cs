@@ -12,12 +12,11 @@ namespace DAL
     using System;
     using System.Collections.Generic;
     
-    public partial class User_tbl
+    public partial class Manager_tbl
     {
         public int Code { get; set; }
-        public string Name { get; set; }
-        public int Categoty { get; set; }
-    
-        public virtual Category_tbl Category_tbl { get; set; }
+        public string Name_user { get; set; }
+        public string ID_user { get; set; }
+        public string Password { get; set; }
     }
 }
