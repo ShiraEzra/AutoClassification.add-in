@@ -23,6 +23,7 @@ namespace BLL
         public NaiveBaiseAlgorithm()
         {
             req_Analysis = new RequestAnalysis(db.Category_tbl.Count());
+            //נפל בזמן ריצה בשורה הבאה - לבדוק למה
             allWords = db.Word_tbl.ToDictionary(x => x.Value_word, x => x);
             firstInit_arr = FirstInitProbability_arr();
             BuildProbabilityMat();
@@ -418,5 +419,23 @@ namespace BLL
             conclusion.LearningForNext();
             conclusion.AddSendingHistory_tbl(-1);
         }
+
+
+        /// <summary>
+        /// The function receives an email request manually for a specific category, which allows the system to practice data (tagging).
+        /// </summary>
+        /// <param name="subject">subject of an email request</param>
+        /// <param name="body">body of an email request</param>
+        /// <param name="categoryID">ID of the category</param>
+        public void InsertRequestToSystem(string subject, string body,int categoryID)
+        {
+            //להפוך את כל השדות הללו ל- לא שדות חובה
+            // SenderEmail = sender, Date = date, EntryId = entryId
+            request = new EmailRequest_tbl { EmailSubject = subject, EmailContent = body };
+            EmailRequestAnalysis();
+            request.ID_category = categoryID;
+            InsertConclusionToDB(false);
+        }
+
     }
 }

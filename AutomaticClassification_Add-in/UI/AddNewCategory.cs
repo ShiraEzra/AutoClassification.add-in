@@ -14,47 +14,103 @@ using System.Windows.Forms;
 
 namespace AutomaticClassification_Add_in.Forms
 {
+    enum KindTimer { NewCategory, AddingRequests }
     public partial class AddNewCategory : UserControl
     {
-        //public static AddNewCategory Instance { get; } = new AddNewCategory(null, true);
-
         public delegate void EventHandler(Manager m);
         public event EventHandler Main_UI;
 
         public delegate void EventHandler1(Manager m, Category c);
         public event EventHandler1 WorkerDepartment;
 
+        public delegate void EventHandler2(string path, ref string subjet, ref string body);
+        public event EventHandler2 GetContentFromMsgFile;
+
+        public delegate void EventHandler3(string nameFoldery);
+        public event EventHandler3 CreateNewfolder;
+
         Retrieval retrieval;
         Manager manager;
-        Category categoryToadd;
+        Category category;
+        bool isAddCategory;
+        int LocationOfAfterCreate_pl;
+        const int numRowsForSubject = 2;
 
-
-        public AddNewCategory(Manager m)
+        public AddNewCategory(Manager m, bool isAdd)
         {
             InitializeComponent();
             this.retrieval = new Retrieval();
             this.manager = m;
+            this.isAddCategory = isAdd;
+            if (!this.isAddCategory)
+                addingTagging();
         }
 
-        private void createCategory_btn_Click(object sender, EventArgs e)
+        public AddNewCategory(Manager m, Category c)
         {
-            categoryToadd = null;
-            if (checkValidate(categoryToadd))
+            InitializeComponent();
+            this.retrieval = new Retrieval();
+            this.manager = m;
+            if (c != null)
             {
-                categoryToadd.Add();
-                //להדפיס שתהליך ההוספה בוצע בהצלחה
+                nameCategory_txt.Text = c.Name_category;
+                categoryDesc_txt.Text = c.Descriptiopn_category;
                 afterCreate_pl.Visible = true;
             }
         }
 
-        private bool checkValidate(Category categoryToadd)
+        private void addingTagging()
+        {
+            detailsNewCategory_gb.Visible = false;
+            exsistsCategory_lbl.Visible = true;
+            exsistsCategory_cmb.Visible = true;
+            exsistsCategory_cmb.Items.AddRange(retrieval.GetAllCategories().ToArray());
+            this.LocationOfAfterCreate_pl = afterCreate_pl.Location.Y;
+        }
+
+        private void createCategory_btn_Click(object sender, EventArgs e)
+        {
+            category = new Category();
+            if (!isConrolsEmpty() && checkValidate())
+            {
+                this.category.Add();
+                timerOn(KindTimer.NewCategory);
+                afterCreate_pl.Visible = true;
+                createCategory_btn.Visible = false;
+                //יצירת התקיה באאוטלוק
+                CreateNewfolder?.Invoke(this.category.Name_category);
+            }
+        }
+
+        private bool isConrolsEmpty()
+        {
+            bool ok = false;
+            if (nameCategory_txt.Text.Trim() == "")
+            {
+                errorProvider1.SetError(nameCategory_txt, "שדה חובה");
+                ok = true;
+            }
+            if (categoryDesc_txt.Text.Trim() == "")
+            {
+                errorProvider1.SetError(categoryDesc_txt, "שדה חובה");
+                ok = true;
+            }
+            return ok;
+        }
+
+        private bool checkValidate()
         {
             bool ok = true;
             errorProvider1.Clear();
             try
             {
-                categoryToadd.Name_category = nameCategory_txt.Text;
+                category.Name_category = nameCategory_txt.Text;
                 //בדיקה ששם הקטגוריה עוד לא קיים במערכת- אילוץ ייחודיות
+                if (category.IfNameCategoryExsist(category.Name_category))
+                {
+                    errorProvider1.SetError(nameCategory_txt, "קיימת קטגוריה כזו כבר");
+                    ok = false;
+                }
             }
             catch (Exception ex)
             {
@@ -63,7 +119,7 @@ namespace AutomaticClassification_Add_in.Forms
             }
             try
             {
-                categoryToadd.Descriptiopn_category = categoryDesc_txt.Text;
+                category.Descriptiopn_category = categoryDesc_txt.Text;
             }
             catch (Exception ex)
             {
@@ -80,50 +136,93 @@ namespace AutomaticClassification_Add_in.Forms
 
         private void associateDM_lnkLbl_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            WorkerDepartment?.Invoke(this.manager, categoryToadd);  //טופס 2  - הוספת אחראי מחלקה לקטגוריה זו.
+            WorkerDepartment?.Invoke(this.manager, category);  //טופס 2  - הוספת אחראי מחלקה לקטגוריה זו.
         }
 
 
-        //לטפל בפונקציה שלוקחת קובץ ומכניסה אותו כפניית מייל לדוגמא לקטגוריה זו
+        //פונקציה שלוקחת קובץ ומכניסה אותו כפניית מייל לדוגמא לקטגוריה זו
         private void requestsForExample_lnkLbl_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            //OpenFileDialog openFileDialog1 = new OpenFileDialog
-            //{
-            //    InitialDirectory = @"C:\",
-            //    Title = "Browse email requests Files",
-
-            //    CheckFileExists = true,
-            //    CheckPathExists = true,
-
-            //    DefaultExt = "txt",
-            //    Filter = "txt files (*.txt)|*.txt",
-            //    FilterIndex = 2,
-            //    RestoreDirectory = true,
-
-            //    Multiselect = true,
-            //    ReadOnlyChecked = true,
-            //    ShowReadOnly = true
-            //};
-
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
+                NaiveBaiseAlgorithm algorithm = new NaiveBaiseAlgorithm();
                 foreach (string pathToFile in openFileDialog1.FileNames)
                 {
-                    if (File.Exists(pathToFile))// only executes if the file at pathtofile exists//you need to add the using System.IO reference at the top of te code to use this
+                    if (File.Exists(pathToFile))
                     {
-                        ////method1
-                        //string firstLine = File.ReadAllLines(pathToFile).Skip(0).Take(1).First();//selects first line of the file
-                        //string secondLine = File.ReadAllLines(pathToFile).Skip(1).Take(1).First();
-
-                        //method2
-                        string text = "";
-                        using (StreamReader sr = new StreamReader(pathToFile))
-                        {
-                            text = sr.ReadToEnd();//all text wil be saved in text enters are also saved
-                        }
+                        string subject = "", body = "";
+                        if (Path.GetExtension(pathToFile) == ".msg")
+                            GetContentFromMsgFile?.Invoke(pathToFile, ref subject, ref body);
+                        else
+                            if (Path.GetExtension(pathToFile) == ".txt")
+                            getSubjectAndBodyFromTxtFile(pathToFile, ref subject, ref body);
+                        if (subject != "" || body != "")
+                            algorithm.InsertRequestToSystem(subject, body, category.ID_category);
                     }
+                }
+                timerOn(KindTimer.AddingRequests);
+            }
+        }
+
+
+        //הפונקציה מקבלת קובץ, ומכניסה לנושא את שתי השורות הראשונות של הקובץ, ואת כל השאר לגוף
+        private void getSubjectAndBodyFromTxtFile(string pathToFile, ref string subject, ref string body)
+        {
+            using (StreamReader sr = new StreamReader(pathToFile))
+            {
+                string oneLine = null;
+                for (int i = 0; i < numRowsForSubject; i++)
+                {
+                    oneLine = sr.ReadLine();
+                    if (oneLine == null)
+                        return;
+                    subject += oneLine + " ";
+                }
+                oneLine = sr.ReadLine();
+                while (oneLine != null)
+                {
+                    body += oneLine + " ";
+                    oneLine = sr.ReadLine();
                 }
             }
         }
+
+
+        private void timerOn(KindTimer kt)
+        {
+            switch (kt)
+            {
+
+                case KindTimer.NewCategory:
+                    ok_lbl.Visible = true;
+                    break;
+                case KindTimer.AddingRequests:
+                    okAddingRequests_lbl.Visible = true;
+                    break;
+                default:
+                    break;
+            }
+            timer1.Enabled = true;
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            ok_lbl.Visible = false;
+            okAddingRequests_lbl.Visible = false;
+            timer1.Enabled = false;
+        }
+
+        private void exsistsCategory_cmb_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            this.category = (Category)exsistsCategory_cmb.SelectedItem;
+            afterCreate_pl.Location = new Point(afterCreate_pl.Location.X, this.LocationOfAfterCreate_pl - 150);
+            afterCreate_pl.Visible = true;
+        }
+
+        private void nameCategory_txt_TextChanged(object sender, EventArgs e)
+        {
+            createCategory_btn.Visible = true;
+        }
     }
 }
+

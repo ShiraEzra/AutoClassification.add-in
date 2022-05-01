@@ -76,5 +76,12 @@ namespace BLL.DTO
             user_tbl.Categoty = this.Categoty;
             db.SaveChanges();
         }
+
+        public void delete()
+        {
+            User_tbl user_tbl = db.User_tbl.FirstOrDefault(u => u.Code == this.Code);
+            db.User_tbl.Remove(user_tbl);
+            db.SaveChanges();
+        }
     }
 }

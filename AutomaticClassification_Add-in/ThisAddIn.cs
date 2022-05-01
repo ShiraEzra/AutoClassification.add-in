@@ -9,12 +9,13 @@ using AutomaticClassification_Add_in.Forms;
 using AutomaticClassification_Add_in.UI;
 using BLL.DTO;
 
+
 namespace AutomaticClassification_Add_in
 {
     public partial class ThisAddIn
     {
 
-        Outlook.MAPIFolder oInbox;
+        static Outlook.MAPIFolder oInbox;
         Retrieval retrieval;
         static List<Outlook.MAPIFolder> allFolders;
 
@@ -37,16 +38,29 @@ namespace AutomaticClassification_Add_in
                     unReadMails.Add((Outlook.MailItem)unRead);
 
                 Marshal.ReleaseComObject(oItems);
-                Marshal.ReleaseComObject(unReadItems);
+                Marshal.ReleaseComObject(unReadItems);   //צריכה לעבור ולשחרר אחד אחד? או שמספיק את כל הרשימה ביחד.
 
-                foreach (var mail in unReadMails)
+                try
                 {
-                    NaiveBaiseAlgorithm algorithm = new NaiveBaiseAlgorithm();
-                    string nameFolder = algorithm.NewEmailRequest(mail.ConversationTopic, retrieval.RelevantBodyOnly(mail.Body), mail.SenderEmailAddress, mail.CreationTime, mail.ConversationID);
-                    MoveDirectory(mail, nameFolder);
+                    foreach (var mail in unReadMails)
+                    {
+
+                        NaiveBaiseAlgorithm algorithm = new NaiveBaiseAlgorithm();
+                        string nameFolder = algorithm.NewEmailRequest(mail.ConversationTopic, retrieval.RelevantBodyOnly(mail.Body), mail.SenderEmailAddress, mail.CreationTime, mail.ConversationID);
+                        MoveDirectory(mail, nameFolder);
+                    }
                 }
-                Marshal.ReleaseComObject(unReadMails);
+                catch (System.Exception)
+                {
+                    MessageBox.Show("error!!  " + unReadMails);
+                }
+                finally
+                {
+                    Marshal.ReleaseComObject(unReadMails);
+                }
+
             });
+
             //Task t = Task.Run(() =>
             // {
             //     Thread.Sleep(12000);
@@ -113,7 +127,7 @@ namespace AutomaticClassification_Add_in
                 allFolders.Add(destFolder);
             }
             Marshal.ReleaseComObject(destFolder);
-        //https://stackoverflow.com/questions/42663830/outlook-2016-vsto-folder-add-event-fires-only-once
+            //https://stackoverflow.com/questions/42663830/outlook-2016-vsto-folder-add-event-fires-only-once
         }
 
         //private void UnLoadAddItemMethodToAllCategoryFolders()
@@ -135,76 +149,105 @@ namespace AutomaticClassification_Add_in
 
         public void DeleteFolder()
         {
+            //עובד רק כשזה הפעולה הראשונה בפתיחת האאוטלוק
             MessageBox.Show("hii - tryin notify when  new folder is openning");
 
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        public void AddNewCategory_paneShow(Manager m)
+        public void CreateNewFolder(string nameFolder)
         {
-            this.control = new AddNewCategory(m);
+            //Outlook.MAPIFolder newFolder = default(Outlook.MAPIFolder);
+            try
+            {
+                oInbox.Folders.Add(nameFolder, Outlook.OlDefaultFolders.olFolderInbox);
+            }
+            catch (System.Exception ex)
+            {
+                MessageBox.Show("The following error occurred: " + ex.Message);
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        public void AddNewCategory_paneShow(Manager m, bool isAdd)
+        {
+            //אם אמת- הוספת מחלקה חדשה
+            //אם שקר - הוספת תיוג למחלקה קיימת
+            this.control = new AddNewCategory(m, isAdd);
+            AddNewCategoryDelegates();
+        }
+        public void BackToNewCategoty_paneShow(Manager m, Category c)
+        {
+            this.control = new AddNewCategory(m, c);
+            AddNewCategoryDelegates();
+        }
+
+        public void AddNewCategoryDelegates()
+        {
             (this.control as AddNewCategory).Main_UI += UI_paneShow;
             (this.control as AddNewCategory).WorkerDepartment += AssociateWorkerToCategory;
+            (this.control as AddNewCategory).GetContentFromMsgFile += GetContentFromMsgFile;
+            (this.control as AddNewCategory).CreateNewfolder += CreateNewFolder;
             GUI();
         }
 
-        public void AssociateWorkerToCategory(Manager m, Category category)
+        private void GetContentFromMsgFile(string path, ref string subjet, ref string body)
         {
-            //לטפל בפונקציה זו
-            //הפונקציה צריכה לקרוא לפעולה בונה בטופס 2 -הוספת אחראי מחלקה, עם מצב הוספה ומחלקה זו.
+            Outlook.MailItem mail = null;
+            try
+            {
+                mail = (Outlook.MailItem)this.Application.CreateItemFromTemplate(path);
+                subjet = mail?.ConversationTopic;
+                body = retrieval.RelevantBodyOnly(mail?.Body);
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(mail);
+            }
         }
 
-        //public void AddNewUserM_paneShow(User user)
-        //{
-        //    this.control = new AddNewUserM(user,KindsOfStatesUserPane.AddNewUser);
-        //    (this.control as AddNewUserM).UI_PaneToShow += UI_paneShow;
-        //    GUI();
-        //}
 
-        //public void UpdateUser(User user)
-        //{
-        //    this.control = new AddNewUserM(user, KindsOfStatesUserPane.UpdateUserDetails);
-        //    (this.control as AddNewUserM).UI_PaneToShow += UI_paneShow;
-        //    GUI();
-        //}
-
-        //public void UpdateYourdetails(User user)
-        //{
-        //    this.control = new AddNewUserM(user, KindsOfStatesUserPane.UpdateYourDetails);
-        //    (this.control as AddNewUserM).UI_PaneToShow += UI_paneShow;
-        //    GUI();
-        //}
-
-        public void GeneralManager_paneShow(Manager m)
+        public void AssociateWorkerToCategory(Manager m, Category category)
         {
-            //אם מקבל נאל - הוספת מנהל כללי חדש
-            //אם מקבל מנהל - עדכון פרטיו 
-            this.control = new GeneralManager(m);
-            (this.control as GeneralManager).Main_UI += UI_paneShow;
+            //הפונקציה צריכה לקרוא לפעולה בונה בטופס 2 -הוספת אחראי מחלקה, עם מצב הוספה ומחלקה זו.
+            this.control = new WorkerDepartment(m, category);
+            (this.control as WorkerDepartment).Main_UI += UI_paneShow;
+            (this.control as WorkerDepartment).BackToNewCategoty += BackToNewCategoty_paneShow;
             GUI();
         }
 
         public void WorkerDepartment_paneShow(Manager m, bool flag)
         {
-           //אם מקבל אמת - מצב הוספת אחראי מחלקה
-           //אם מקבל שקר - מצב עדכון אחראי מחלקה
+            //אם מקבל אמת - מצב הוספת אחראי מחלקה
+            //אם מקבל שקר - מצב עדכון/מחיקת אחראי מחלקה
+            this.control = new WorkerDepartment(m, flag);
+            (this.control as WorkerDepartment).Main_UI += UI_paneShow;
+            GUI();
         }
+
+        public void GeneralManager_paneShow(Manager m, bool isFirst)
+        {
+            //אם מקבל נאל - הוספת מנהל כללי חדש
+            //אם מקבל מנהל - עדכון פרטיו 
+            this.control = new GeneralManager(m, isFirst);
+            (this.control as GeneralManager).Main_UI += UI_paneShow;
+            GUI();
+        }
+
 
         public void UI_paneShow(Manager m)
         {
@@ -215,7 +258,7 @@ namespace AutomaticClassification_Add_in
 
         public void UI_paneShow()
         {
-            this.control = new UI_Pane();
+            this.control = new UI_Pane(null);
             UI_pane();
         }
 
@@ -245,8 +288,10 @@ namespace AutomaticClassification_Add_in
         /// <param name="e"></param>
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
-            Outlook.NameSpace oNS = this.Application.GetNamespace("mapi");
-            oInbox = oNS.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderInbox);
+            //Outlook.NameSpace oNS = this.Application.GetNamespace("mapi");
+            //Marshal.ReleaseComObject(oNS);
+
+            oInbox = this.Application.GetNamespace("mapi").GetDefaultFolder(Outlook.OlDefaultFolders.olFolderInbox);
 
             //העמסת מתודה שתתבצע בכל פעם שיכנס מייל חדש
             this.Application.NewMail += GetNewMail;
@@ -254,14 +299,13 @@ namespace AutomaticClassification_Add_in
 
             retrieval = new Retrieval();
 
-           
+
             allFolders = new List<Outlook.MAPIFolder>();
             LoadAddItemMethodToAllCategoryFolders();
 
             ////העמסת המתודה לאירוע שיתרחש בכל פעם שימחק מייל  מתקיה זו
             //destFolder.Items.ItemRemove += ChangeMailFromDirectory;
 
-            //Marshal.ReleaseComObject(oNS);
 
 
             //העמסת מתודה שתתבצע בכל פעם שיוסיפו תקייה חדשה= קטגוריה חדשה
@@ -275,6 +319,9 @@ namespace AutomaticClassification_Add_in
 
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
         {
+            Marshal.ReleaseComObject(oInbox);
+            Marshal.ReleaseComObject(allFolders);
+
             // Note: Outlook no longer raises this event. If you have code that 
             //    must run when Outlook shuts down, see https://go.microsoft.com/fwlink/?LinkId=506785
         }

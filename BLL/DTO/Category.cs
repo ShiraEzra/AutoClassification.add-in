@@ -55,5 +55,10 @@ namespace BLL.DTO
             db.SaveChanges();
 
         }
+
+        public bool IfNameCategoryExsist(string name_category)
+        {
+           return db.Category_tbl.Any(c => c.Name_category == name_category);
+        }
     }
 }

@@ -35,6 +35,8 @@ namespace AutomaticClassification_Add_in
             this.managerPwd_lbl = new System.Windows.Forms.Label();
             this.ok_btn = new System.Windows.Forms.Button();
             this.GeneralManager_gb = new System.Windows.Forms.GroupBox();
+            this.addTaggingToDepartment_rd = new System.Windows.Forms.RadioButton();
+            this.AddNewManager_rd = new System.Windows.Forms.RadioButton();
             this.updateDetails_rb = new System.Windows.Forms.RadioButton();
             this.updateYourDetails_rb = new System.Windows.Forms.RadioButton();
             this.addNewCategory_rb = new System.Windows.Forms.RadioButton();
@@ -65,7 +67,7 @@ namespace AutomaticClassification_Add_in
             this.managerPwd_lbl.AutoSize = true;
             this.managerPwd_lbl.BackColor = System.Drawing.Color.Transparent;
             this.managerPwd_lbl.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-            this.managerPwd_lbl.Location = new System.Drawing.Point(146, 19);
+            this.managerPwd_lbl.Location = new System.Drawing.Point(136, 19);
             this.managerPwd_lbl.Name = "managerPwd_lbl";
             this.managerPwd_lbl.Size = new System.Drawing.Size(131, 20);
             this.managerPwd_lbl.TabIndex = 4;
@@ -86,7 +88,10 @@ namespace AutomaticClassification_Add_in
             // 
             // GeneralManager_gb
             // 
+            this.GeneralManager_gb.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.GeneralManager_gb.BackColor = System.Drawing.Color.Transparent;
+            this.GeneralManager_gb.Controls.Add(this.addTaggingToDepartment_rd);
+            this.GeneralManager_gb.Controls.Add(this.AddNewManager_rd);
             this.GeneralManager_gb.Controls.Add(this.updateDetails_rb);
             this.GeneralManager_gb.Controls.Add(this.updateYourDetails_rb);
             this.GeneralManager_gb.Controls.Add(this.addNewCategory_rb);
@@ -94,31 +99,55 @@ namespace AutomaticClassification_Add_in
             this.GeneralManager_gb.Controls.Add(this.exit_btn);
             this.GeneralManager_gb.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
             this.GeneralManager_gb.ForeColor = System.Drawing.Color.Black;
-            this.GeneralManager_gb.Location = new System.Drawing.Point(15, 287);
+            this.GeneralManager_gb.Location = new System.Drawing.Point(15, 313);
             this.GeneralManager_gb.Name = "GeneralManager_gb";
             this.GeneralManager_gb.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.GeneralManager_gb.Size = new System.Drawing.Size(290, 217);
+            this.GeneralManager_gb.Size = new System.Drawing.Size(274, 251);
             this.GeneralManager_gb.TabIndex = 6;
             this.GeneralManager_gb.TabStop = false;
-            this.GeneralManager_gb.Text = "פעולות מנהל כללי";
+            this.GeneralManager_gb.Text = " פעולות מנהל";
             this.GeneralManager_gb.Visible = false;
+            // 
+            // addTaggingToDepartment_rd
+            // 
+            this.addTaggingToDepartment_rd.AutoSize = true;
+            this.addTaggingToDepartment_rd.Location = new System.Drawing.Point(65, 128);
+            this.addTaggingToDepartment_rd.Name = "addTaggingToDepartment_rd";
+            this.addTaggingToDepartment_rd.Size = new System.Drawing.Size(194, 22);
+            this.addTaggingToDepartment_rd.TabIndex = 13;
+            this.addTaggingToDepartment_rd.TabStop = true;
+            this.addTaggingToDepartment_rd.Text = "הוספת נתוני אימון למחלקה";
+            this.addTaggingToDepartment_rd.UseVisualStyleBackColor = true;
+            this.addTaggingToDepartment_rd.CheckedChanged += new System.EventHandler(this.addTaggingToDepartment_rd_CheckedChanged);
+            // 
+            // AddNewManager_rd
+            // 
+            this.AddNewManager_rd.AutoSize = true;
+            this.AddNewManager_rd.Location = new System.Drawing.Point(123, 70);
+            this.AddNewManager_rd.Name = "AddNewManager_rd";
+            this.AddNewManager_rd.Size = new System.Drawing.Size(136, 22);
+            this.AddNewManager_rd.TabIndex = 12;
+            this.AddNewManager_rd.TabStop = true;
+            this.AddNewManager_rd.Text = "הוספת מנהל חדש";
+            this.AddNewManager_rd.UseVisualStyleBackColor = true;
+            this.AddNewManager_rd.CheckedChanged += new System.EventHandler(this.AddNewManager_rd_CheckedChanged);
             // 
             // updateDetails_rb
             // 
             this.updateDetails_rb.AutoSize = true;
-            this.updateDetails_rb.Location = new System.Drawing.Point(115, 107);
+            this.updateDetails_rb.Location = new System.Drawing.Point(77, 156);
             this.updateDetails_rb.Name = "updateDetails_rb";
-            this.updateDetails_rb.Size = new System.Drawing.Size(164, 22);
+            this.updateDetails_rb.Size = new System.Drawing.Size(182, 22);
             this.updateDetails_rb.TabIndex = 11;
             this.updateDetails_rb.TabStop = true;
-            this.updateDetails_rb.Text = "עדכון פרטי עובד קיים";
+            this.updateDetails_rb.Text = "עדכון / מחיקת עובד קיים";
             this.updateDetails_rb.UseVisualStyleBackColor = true;
             this.updateDetails_rb.CheckedChanged += new System.EventHandler(this.updateDetails_rb_CheckedChanged);
             // 
             // updateYourDetails_rb
             // 
             this.updateYourDetails_rb.AutoSize = true;
-            this.updateYourDetails_rb.Location = new System.Drawing.Point(172, 140);
+            this.updateYourDetails_rb.Location = new System.Drawing.Point(153, 186);
             this.updateYourDetails_rb.Name = "updateYourDetails_rb";
             this.updateYourDetails_rb.Size = new System.Drawing.Size(106, 22);
             this.updateYourDetails_rb.TabIndex = 10;
@@ -130,7 +159,7 @@ namespace AutomaticClassification_Add_in
             // addNewCategory_rb
             // 
             this.addNewCategory_rb.AutoSize = true;
-            this.addNewCategory_rb.Location = new System.Drawing.Point(121, 72);
+            this.addNewCategory_rb.Location = new System.Drawing.Point(102, 100);
             this.addNewCategory_rb.Name = "addNewCategory_rb";
             this.addNewCategory_rb.Size = new System.Drawing.Size(157, 22);
             this.addNewCategory_rb.TabIndex = 9;
@@ -142,7 +171,7 @@ namespace AutomaticClassification_Add_in
             // addNewDM_rd
             // 
             this.addNewDM_rd.AutoSize = true;
-            this.addNewDM_rd.Location = new System.Drawing.Point(117, 37);
+            this.addNewDM_rd.Location = new System.Drawing.Point(99, 40);
             this.addNewDM_rd.Name = "addNewDM_rd";
             this.addNewDM_rd.Size = new System.Drawing.Size(160, 22);
             this.addNewDM_rd.TabIndex = 8;
@@ -155,7 +184,7 @@ namespace AutomaticClassification_Add_in
             // 
             this.exit_btn.BackColor = System.Drawing.SystemColors.ButtonHighlight;
             this.exit_btn.Image = ((System.Drawing.Image)(resources.GetObject("exit_btn.Image")));
-            this.exit_btn.Location = new System.Drawing.Point(12, 178);
+            this.exit_btn.Location = new System.Drawing.Point(12, 210);
             this.exit_btn.Name = "exit_btn";
             this.exit_btn.Size = new System.Drawing.Size(52, 27);
             this.exit_btn.TabIndex = 7;
@@ -169,7 +198,7 @@ namespace AutomaticClassification_Add_in
             this.pb_logo.Image = ((System.Drawing.Image)(resources.GetObject("pb_logo.Image")));
             this.pb_logo.Location = new System.Drawing.Point(15, 11);
             this.pb_logo.Name = "pb_logo";
-            this.pb_logo.Size = new System.Drawing.Size(290, 88);
+            this.pb_logo.Size = new System.Drawing.Size(274, 88);
             this.pb_logo.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pb_logo.TabIndex = 0;
             this.pb_logo.TabStop = false;
@@ -182,20 +211,21 @@ namespace AutomaticClassification_Add_in
             this.password_pl.Controls.Add(this.ok_btn);
             this.password_pl.Location = new System.Drawing.Point(15, 142);
             this.password_pl.Name = "password_pl";
-            this.password_pl.Size = new System.Drawing.Size(290, 83);
+            this.password_pl.Size = new System.Drawing.Size(274, 83);
             this.password_pl.TabIndex = 7;
             this.password_pl.Visible = false;
             // 
             // welcome_lbl
             // 
+            this.welcome_lbl.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.welcome_lbl.AutoSize = true;
             this.welcome_lbl.BackColor = System.Drawing.Color.Transparent;
-            this.welcome_lbl.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-            this.welcome_lbl.Location = new System.Drawing.Point(218, 237);
+            this.welcome_lbl.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+            this.welcome_lbl.Location = new System.Drawing.Point(205, 228);
             this.welcome_lbl.Name = "welcome_lbl";
-            this.welcome_lbl.Size = new System.Drawing.Size(87, 20);
+            this.welcome_lbl.Size = new System.Drawing.Size(84, 20);
             this.welcome_lbl.TabIndex = 8;
-            this.welcome_lbl.Text = "שלום ------";
+            this.welcome_lbl.Text = "שלום ----";
             this.welcome_lbl.Visible = false;
             // 
             // errorProvider1
@@ -227,7 +257,7 @@ namespace AutomaticClassification_Add_in
             this.Controls.Add(this.GeneralManager_gb);
             this.Controls.Add(this.pb_logo);
             this.Name = "UI_Pane";
-            this.Size = new System.Drawing.Size(319, 681);
+            this.Size = new System.Drawing.Size(306, 851);
             this.GeneralManager_gb.ResumeLayout(false);
             this.GeneralManager_gb.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pb_logo)).EndInit();
@@ -254,5 +284,7 @@ namespace AutomaticClassification_Add_in
         private System.Windows.Forms.RadioButton updateDetails_rb;
         private System.Windows.Forms.RadioButton updateYourDetails_rb;
         private System.Windows.Forms.LinkLabel signIn_lnkLbl;
+        private System.Windows.Forms.RadioButton AddNewManager_rd;
+        private System.Windows.Forms.RadioButton addTaggingToDepartment_rd;
     }
 }

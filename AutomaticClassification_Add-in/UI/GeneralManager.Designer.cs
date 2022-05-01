@@ -33,6 +33,7 @@ namespace AutomaticClassification_Add_in.UI
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(GeneralManager));
             this.pb_logo = new System.Windows.Forms.PictureBox();
             this.managerDetails_gb = new System.Windows.Forms.GroupBox();
+            this.ok_lbl = new System.Windows.Forms.Label();
             this.save_btn = new System.Windows.Forms.Button();
             this.cancel_btn = new System.Windows.Forms.Button();
             this.pwd_txt = new System.Windows.Forms.TextBox();
@@ -42,6 +43,7 @@ namespace AutomaticClassification_Add_in.UI
             this.id_lbl = new System.Windows.Forms.Label();
             this.name_lbl = new System.Windows.Forms.Label();
             this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.pb_logo)).BeginInit();
             this.managerDetails_gb.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).BeginInit();
@@ -62,6 +64,7 @@ namespace AutomaticClassification_Add_in.UI
             // managerDetails_gb
             // 
             this.managerDetails_gb.BackColor = System.Drawing.Color.Transparent;
+            this.managerDetails_gb.Controls.Add(this.ok_lbl);
             this.managerDetails_gb.Controls.Add(this.save_btn);
             this.managerDetails_gb.Controls.Add(this.cancel_btn);
             this.managerDetails_gb.Controls.Add(this.pwd_txt);
@@ -73,11 +76,21 @@ namespace AutomaticClassification_Add_in.UI
             this.managerDetails_gb.Location = new System.Drawing.Point(21, 175);
             this.managerDetails_gb.Name = "managerDetails_gb";
             this.managerDetails_gb.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.managerDetails_gb.Size = new System.Drawing.Size(277, 229);
+            this.managerDetails_gb.Size = new System.Drawing.Size(277, 255);
             this.managerDetails_gb.TabIndex = 6;
             this.managerDetails_gb.TabStop = false;
             this.managerDetails_gb.Text = "פרטי המנהל";
-            this.managerDetails_gb.Visible = false;
+            // 
+            // ok_lbl
+            // 
+            this.ok_lbl.AutoSize = true;
+            this.ok_lbl.Font = new System.Drawing.Font("Microsoft Yi Baiti", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ok_lbl.Location = new System.Drawing.Point(14, 220);
+            this.ok_lbl.Name = "ok_lbl";
+            this.ok_lbl.Size = new System.Drawing.Size(164, 19);
+            this.ok_lbl.TabIndex = 15;
+            this.ok_lbl.Text = "הפעולה בוצעה בהצלחה";
+            this.ok_lbl.Visible = false;
             // 
             // save_btn
             // 
@@ -156,6 +169,11 @@ namespace AutomaticClassification_Add_in.UI
             // 
             this.errorProvider1.ContainerControl = this;
             // 
+            // timer1
+            // 
+            this.timer1.Interval = 2000;
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            // 
             // GeneralManager
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -186,5 +204,7 @@ namespace AutomaticClassification_Add_in.UI
         private System.Windows.Forms.Label name_lbl;
         private System.Windows.Forms.Button save_btn;
         private System.Windows.Forms.ErrorProvider errorProvider1;
+        private System.Windows.Forms.Label ok_lbl;
+        private System.Windows.Forms.Timer timer1;
     }
 }

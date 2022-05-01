@@ -13,29 +13,25 @@ namespace BLL
         //להוסיף תיעוד אקסמלי
         AutomaticClassificationDBEntities db = AutomaticClassificationDBEntities.Instance;
 
-        public int GetIdEmailRequestByConversationID(string conversationID)
-        {
-            EmailRequest_tbl req = db.EmailRequest_tbl.FirstOrDefault(e => e.EntryId == conversationID);
-            if (req == null)
-                return -1;
-            return req.ID_emailRequest;
-        }
+        //public int GetIdEmailRequestByConversationID(string conversationID)
+        //{
+        //    EmailRequest_tbl req = db.EmailRequest_tbl.FirstOrDefault(e => e.EntryId == conversationID);
+        //    if (req == null)
+        //        return -1;
+        //    return req.ID_emailRequest;
+        //}
 
-        public string GetCategoryNameOfEmailRequest(int reqID)
-        {
-            if (reqID != -1)
-            {
-                return db.EmailRequest_tbl.Single(e => e.ID_emailRequest == reqID).Category_tbl.Name_category;
-            }
-            return null;
-        }
-
-        public List<string> GetAllCategoriesNames()
-        {
-            return db.Category_tbl.Select(c => c.Name_category).ToList();
-        }
+        //public string GetCategoryNameOfEmailRequest(int reqID)
+        //{
+        //    if (reqID != -1)
+        //    {
+        //        return db.EmailRequest_tbl.Single(e => e.ID_emailRequest == reqID).Category_tbl.Name_category;
+        //    }
+        //    return null;
+        //}
 
 
+      
         /// <summary>
         /// Function that removes irrelevant things from the body of the email.
         /// </summary>
@@ -72,12 +68,31 @@ namespace BLL
             return body;
         }
 
+
+        /// <summary>
+        /// The function return a list with all names of the categories
+        /// </summary>
+        /// <returns>a list of string</returns>
+        public List<string> GetAllCategoriesNames()
+        {
+            return db.Category_tbl.Select(c => c.Name_category).ToList();
+        }
+
+        /// <summary>
+        /// The function return a list of all the categories
+        /// </summary>
+        /// <returns>a listo of categories</returns>
         public List<Category> GetAllCategories()
         {
             var categoryTbl_lst = db.Category_tbl.ToList();
             List<Category> category_lst = new List<Category>();
             categoryTbl_lst.ForEach(c => category_lst.Add(Category.DalToDto(c)));
             return category_lst;
+        }
+
+        public Category GetCategoryByID(int category_ID)
+        {
+            return Category.DalToDto(db.Category_tbl.FirstOrDefault(c => c.ID_category == category_ID));
         }
 
         //public List<PermissionLevel> GetAllPL()
