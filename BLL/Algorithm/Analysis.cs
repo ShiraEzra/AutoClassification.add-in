@@ -123,7 +123,8 @@ namespace BLL
         /// <returns>True- If the word is relevant. Otherwise - False</returns>
         public static bool IsRrelavantPartOfSpeach(MorphInfo morphInfo)
         {
-            return morphInfo.PartOfSpeech == PartOfSpeech.VERB || morphInfo.PartOfSpeech == PartOfSpeech.NOUN || morphInfo.PartOfSpeech == PartOfSpeech.ADJECTIVE || morphInfo.PartOfSpeech == PartOfSpeech.PROPER_NOUN;
+            return morphInfo.PartOfSpeech == PartOfSpeech.VERB || morphInfo.PartOfSpeech == PartOfSpeech.NOUN ||
+                morphInfo.PartOfSpeech == PartOfSpeech.ADJECTIVE || morphInfo.PartOfSpeech == PartOfSpeech.PROPER_NOUN;
         }
 
 
@@ -187,7 +188,7 @@ namespace BLL
                 {
                     try
                     {
-                        openningWords = System.IO.File.ReadAllLines(Environment.CurrentDirectory +openningPath);
+                        openningWords = System.IO.File.ReadAllLines(Environment.CurrentDirectory + openningPath);
                     }
                     catch (Exception)
                     {
@@ -200,7 +201,7 @@ namespace BLL
 
 
         //העברתי לאפפ קונפיג, אבל לא מצליח לקחת משם.
-        static string endingPathWindows = @"\..\..\Data\endingWords.txt";   
+        static string endingPathWindows = @"\..\..\Data\endingWords.txt";
         static string endingPath = @"\Data\endingWords.txt";
 
 
@@ -263,6 +264,8 @@ namespace BLL
             }
             return sentence;
         }
+
+
 
 
         /// <summary>

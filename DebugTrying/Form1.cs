@@ -27,7 +27,7 @@ namespace DebugTrying
         private void btn_invokeFuncGetNewMail_Click(object sender, EventArgs e)
         {
             NaiveBaiseAlgorithm algorithm = new NaiveBaiseAlgorithm();
-            algorithm.NewEmailRequest("", "בניין 5 דירה מספר 7", "shira0556791045@gmail.com", DateTime.Now, "36636520gfvhgj");
+            algorithm.NewEmailRequest("העברה בנקאית – אישור", "מצב חשבונית מס כפי שביקשתם, על העברה הבנקאית שנעשתה אתמול עס  20,000₪ מחברת סולמות חגית יום טוב.", "shira0556791045@gmail.com", DateTime.Now, "36636520gfvhgj");
         }
 
         private void button1_Click(object sender, EventArgs e)

@@ -22,12 +22,16 @@ namespace AutomaticClassification_Add_in
         //public delegate void EventHandler(Manager m);
         //public event EventHandler AddNewCategory;
 
-        public delegate void EventHandler1(Manager m, bool isFirst=true);
+        public delegate void EventHandler1(Manager m, bool isFirst = true);
         public event EventHandler1 GeneralManager;
 
         public delegate void EventHandler2(Manager m, bool isAdd);
         public event EventHandler2 WorkerDepartment;
         public event EventHandler2 AddNewCategory;
+
+        public delegate void EventHandler3();
+        public event EventHandler3 FirstTaggingLearning;
+
 
 
         public UI_Pane(Manager manager)
@@ -35,22 +39,28 @@ namespace AutomaticClassification_Add_in
             InitializeComponent();
             this.retrieval = new Retrieval();
             this.manager = manager;
-            if (manager != null)
+            bool isExsistUser = User.IsExsistUser();
+            bool isExsistCategory = retrieval.IsExsistCategories();
+            if (isExsistUser && isExsistCategory)
             {
                 notFirstTimeState();
-                LogInState();
+                if (manager != null)
+                    LogInState();
             }
             else
             {
-                if (User.IsExsistUser())
-                    notFirstTimeState();
+                firstTime_gb.Location = new Point(firstTime_gb.Location.X, firstTime_gb.Location.Y + 380);
+                if (isExsistUser)
+                    signInManager_rd.Enabled = false;
+                if (isExsistCategory)
+                    firstTagging_rd.Enabled = false;
             }
         }
 
         private void notFirstTimeState()
         {
-            signIn_lnkLbl.Visible = false;
             password_pl.Visible = true;
+            firstTime_gb.Visible = false;
         }
 
         public void LogInState()
@@ -93,6 +103,11 @@ namespace AutomaticClassification_Add_in
             this.manager = null;
         }
 
+        public bool IsDoneFirstTaggingLearning()
+        {
+            return retrieval.IsExsistCategories();
+        }
+
         private void addNewCategory_rb_CheckedChanged(object sender, EventArgs e)
         {
             AddNewCategory?.Invoke(this.manager, true);  // טופס 3 - הוספת מחלקה חדשה
@@ -113,11 +128,6 @@ namespace AutomaticClassification_Add_in
             GeneralManager?.Invoke(this.manager);    // טופס 4 - עדכון מנהל כללי
         }
 
-        private void signIn_lnkLbl_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            GeneralManager?.Invoke(null);  //   טופס 4 - הוספת מנהל כללי בפעם הראשונה 
-        }
-
         private void AddNewManager_rd_CheckedChanged(object sender, EventArgs e)
         {
             GeneralManager?.Invoke(this.manager, false);  //   טופס 4 - הוספת מנהל כללי חדש 
@@ -126,6 +136,16 @@ namespace AutomaticClassification_Add_in
         private void addTaggingToDepartment_rd_CheckedChanged(object sender, EventArgs e)
         {
             AddNewCategory?.Invoke(this.manager, false);  // טופס 3 - הוספת תיוג למחלקה קיימת
+        }
+
+        private void signInManager_rd_CheckedChanged(object sender, EventArgs e)
+        {
+            GeneralManager?.Invoke(null);  //   טופס 4 - הוספת מנהל כללי בפעם הראשונה 
+        }
+
+        private void firstTagging_rd_CheckedChanged(object sender, EventArgs e)
+        {
+            FirstTaggingLearning?.Invoke();  //  למידת המערכת = למידת הקטגוריות ותיוגם הראשוני
         }
     }
 }

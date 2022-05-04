@@ -46,11 +46,15 @@ namespace AutomaticClassification_Add_in
             this.password_pl = new System.Windows.Forms.Panel();
             this.welcome_lbl = new System.Windows.Forms.Label();
             this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
-            this.signIn_lnkLbl = new System.Windows.Forms.LinkLabel();
+            this.firstTime_gb = new System.Windows.Forms.GroupBox();
+            this.firstTagging_rd = new System.Windows.Forms.RadioButton();
+            this.signInManager_rd = new System.Windows.Forms.RadioButton();
+            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.GeneralManager_gb.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pb_logo)).BeginInit();
             this.password_pl.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).BeginInit();
+            this.firstTime_gb.SuspendLayout();
             this.SuspendLayout();
             // 
             // managerPwd_txt
@@ -232,26 +236,49 @@ namespace AutomaticClassification_Add_in
             // 
             this.errorProvider1.ContainerControl = this;
             // 
-            // signIn_lnkLbl
+            // firstTime_gb
             // 
-            this.signIn_lnkLbl.AutoSize = true;
-            this.signIn_lnkLbl.BackColor = System.Drawing.Color.Transparent;
-            this.signIn_lnkLbl.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-            this.signIn_lnkLbl.ImageKey = "(none)";
-            this.signIn_lnkLbl.Location = new System.Drawing.Point(84, 122);
-            this.signIn_lnkLbl.Name = "signIn_lnkLbl";
-            this.signIn_lnkLbl.Size = new System.Drawing.Size(221, 17);
-            this.signIn_lnkLbl.TabIndex = 9;
-            this.signIn_lnkLbl.TabStop = true;
-            this.signIn_lnkLbl.Text = "הירשמות למערכת בפעם הראשונה";
-            this.signIn_lnkLbl.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.signIn_lnkLbl_LinkClicked);
+            this.firstTime_gb.BackColor = System.Drawing.Color.Transparent;
+            this.firstTime_gb.Controls.Add(this.firstTagging_rd);
+            this.firstTime_gb.Controls.Add(this.signInManager_rd);
+            this.firstTime_gb.Location = new System.Drawing.Point(15, 585);
+            this.firstTime_gb.Name = "firstTime_gb";
+            this.firstTime_gb.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.firstTime_gb.Size = new System.Drawing.Size(274, 101);
+            this.firstTime_gb.TabIndex = 10;
+            this.firstTime_gb.TabStop = false;
+            this.firstTime_gb.Text = "להפעלת התוסף - בצע פעולות אלו";
+            // 
+            // firstTagging_rd
+            // 
+            this.firstTagging_rd.AutoSize = true;
+            this.firstTagging_rd.Location = new System.Drawing.Point(37, 63);
+            this.firstTagging_rd.Name = "firstTagging_rd";
+            this.firstTagging_rd.Size = new System.Drawing.Size(223, 21);
+            this.firstTagging_rd.TabIndex = 14;
+            this.firstTagging_rd.TabStop = true;
+            this.firstTagging_rd.Text = " תיוג ראשוני - למידת המחלקות-----";
+            this.firstTagging_rd.UseVisualStyleBackColor = true;
+            this.firstTagging_rd.CheckedChanged += new System.EventHandler(this.firstTagging_rd_CheckedChanged);
+            // 
+            // signInManager_rd
+            // 
+            this.signInManager_rd.AutoSize = true;
+            this.signInManager_rd.Location = new System.Drawing.Point(157, 36);
+            this.signInManager_rd.Name = "signInManager_rd";
+            this.signInManager_rd.Size = new System.Drawing.Size(102, 21);
+            this.signInManager_rd.TabIndex = 13;
+            this.signInManager_rd.TabStop = true;
+            this.signInManager_rd.Text = "רישום מנהל -";
+            this.signInManager_rd.UseVisualStyleBackColor = true;
+            this.signInManager_rd.CheckedChanged += new System.EventHandler(this.signInManager_rd_CheckedChanged);
             // 
             // UI_Pane
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
-            this.Controls.Add(this.signIn_lnkLbl);
+            this.Controls.Add(this.firstTime_gb);
             this.Controls.Add(this.welcome_lbl);
             this.Controls.Add(this.password_pl);
             this.Controls.Add(this.GeneralManager_gb);
@@ -264,6 +291,8 @@ namespace AutomaticClassification_Add_in
             this.password_pl.ResumeLayout(false);
             this.password_pl.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).EndInit();
+            this.firstTime_gb.ResumeLayout(false);
+            this.firstTime_gb.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -283,8 +312,11 @@ namespace AutomaticClassification_Add_in
         private System.Windows.Forms.RadioButton addNewDM_rd;
         private System.Windows.Forms.RadioButton updateDetails_rb;
         private System.Windows.Forms.RadioButton updateYourDetails_rb;
-        private System.Windows.Forms.LinkLabel signIn_lnkLbl;
         private System.Windows.Forms.RadioButton AddNewManager_rd;
         private System.Windows.Forms.RadioButton addTaggingToDepartment_rd;
+        private System.Windows.Forms.GroupBox firstTime_gb;
+        private System.Windows.Forms.RadioButton firstTagging_rd;
+        private System.Windows.Forms.RadioButton signInManager_rd;
+        private System.ComponentModel.BackgroundWorker backgroundWorker1;
     }
 }

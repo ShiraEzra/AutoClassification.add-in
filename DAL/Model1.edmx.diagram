@@ -5,15 +5,15 @@
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
       <Diagram DiagramId="af2406fa35f7454cb777f408c91ab44a" Name="Diagram1">
-        <EntityTypeShape EntityType="AutomaticClassificationDBModel.Category_tbl" Width="1.5" PointX="0.5" PointY="0.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="AutomaticClassificationDBModel.EmailRequest_tbl" Width="1.5" PointX="2.625" PointY="3.125" IsExpanded="true" />
-        <EntityTypeShape EntityType="AutomaticClassificationDBModel.Manager_tbl" Width="1.5" PointX="7.75" PointY="0.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="AutomaticClassificationDBModel.SendingHistory_tbl" Width="1.5" PointX="4.625" PointY="3.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="AutomaticClassificationDBModel.StatusSending_tbl" Width="1.5" PointX="0.5" PointY="4.5" IsExpanded="true" />
-        <EntityTypeShape EntityType="AutomaticClassificationDBModel.User_tbl" Width="1.5" PointX="6.75" PointY="3.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="AutomaticClassificationDBModel.Word_tbl" Width="1.5" PointX="2.5" PointY="0.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="AutomaticClassificationDBModel.WordPerCategory_tbl" Width="1.5" PointX="0.5" PointY="6.875" IsExpanded="true" />
-        <EntityTypeShape EntityType="AutomaticClassificationDBModel.WordPerRequest_tbl" Width="1.5" PointX="4.75" PointY="1" IsExpanded="true" />
+        <EntityTypeShape EntityType="AutomaticClassificationDBModel.Category_tbl" Width="1.5" PointX="5.25" PointY="3.375" IsExpanded="true" FillColor="Aqua" />
+        <EntityTypeShape EntityType="AutomaticClassificationDBModel.EmailRequest_tbl" Width="1.5" PointX="1.25" PointY="2.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="AutomaticClassificationDBModel.Manager_tbl" Width="1.5" PointX="9" PointY="0.5" IsExpanded="true" FillColor="192, 255, 192" />
+        <EntityTypeShape EntityType="AutomaticClassificationDBModel.SendingHistory_tbl" Width="1.5" PointX="7.125" PointY="2.625" IsExpanded="true" FillColor="Chocolate" />
+        <EntityTypeShape EntityType="AutomaticClassificationDBModel.StatusSending_tbl" Width="1.5" PointX="7.125" PointY="0.5" IsExpanded="true" FillColor="Fuchsia" />
+        <EntityTypeShape EntityType="AutomaticClassificationDBModel.User_tbl" Width="1.5" PointX="3.25" PointY="3.875" IsExpanded="true" FillColor="128, 128, 255" />
+        <EntityTypeShape EntityType="AutomaticClassificationDBModel.Word_tbl" Width="1.5" PointX="1.25" PointY="0.5" IsExpanded="true" FillColor="255, 128, 128" />
+        <EntityTypeShape EntityType="AutomaticClassificationDBModel.WordPerCategory_tbl" Width="1.5" PointX="5.25" PointY="0.5" IsExpanded="true" FillColor="Gray" />
+        <EntityTypeShape EntityType="AutomaticClassificationDBModel.WordPerRequest_tbl" Width="1.5" PointX="3.375" PointY="0.875" IsExpanded="true" FillColor="255, 255, 128" />
         <AssociationConnector Association="AutomaticClassificationDBModel.FK_EmailRequest_tbl_Category_tbl" ManuallyRouted="false" />
         <AssociationConnector Association="AutomaticClassificationDBModel.FK_SendingHistory_Category_tbl" ManuallyRouted="false" />
         <AssociationConnector Association="AutomaticClassificationDBModel.FK_SendingHistory_Category_tbl1" ManuallyRouted="false" />

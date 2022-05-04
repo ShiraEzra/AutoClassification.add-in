@@ -85,12 +85,6 @@ namespace BLL
             string requestContent = request.EmailSubject + " " + request.EmailContent;
             char[] separators = new char[] { ' ', '\n', '\t', '\r', '-', ',', '.' };
             string[] wordsSentence = requestContent.Split(separators);     //take out the separators.
-            //var category_lst = db.Category_tbl.ToList();
-            //foreach (var category in category_lst)
-            //{
-            //    if (wordsSentence.Contains(category.ManagerName_category))
-            //        req_Analysis.IsContainCategoryManagerID[category.ID_category - 1] = true;
-            //}
             var user_lst = db.User_tbl.ToList();
             foreach (var user in user_lst)
             {
@@ -208,7 +202,7 @@ namespace BLL
                     List<string> similarWords = GetAnalayzedSimWords(w);
                     for (int i = 0; i < categoryProbability_arr.Length; i++)
                     {
-                        prob_similiarWords = SimiliarWords_probability(i, similarWords);
+                        prob_similiarWords = SimiliarWords_probability(i, similarWords, w);
                         if (isExsist && probability_mat[word.ID_word - 1, i] != 0)
                             prob = probability_mat[word.ID_word - 1, i];
                         else
@@ -258,7 +252,8 @@ namespace BLL
 
 
         /// <summary>
-        /// The function build the matrix of probabilities. In each cell in the matrix we put the probability of this word to belong to a certain category.
+        /// The function build the matrix of probabilities.
+        /// In each cell in the matrix we put the probability of this word to belong to a certain category.
         /// </summary>
         public void BuildProbabilityMat()
         {
@@ -299,7 +294,7 @@ namespace BLL
         /// <param name="category_id">Category id</param>
         /// <param name="normalizedSimWords">List of similar words</param>
         /// <returns>The probability of the all words similar to the word together</returns>
-        public float SimiliarWords_probability(int category_id, List<string> normalizedSimWords)
+        public float SimiliarWords_probability(int category_id, List<string> normalizedSimWords, string word)
         {
             //על המילים הדומות שמקבלים צריך לבדוק שוב האם קיימות ב-דטה בייס לקטגוריה זו, ולהחזיר את ההסתברות, אם לא קיימות  להחזיר 0
             if (normalizedSimWords == null)
@@ -308,13 +303,16 @@ namespace BLL
             int count = 0;
             foreach (var item in normalizedSimWords)
             {
-                bool isExsist = allWords.TryGetValue(item, out Word_tbl wordFromDic);
-                if (isExsist && probability_mat[wordFromDic.ID_word - 1, category_id] != 0)
+                if (!item.Equals(word))
                 {
-                    prob += probability_mat[wordFromDic.ID_word - 1, category_id];
-                    count++;
-                    if (!req_Analysis.SimiliarwordsExsistDB.Contains(wordFromDic))  //כי יש מצב שהכניס כבר בעבור קטגוריה אחרת
-                        req_Analysis.SimiliarwordsExsistDB.Add(wordFromDic);
+                    bool isExsist = allWords.TryGetValue(item, out Word_tbl wordFromDic);
+                    if (isExsist && probability_mat[wordFromDic.ID_word - 1, category_id] != 0)
+                    {
+                        prob += probability_mat[wordFromDic.ID_word - 1, category_id];
+                        count++;
+                        if (!req_Analysis.SimiliarwordsExsistDB.Contains(wordFromDic))  //כי יש מצב שהכניס כבר בעבור קטגוריה אחרת
+                            req_Analysis.SimiliarwordsExsistDB.Add(wordFromDic);
+                    }
                 }
             }
             if (count == 0)
@@ -409,7 +407,8 @@ namespace BLL
 
 
         /// <summary>
-        /// The function calls the functions of Conclusion class, in order to enter into the DB the data of the current email request for system improvement from now on.
+        /// The function calls the functions of Conclusion class,
+        /// in order to enter into the DB the data of the current email request for system improvement from now on.
         /// </summary>
         /// <param name="isAutomat">True: if it's automatic sending.  else - false.</param>
         public void InsertConclusionToDB(bool isAutomat)
@@ -427,7 +426,7 @@ namespace BLL
         /// <param name="subject">subject of an email request</param>
         /// <param name="body">body of an email request</param>
         /// <param name="categoryID">ID of the category</param>
-        public void InsertRequestToSystem(string subject, string body,int categoryID)
+        public void InsertRequestToSystem(string subject, string body, int categoryID)
         {
             //להפוך את כל השדות הללו ל- לא שדות חובה
             // SenderEmail = sender, Date = date, EntryId = entryId

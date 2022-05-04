@@ -78,6 +78,11 @@ namespace BLL
             return db.Category_tbl.Select(c => c.Name_category).ToList();
         }
 
+        public bool IsExsistCategories()
+        {
+            return db.Category_tbl.Count() > 0;
+        }
+
         /// <summary>
         /// The function return a list of all the categories
         /// </summary>

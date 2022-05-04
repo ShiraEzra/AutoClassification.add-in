@@ -55,6 +55,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Algorithm\FirstTaggingLearning.cs" />
     <Compile Include="Algorithm\NaiveBaiseAlgorithm.cs" />
     <Compile Include="Algorithm\Analysis.cs" />
     <Compile Include="Algorithm\Retrieval.cs" />

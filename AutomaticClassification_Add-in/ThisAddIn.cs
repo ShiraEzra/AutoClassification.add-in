@@ -267,6 +267,7 @@ namespace AutomaticClassification_Add_in
             (this.control as UI_Pane).AddNewCategory += AddNewCategory_paneShow;
             (this.control as UI_Pane).GeneralManager += GeneralManager_paneShow;
             (this.control as UI_Pane).WorkerDepartment += WorkerDepartment_paneShow;
+            (this.control as UI_Pane).FirstTaggingLearning += FirstTaggingLearning;
 
             this.taskpane = this.CustomTaskPanes.Add(this.control, "Auto classification");
             this.taskpane.Width = 325;
@@ -279,6 +280,14 @@ namespace AutomaticClassification_Add_in
             this.taskpane = this.CustomTaskPanes.Add(this.control, "Auto classification");
             this.taskpane.Width = 325;
             this.taskpane.Visible = true;
+        }
+
+
+        //לטפל בפונקציה זו
+        public void FirstTaggingLearning()
+        {
+            FirstTaggingLearning ftl = new FirstTaggingLearning();
+            //להכניס את כל הנתונים למסד הנתונים - למידה ראשונית של המערכת
         }
 
         /// <summary>
