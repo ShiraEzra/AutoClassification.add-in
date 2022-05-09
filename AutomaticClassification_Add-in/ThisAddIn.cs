@@ -8,7 +8,8 @@ using System.Runtime.InteropServices;
 using AutomaticClassification_Add_in.Forms;
 using AutomaticClassification_Add_in.UI;
 using BLL.DTO;
-
+using System.Linq;
+using System;
 
 namespace AutomaticClassification_Add_in
 {
@@ -44,7 +45,6 @@ namespace AutomaticClassification_Add_in
                 {
                     foreach (var mail in unReadMails)
                     {
-
                         NaiveBaiseAlgorithm algorithm = new NaiveBaiseAlgorithm();
                         string nameFolder = algorithm.NewEmailRequest(mail.ConversationTopic, retrieval.RelevantBodyOnly(mail.Body), mail.SenderEmailAddress, mail.CreationTime, mail.ConversationID);
                         MoveDirectory(mail, nameFolder);
@@ -168,6 +168,29 @@ namespace AutomaticClassification_Add_in
         }
 
 
+        //להכניס את כל הנתונים למסד הנתונים - למידה ראשונית של המערכת       
+        public void FirstTaggingLearning()
+        {
+            Outlook.MailItem mail = null;
+            EmailRequest emailRequest = null;
+            int i = 0;
+            int[] preccisionArr = new int[allFolders.Count()];
+            FirstTaggingLearning ftl = new FirstTaggingLearning();
+            foreach (var folder in allFolders)
+            {
+                Outlook.Items folderItems = folder.Items;
+                List<EmailRequest> folderEmailRequests = new List<EmailRequest>();
+                foreach (var item in folderItems)
+                {
+                    mail = (Outlook.MailItem)item;
+                    emailRequest = new EmailRequest() { Subject = mail.ConversationTopic, Body = retrieval.RelevantBodyOnly(mail.Body), Sender = mail.SenderEmailAddress, Date = mail.CreationTime, EntryID = mail.ConversationID };
+                    folderEmailRequests.Add(emailRequest);
+                }
+                preccisionArr[i++]=ftl.LearningFolderRequests(folderEmailRequests, folder.Name);
+
+            }
+        }
+
 
 
 
@@ -283,12 +306,6 @@ namespace AutomaticClassification_Add_in
         }
 
 
-        //לטפל בפונקציה זו
-        public void FirstTaggingLearning()
-        {
-            FirstTaggingLearning ftl = new FirstTaggingLearning();
-            //להכניס את כל הנתונים למסד הנתונים - למידה ראשונית של המערכת
-        }
 
         /// <summary>
         /// A function that is performed when opening the Outlook application

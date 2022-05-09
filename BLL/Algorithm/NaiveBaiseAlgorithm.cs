@@ -7,7 +7,7 @@ using System.Windows.Forms;
 
 namespace BLL
 {
-    public enum Percent { MaxProbability = 1, Subject_VS_Body = 2, NameOfCategoryManager = 20, Similiar = 30, Common = 70, EmailContent = 80, Hundred = 100 }
+    public enum PercentCalcProb { MaxProbability = 1, Subject_VS_Body = 2, NameOfCategoryManager = 20, Similiar = 30, Common = 70, EmailContent = 80, Hundred = 100 }
 
     public class NaiveBaiseAlgorithm
     {
@@ -208,7 +208,7 @@ namespace BLL
                         else
                             prob = justNotToReset;
                         //משקל של 70% להסתברות של המילה עצמה, ו-30% להסתברות של המילים הדומות.
-                        prob = prob * ((float)Percent.Common) / (int)Percent.Hundred + prob_similiarWords * ((float)Percent.Similiar) / (int)Percent.Hundred;
+                        prob = prob * ((float)PercentCalcProb.Common) / (int)PercentCalcProb.Hundred + prob_similiarWords * ((float)PercentCalcProb.Similiar) / (int)PercentCalcProb.Hundred;
                         lock (categoryProbability_arr)
                         {
                             categoryProbability_arr[i] *= prob;
@@ -341,8 +341,8 @@ namespace BLL
                 totalProbability[i] += req_Analysis.Subject.ProbabilitybSubjectForCategory[i] * percentsForSubject;
                 if (req_Analysis.IsContainCategoryManagerID[i])
                 {
-                    totalProbability[i] *= (float)Percent.EmailContent / (int)Percent.Hundred;
-                    totalProbability[i] += (float)Percent.NameOfCategoryManager / (int)Percent.Hundred;
+                    totalProbability[i] *= (float)PercentCalcProb.EmailContent / (int)PercentCalcProb.Hundred;
+                    totalProbability[i] += (float)PercentCalcProb.NameOfCategoryManager / (int)PercentCalcProb.Hundred;
                 }
             }
             return totalProbability;
@@ -377,15 +377,15 @@ namespace BLL
         public void PercentageOfSubjectAndBody(int realSizeBodySentences, ref float percentsForSubject, ref float percentsEachSentence)
         {
             if (realSizeBodySentences == 0)
-                percentsForSubject = (float)Percent.MaxProbability;
+                percentsForSubject = (float)PercentCalcProb.MaxProbability;
             else
             {
                 if (req_Analysis.Subject.NormalizedSubjectWords.Count() == 0)
-                    percentsEachSentence = (float)Percent.MaxProbability / realSizeBodySentences;
+                    percentsEachSentence = (float)PercentCalcProb.MaxProbability / realSizeBodySentences;
                 else
                 {
-                    percentsEachSentence = (float)Percent.MaxProbability / realSizeBodySentences + (int)Percent.Subject_VS_Body;
-                    percentsForSubject = percentsEachSentence * (int)Percent.Subject_VS_Body;
+                    percentsEachSentence = (float)PercentCalcProb.MaxProbability / realSizeBodySentences + (int)PercentCalcProb.Subject_VS_Body;
+                    percentsForSubject = percentsEachSentence * (int)PercentCalcProb.Subject_VS_Body;
                 }
             }
         }
@@ -416,7 +416,7 @@ namespace BLL
             Conclusion conclusion = new Conclusion(req_Analysis, request, isAutomat);
             conclusion.AddEmailRequest_tbl(request);
             conclusion.LearningForNext();
-            conclusion.AddSendingHistory_tbl(-1);
+            conclusion.AddSendingHistory_tbl(Conclusion.notFromCategory);
         }
 
 

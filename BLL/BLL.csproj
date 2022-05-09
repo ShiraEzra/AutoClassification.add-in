@@ -66,6 +66,7 @@
     <Compile Include="Algorithm\SimilarWords.cs" />
     <Compile Include="Algorithm\Subject.cs" />
     <Compile Include="DTO\Category.cs" />
+    <Compile Include="DTO\EmailRequest.cs" />
     <Compile Include="DTO\Manager.cs" />
     <Compile Include="DTO\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
