@@ -14,7 +14,7 @@ namespace BLL
         EmailRequest_tbl request;
         RequestAnalysis reqAnalysis;
         List<WordPerRequest_tbl> requestWord_lst;
-        bool IsFirstOrAutomat;  //If true: AutomatSend, else:FirstLearning;
+        bool isFirstOrAutomat;  //If true: AutomatSend, else:FirstLearning;
         public static int notFromCategory = -1;
 
 
@@ -27,7 +27,7 @@ namespace BLL
         {
             reqAnalysis = analysis;
             request = req;
-            IsFirstOrAutomat = FirstOrAutomat;
+            isFirstOrAutomat = FirstOrAutomat;
         }
 
 
@@ -232,7 +232,7 @@ namespace BLL
             SendingHistory_tbl history;
             if (sentFrom == notFromCategory)
             {
-                int statusSending_id = (int)(IsFirstOrAutomat ? StatusKind.AutomatSend : StatusKind.FirstLearning);
+                int statusSending_id = (int)(isFirstOrAutomat ? StatusKind.AutomatSend : StatusKind.FirstLearning);
                 history = new SendingHistory_tbl { ID_category = (int)request.ID_category, ID_emailRequest = request.ID_emailRequest, Date = DateTime.Now, ID_StatusSending = statusSending_id };
             }
             else

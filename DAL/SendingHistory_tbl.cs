@@ -20,7 +20,6 @@ namespace DAL
         public System.DateTime Date { get; set; }
         public int ID_StatusSending { get; set; }
         public Nullable<int> SentFrom { get; set; }
-        public Nullable<float> Precision { get; set; }
     
         public virtual Category_tbl Category_tbl { get; set; }
         public virtual Category_tbl Category_tbl1 { get; set; }

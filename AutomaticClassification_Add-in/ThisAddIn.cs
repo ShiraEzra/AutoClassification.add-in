@@ -126,7 +126,6 @@ namespace AutomaticClassification_Add_in
                 destFolder.Items.ItemAdd += AddMailToDirectory;
                 allFolders.Add(destFolder);
             }
-            Marshal.ReleaseComObject(destFolder);
             //https://stackoverflow.com/questions/42663830/outlook-2016-vsto-folder-add-event-fires-only-once
         }
 
@@ -156,7 +155,6 @@ namespace AutomaticClassification_Add_in
 
         public void CreateNewFolder(string nameFolder)
         {
-            //Outlook.MAPIFolder newFolder = default(Outlook.MAPIFolder);
             try
             {
                 oInbox.Folders.Add(nameFolder, Outlook.OlDefaultFolders.olFolderInbox);
@@ -169,35 +167,47 @@ namespace AutomaticClassification_Add_in
 
 
         //להכניס את כל הנתונים למסד הנתונים - למידה ראשונית של המערכת       
-        public void FirstTaggingLearning()
+        public float[] FirstTaggingLearningFunc()
         {
+            Outlook.Items folderItems = null;
             Outlook.MailItem mail = null;
             EmailRequest emailRequest = null;
             int i = 0;
-            int[] preccisionArr = new int[allFolders.Count()];
+            float[] preccisionArr = new float[allFolders.Count() + 1]; //תא נוסף בעבור הסה"כ
             FirstTaggingLearning ftl = new FirstTaggingLearning();
-            foreach (var folder in allFolders)
+            List<EmailRequest> folderEmailRequests = null;
+            try
             {
-                Outlook.Items folderItems = folder.Items;
-                List<EmailRequest> folderEmailRequests = new List<EmailRequest>();
-                foreach (var item in folderItems)
+                foreach (var folder in allFolders)
                 {
-                    mail = (Outlook.MailItem)item;
-                    emailRequest = new EmailRequest() { Subject = mail.ConversationTopic, Body = retrieval.RelevantBodyOnly(mail.Body), Sender = mail.SenderEmailAddress, Date = mail.CreationTime, EntryID = mail.ConversationID };
-                    folderEmailRequests.Add(emailRequest);
+                    if (folder is Outlook.MAPIFolder)
+                    {
+                        folderItems = folder.Items;
+                        folderEmailRequests = new List<EmailRequest>();
+                        foreach (var item in folderItems)
+                        {
+                            mail = (Outlook.MailItem)item;
+                            emailRequest = new EmailRequest() { Subject = mail.ConversationTopic, Body = retrieval.RelevantBodyOnly(mail.Body), Sender = mail.SenderEmailAddress, Date = mail.CreationTime, EntryID = mail.ConversationID };
+                            folderEmailRequests.Add(emailRequest);
+                        }
+                        preccisionArr[i++] = ftl.LearningFolderRequests(folderEmailRequests, folder.Name);
+                    }
                 }
-                preccisionArr[i++]=ftl.LearningFolderRequests(folderEmailRequests, folder.Name);
-
+                preccisionArr[preccisionArr.Length - 1] = FirstTaggingLearning.totalPrecision;
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show("First tagging doesn't succeed...  " + ex.Message);
+            }
+            finally
+            {
+                if (folderItems != null)
+                    Marshal.ReleaseComObject(folderItems);
+                if (mail != null)
+                    Marshal.ReleaseComObject(mail);
+            }
+            return preccisionArr;
         }
-
-
-
-
-
-
-
-
 
 
 
@@ -290,7 +300,7 @@ namespace AutomaticClassification_Add_in
             (this.control as UI_Pane).AddNewCategory += AddNewCategory_paneShow;
             (this.control as UI_Pane).GeneralManager += GeneralManager_paneShow;
             (this.control as UI_Pane).WorkerDepartment += WorkerDepartment_paneShow;
-            (this.control as UI_Pane).FirstTaggingLearning += FirstTaggingLearning;
+            (this.control as UI_Pane).FirstTaggingLearning += FirstTaggingLearningFunc;
 
             this.taskpane = this.CustomTaskPanes.Add(this.control, "Auto classification");
             this.taskpane.Width = 325;
@@ -314,9 +324,6 @@ namespace AutomaticClassification_Add_in
         /// <param name="e"></param>
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
-            //Outlook.NameSpace oNS = this.Application.GetNamespace("mapi");
-            //Marshal.ReleaseComObject(oNS);
-
             oInbox = this.Application.GetNamespace("mapi").GetDefaultFolder(Outlook.OlDefaultFolders.olFolderInbox);
 
             //העמסת מתודה שתתבצע בכל פעם שיכנס מייל חדש
@@ -345,8 +352,12 @@ namespace AutomaticClassification_Add_in
 
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
         {
-            Marshal.ReleaseComObject(oInbox);
-            Marshal.ReleaseComObject(allFolders);
+            if (oInbox != null)
+                Marshal.ReleaseComObject(oInbox);
+            foreach (var folder in allFolders)
+                Marshal.ReleaseComObject(folder);
+            if (allFolders != null)
+                Marshal.ReleaseComObject(allFolders);
 
             // Note: Outlook no longer raises this event. If you have code that 
             //    must run when Outlook shuts down, see https://go.microsoft.com/fwlink/?LinkId=506785

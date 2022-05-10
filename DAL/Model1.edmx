@@ -46,7 +46,6 @@
           <Property Name="Date" Type="date" Nullable="false" />
           <Property Name="ID_StatusSending" Type="int" Nullable="false" />
           <Property Name="SentFrom" Type="int" />
-          <Property Name="Precision" Type="real" />
         </EntityType>
         <EntityType Name="StatusSending_tbl">
           <Key>
@@ -313,7 +312,6 @@
           <Property Name="Date" Type="DateTime" Nullable="false" Precision="0" />
           <Property Name="ID_StatusSending" Type="Int32" Nullable="false" />
           <Property Name="SentFrom" Type="Int32" />
-          <Property Name="Precision" Type="Single" />
           <NavigationProperty Name="Category_tbl" Relationship="Self.FK_SendingHistory_Category_tbl" FromRole="SendingHistory_tbl" ToRole="Category_tbl" />
           <NavigationProperty Name="Category_tbl1" Relationship="Self.FK_SendingHistory_Category_tbl1" FromRole="SendingHistory_tbl" ToRole="Category_tbl" />
           <NavigationProperty Name="EmailRequest_tbl" Relationship="Self.FK_SendingHistory_EmailRequest_tbl" FromRole="SendingHistory_tbl" ToRole="EmailRequest_tbl" />
@@ -587,7 +585,6 @@
                 <ScalarProperty Name="Date" ColumnName="Date" />
                 <ScalarProperty Name="ID_StatusSending" ColumnName="ID_StatusSending" />
                 <ScalarProperty Name="SentFrom" ColumnName="SentFrom" />
-                <ScalarProperty Name="Precision" ColumnName="Precision" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

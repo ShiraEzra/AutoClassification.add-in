@@ -1,4 +1,5 @@
-﻿using BLL;
+﻿using AutomaticClassification_Add_in.UI;
+using BLL;
 using BLL.DTO;
 using System;
 using System.Collections.Generic;
@@ -29,7 +30,7 @@ namespace AutomaticClassification_Add_in
         public event EventHandler2 WorkerDepartment;
         public event EventHandler2 AddNewCategory;
 
-        public delegate void EventHandler3();
+        public delegate float[] EventHandler3();
         public event EventHandler3 FirstTaggingLearning;
 
 
@@ -49,7 +50,7 @@ namespace AutomaticClassification_Add_in
             }
             else
             {
-                firstTime_gb.Location = new Point(firstTime_gb.Location.X, firstTime_gb.Location.Y + 380);
+                firstTime_gb.Location = new Point(firstTime_gb.Location.X, firstTime_gb.Location.Y - 400);
                 if (isExsistUser)
                     signInManager_rd.Enabled = false;
                 if (isExsistCategory)
@@ -145,7 +146,17 @@ namespace AutomaticClassification_Add_in
 
         private void firstTagging_rd_CheckedChanged(object sender, EventArgs e)
         {
-            FirstTaggingLearning?.Invoke();  //  למידת המערכת = למידת הקטגוריות ותיוגם הראשוני
+            float[] precision = FirstTaggingLearning?.Invoke();  //  למידת המערכת = למידת הקטגוריות ותיוגם הראשוני
+            CreateMyNotificationBox(precision);
+        }
+
+        public void CreateMyNotificationBox(float[] precision)
+        {
+            MyNotificationBox myMessageBox = new MyNotificationBox();
+            myMessageBox.InsertValues(precision);
+            myMessageBox.StartPosition = FormStartPosition.Manual;
+            myMessageBox.Location = new Point(20, this.Height / 4 * 3);
+            myMessageBox.ShowDialog();
         }
     }
 }

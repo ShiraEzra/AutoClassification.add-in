@@ -428,13 +428,25 @@ namespace BLL
         /// <param name="categoryID">ID of the category</param>
         public void InsertRequestToSystem(string subject, string body, int categoryID)
         {
-            //להפוך את כל השדות הללו ל- לא שדות חובה
-            // SenderEmail = sender, Date = date, EntryId = entryId
             request = new EmailRequest_tbl { EmailSubject = subject, EmailContent = body };
             EmailRequestAnalysis();
             request.ID_category = categoryID;
             InsertConclusionToDB(false);
         }
 
+        public void AnalyzeRequest(EmailRequest_tbl req)
+        {
+            this.request = req;
+            SubjetcAnalysis(request.EmailSubject);
+            BodyAnalysis(request.EmailContent);
+        }
+
+        public int AnalyzeAndAssociateRequest(EmailRequest_tbl req)
+        {
+            this.request = req;
+            int idCategoryassociated= AssociateRequestToCategory() + 1;
+            InsertConclusionToDB(false);
+            return idCategoryassociated;
+        }
     }
 }
