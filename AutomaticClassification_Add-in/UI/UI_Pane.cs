@@ -20,9 +20,7 @@ namespace AutomaticClassification_Add_in
     {
         Retrieval retrieval;
         Manager manager;
-        //public delegate void EventHandler(Manager m);
-        //public event EventHandler AddNewCategory;
-
+     
         public delegate void EventHandler1(Manager m, bool isFirst = true);
         public event EventHandler1 GeneralManager;
 

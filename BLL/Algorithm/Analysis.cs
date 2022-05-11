@@ -266,8 +266,6 @@ namespace BLL
         }
 
 
-
-
         /// <summary>
         /// The function compares the lengths of the strings.
         ///The function returns a number greater than 0 if the length of the x string is greater than the length of the y string.

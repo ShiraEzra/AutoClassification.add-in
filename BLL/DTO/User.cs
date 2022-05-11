@@ -15,10 +15,12 @@ namespace BLL.DTO
         public int Categoty { get; set; }
 
         static AutomaticClassificationDBEntities db = AutomaticClassificationDBEntities.Instance;
+
         public User()
         {
 
         }
+
 
         public User(User_tbl user_tbl)
         {
@@ -26,6 +28,7 @@ namespace BLL.DTO
             this.Name = user_tbl.Name;
             this.Categoty = user_tbl.Categoty;
         }
+
 
         public User_tbl DtoTODal()
         {
@@ -36,6 +39,7 @@ namespace BLL.DTO
             return mapper.Map<User_tbl>(this);
         }
 
+
         public static User DalToDto(User_tbl u)
         {
             var config = new MapperConfiguration(cfg =>
@@ -45,23 +49,14 @@ namespace BLL.DTO
             return mapper.Map<User>(u);
         }
 
+
         public static bool IsExsistUser()
         {
             if (db.User_tbl.Count() > 0)
                 return true;
             return false;
         }
-      
-
-        public override string ToString()
-        {
-            return this.Name /*+ " (" + GetNameCategoryByID((int)this.ID_category) + " )"*/;
-        }
-
-        public string GetNameCategoryByID(int id)
-        {
-            return db.Category_tbl.FirstOrDefault(c => c.ID_category == id)?.Name_category;
-        }
+             
 
         public void Add()
         {

@@ -16,6 +16,7 @@ namespace BLL
         List<WordPerRequest_tbl> requestWord_lst;
         bool isFirstOrAutomat;  //If true: AutomatSend, else:FirstLearning;
         public static int notFromCategory = -1;
+        float exsistWordPercent = 1f, similarWordPercent = 0.3f;
 
 
         /// <summary>
@@ -135,9 +136,9 @@ namespace BLL
         public void IncreasePercentageMatching(WordPerCategory_tbl wpc, bool isSimilarWord)
         {
             if (isSimilarWord)
-                wpc.AmountOfUse += 0.3f;
+                wpc.AmountOfUse += this.similarWordPercent;
             else
-                wpc.AmountOfUse += 1;
+                wpc.AmountOfUse += exsistWordPercent;
             db.SaveChanges();
         }
 

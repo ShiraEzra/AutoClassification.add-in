@@ -181,7 +181,6 @@ namespace AutomaticClassification_Add_in.UI
             ok_lbl.Visible = true;
         }
 
-
         private void cancel_btn_Click(object sender, EventArgs e)
         {
             cleareControls();

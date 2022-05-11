@@ -10,28 +10,9 @@ namespace BLL
 {
     public class Retrieval
     {
-        //להוסיף תיעוד אקסמלי
-        AutomaticClassificationDBEntities db = AutomaticClassificationDBEntities.Instance;
-
-        //public int GetIdEmailRequestByConversationID(string conversationID)
-        //{
-        //    EmailRequest_tbl req = db.EmailRequest_tbl.FirstOrDefault(e => e.EntryId == conversationID);
-        //    if (req == null)
-        //        return -1;
-        //    return req.ID_emailRequest;
-        //}
-
-        //public string GetCategoryNameOfEmailRequest(int reqID)
-        //{
-        //    if (reqID != -1)
-        //    {
-        //        return db.EmailRequest_tbl.Single(e => e.ID_emailRequest == reqID).Category_tbl.Name_category;
-        //    }
-        //    return null;
-        //}
+        static AutomaticClassificationDBEntities db = AutomaticClassificationDBEntities.Instance;
 
 
-      
         /// <summary>
         /// Function that removes irrelevant things from the body of the email.
         /// </summary>
@@ -78,10 +59,16 @@ namespace BLL
             return db.Category_tbl.Select(c => c.Name_category).ToList();
         }
 
+
+        /// <summary>
+        /// The function checks if there is any category in DB
+        /// </summary>
+        /// <returns></returns>
         public bool IsExsistCategories()
         {
             return db.Category_tbl.Count() > 0;
         }
+
 
         /// <summary>
         /// The function return a list of all the categories
@@ -95,33 +82,46 @@ namespace BLL
             return category_lst;
         }
 
+
+        /// <summary>
+        /// The function returns the category of its received code.
+        /// </summary>
+        /// <param name="category_ID">category id</param>
+        /// <returns>Category with the code obtained</returns>
         public Category GetCategoryByID(int category_ID)
         {
             return Category.DalToDto(db.Category_tbl.FirstOrDefault(c => c.ID_category == category_ID));
         }
 
-        //public List<PermissionLevel> GetAllPL()
-        //{
-        //    var plTbl_lst = db.PermissionLevel_tbl.ToList();
-        //    List<PermissionLevel> pl_lst = new List<PermissionLevel>();
-        //    plTbl_lst.ForEach(p => pl_lst.Add(PermissionLevel.DalToDto(p)));
-        //    return pl_lst;
-        //}
 
+        /// <summary>
+        /// A static method that returns a dal category with the resulting code.
+        /// </summary>
+        /// <param name="category_ID"></param>
+        /// <returns>Dal category with the resulting code</returns>
+        public static Category_tbl GetCategory_tblByID(int category_ID)
+        {
+            return db.Category_tbl.FirstOrDefault(c => c.ID_category == category_ID);
+        }
+
+
+        /// <summary>
+        ///The function returns the administrator with the resulting password.
+        /// </summary>
+        /// <param name="password">a password</param>
+        /// <returns>manager with ths password</returns>
         public Manager_tbl GetManagerByPassword(string password)
         {
             return db.Manager_tbl.FirstOrDefault(m => m.Password == password);
         }
 
+
+        /// <summary>
+        /// The function returns the list of department heads in the system.
+        /// </summary>
+        /// <returns>list of User</returns>
         public List<User> GetAllUsers()
         {
-            //var userTbl_lst = db.User_tbl.ToList();
-            //User[] user_arr = new User[userTbl_lst.Count];
-            //int i = 0;
-            //foreach (var user_tbl in userTbl_lst)
-            //    user_arr[i++] = User.DalToDto(user_tbl);
-            //return user_arr;
-
             var userTbl_lst = db.User_tbl.ToList();
             List<User> user_lst = new List<User>();
             userTbl_lst.ForEach(u => user_lst.Add(User.DalToDto(u)));

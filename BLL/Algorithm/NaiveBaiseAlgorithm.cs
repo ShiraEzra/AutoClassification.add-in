@@ -23,7 +23,6 @@ namespace BLL
         public NaiveBaiseAlgorithm()
         {
             req_Analysis = new RequestAnalysis(db.Category_tbl.Count());
-            //נפל בזמן ריצה בשורה הבאה - לבדוק למה
             allWords = db.Word_tbl.ToDictionary(x => x.Value_word, x => x);
             firstInit_arr = FirstInitProbability_arr();
             BuildProbabilityMat();
@@ -45,7 +44,7 @@ namespace BLL
             request = new EmailRequest_tbl { EmailSubject = subject, EmailContent = body, SenderEmail = sender, Date = date, EntryId = entryId };
             request.ID_category = AssociateRequestToCategory() + 1;
             InsertConclusionToDB(true);
-            return request.Category_tbl.Name_category;
+            return request.Category_tbl!=null?  request.Category_tbl.Name_category: Retrieval.GetCategory_tblByID((int)request.ID_category).Name_category; //נפל - אמר שקטגורי נאל
         }
 
 
@@ -434,6 +433,11 @@ namespace BLL
             InsertConclusionToDB(false);
         }
 
+
+        /// <summary>
+        /// The function receives an email request, and analyzes it.
+        /// </summary>
+        /// <param name="req">emai request</param>
         public void AnalyzeRequest(EmailRequest_tbl req)
         {
             this.request = req;
@@ -441,6 +445,13 @@ namespace BLL
             BodyAnalysis(request.EmailContent);
         }
 
+
+        /// <summary>
+        /// The function receives an email request, analyzes it and runs the classification algorithm.
+        /// Returns the category code to which the algorithm classified the request.
+        /// </summary>
+        /// <param name="req">email request</param>
+        /// <returns>The category code to which the algorithm classified the request.</returns>
         public int AnalyzeAndAssociateRequest(EmailRequest_tbl req)
         {
             this.request = req;

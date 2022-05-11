@@ -176,5 +176,28 @@ namespace DebugTrying
             db.WordPerRequest_tbl.RemoveRange(lst);
             db.SaveChanges();
         }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+            // EmailRequest_tbl req = db.EmailRequest_tbl.Single(e1 => e1.ID_emailRequest == 1056);
+            // int sentFrom = (int)req.ID_category;
+            //// req.ID_category = db.Category_tbl.Single(c => c.Name_category == newFolder).ID_category;
+            // List<WordPerRequest_tbl> requestWords = db.WordPerRequest_tbl.Where(w => w.Request_id == req.ID_emailRequest).ToList();
+            // ReducingProbability.ReduceProbability(sentFrom, requestWords);
+
+
+            var requests_lst = db.Word_tbl.ToList();
+            int i = 0;
+            foreach (var req in requests_lst)
+            {
+                if (req.ID_word > 1370)
+                {
+                    db.Word_tbl.Remove(req);
+                    db.SaveChanges();
+                    i++;
+                }
+            }
+            int c = i;
+        }
     }
 }

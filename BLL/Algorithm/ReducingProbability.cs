@@ -42,7 +42,7 @@ namespace BLL
             foreach (var wpr in requestWords)
             {
                 wpc = db.WordPerCategory_tbl.Single(w => w.ID_category == oldCategoryId && w.ID_word == wpr.Word_id);
-                if (wpr.IsSimilarWord)   
+                if (wpr.IsSimilarWord)
                     wpc.AmountOfUse -= 0.3f;
                 else
                     wpc.AmountOfUse--;

@@ -129,23 +129,36 @@ namespace AutomaticClassification_Add_in
             //https://stackoverflow.com/questions/42663830/outlook-2016-vsto-folder-add-event-fires-only-once
         }
 
-        //private void UnLoadAddItemMethodToAllCategoryFolders()
-        //{
-        //    var categoriesNames_lst = retrieval.GetAllCategoriesNames();
-        //    Outlook.MAPIFolder destFolder = null;
-        //    foreach (var categoryName in categoriesNames_lst)
-        //    {
-        //        destFolder = oInbox.Folders[categoryName];
-        //        destFolder.Items.ItemAdd -= AddMailToDirectory;
-        //    }
-        //}
 
+        /// <summary>
+        /// The function removes from the user's folders the loading method of entering a new email into the folder.
+        /// </summary>
+        private void UnLoadAddItemMethodToAllCategoryFolders()
+        {
+            var categoriesNames_lst = retrieval.GetAllCategoriesNames();
+            Outlook.MAPIFolder destFolder = null;
+            foreach (var categoryName in categoriesNames_lst)
+            {
+                destFolder = oInbox.Folders[categoryName];
+                destFolder.Items.ItemAdd -= AddMailToDirectory;
+            }
+        }
+
+
+        /// <summary>
+        /// A method that occurs when creating a new folder.
+        /// </summary>
+        /// <param name="newFolder"></param>
         public void NewFolder(Outlook.MAPIFolder newFolder)
         {
             MessageBox.Show("hii - tryin notify when  new folder is openning");
 
         }
 
+
+        /// <summary>
+        /// A method that occurs when deleting a folder.
+        /// </summary>
         public void DeleteFolder()
         {
             //עובד רק כשזה הפעולה הראשונה בפתיחת האאוטלוק
@@ -153,6 +166,11 @@ namespace AutomaticClassification_Add_in
 
         }
 
+
+        /// <summary>
+        /// A method that creates a new folder.
+        /// </summary>
+        /// <param name="nameFolder">The name of thr folder</param>
         public void CreateNewFolder(string nameFolder)
         {
             try
@@ -166,7 +184,10 @@ namespace AutomaticClassification_Add_in
         }
 
 
-        //להכניס את כל הנתונים למסד הנתונים - למידה ראשונית של המערכת       
+        /// <summary>
+        /// A method that performs the initial system labeling. The method goes through the user folders and learns the emails of each folder.
+        /// </summary>
+        /// <returns>The method returns the initial system accuracy percentages for each category. And - the general accuracy percentages of the system.</returns>
         public float[] FirstTaggingLearningFunc()
         {
             Outlook.Items folderItems = null;
@@ -210,34 +231,12 @@ namespace AutomaticClassification_Add_in
         }
 
 
-
-
-
-
-
-
-        public void AddNewCategory_paneShow(Manager m, bool isAdd)
-        {
-            //אם אמת- הוספת מחלקה חדשה
-            //אם שקר - הוספת תיוג למחלקה קיימת
-            this.control = new AddNewCategory(m, isAdd);
-            AddNewCategoryDelegates();
-        }
-        public void BackToNewCategoty_paneShow(Manager m, Category c)
-        {
-            this.control = new AddNewCategory(m, c);
-            AddNewCategoryDelegates();
-        }
-
-        public void AddNewCategoryDelegates()
-        {
-            (this.control as AddNewCategory).Main_UI += UI_paneShow;
-            (this.control as AddNewCategory).WorkerDepartment += AssociateWorkerToCategory;
-            (this.control as AddNewCategory).GetContentFromMsgFile += GetContentFromMsgFile;
-            (this.control as AddNewCategory).CreateNewfolder += CreateNewFolder;
-            GUI();
-        }
-
+        /// <summary>
+        /// The function gets a path to the file with a msg extension, and returns the subject of the email, and the body of the email.
+        /// </summary>
+        /// <param name="path">the file extention</param>
+        /// <param name="subjet">return subject from the msg file</param>
+        /// <param name="body">return body from the msg file</param>
         private void GetContentFromMsgFile(string path, ref string subjet, ref string body)
         {
             Outlook.MailItem mail = null;
@@ -254,6 +253,57 @@ namespace AutomaticClassification_Add_in
         }
 
 
+
+
+
+
+        //GUI
+
+
+        /// <summary>
+        /// A method that brings up the AddNewCategory display pane.
+        /// </summary>
+        /// <param name="m">A logged in user manager</param>
+        /// <param name="isAdd">Whether to open in insert or update and delete mode</param>
+        public void AddNewCategory_paneShow(Manager m, bool isAdd)
+        {
+            //אם אמת- הוספת מחלקה חדשה
+            //אם שקר - הוספת תיוג למחלקה קיימת
+            this.control = new AddNewCategory(m, isAdd);
+            AddNewCategoryDelegates();
+        }
+
+
+        /// <summary>
+        /// A method that brings up back the AddNewCategory display pane.
+        /// </summary>
+        /// <param name="m">A logged in user manager</param>
+        /// <param name="c">The category that should be displayed in the form that will open.</param>
+        public void BackToNewCategoty_paneShow(Manager m, Category c)
+        {
+            this.control = new AddNewCategory(m, c);
+            AddNewCategoryDelegates();
+        }
+
+
+        /// <summary>
+        /// The method loads all the required delegates from AddNewCategory pane
+        /// </summary>
+        public void AddNewCategoryDelegates()
+        {
+            (this.control as AddNewCategory).Main_UI += UI_paneShow;
+            (this.control as AddNewCategory).WorkerDepartment += AssociateWorkerToCategory;
+            (this.control as AddNewCategory).GetContentFromMsgFile += GetContentFromMsgFile;
+            (this.control as AddNewCategory).CreateNewfolder += CreateNewFolder;
+            GUI();
+        }
+
+
+        /// <summary>
+        /// A method that brings up the WorkerDepartment display pane.
+        /// </summary>
+        /// <param name="m">A logged in user manager</param>
+        /// <param name="category">To which category to assign the employee</param>
         public void AssociateWorkerToCategory(Manager m, Category category)
         {
             //הפונקציה צריכה לקרוא לפעולה בונה בטופס 2 -הוספת אחראי מחלקה, עם מצב הוספה ומחלקה זו.
@@ -263,6 +313,12 @@ namespace AutomaticClassification_Add_in
             GUI();
         }
 
+
+        /// <summary>
+        /// A method that brings up the WorkerDepartment display pane.
+        /// </summary>
+        /// <param name="m">A logged in user manager</param>
+        /// <param name="flag">Whether to open in insert or update and delete mode</param>
         public void WorkerDepartment_paneShow(Manager m, bool flag)
         {
             //אם מקבל אמת - מצב הוספת אחראי מחלקה
@@ -272,6 +328,12 @@ namespace AutomaticClassification_Add_in
             GUI();
         }
 
+
+        /// <summary>
+        /// A method that brings up the GeneralManager display pane.
+        /// </summary>
+        /// <param name="m">A logged in user manager</param>
+        /// <param name="isFirst">Is this the first administrator who wants to sign up for the system</param>
         public void GeneralManager_paneShow(Manager m, bool isFirst)
         {
             //אם מקבל נאל - הוספת מנהל כללי חדש
@@ -282,6 +344,10 @@ namespace AutomaticClassification_Add_in
         }
 
 
+        /// <summary>
+        /// A method that brings up to display thw mainly pane.
+        /// </summary>
+        /// <param name="m">A logged in user manager</param>
         public void UI_paneShow(Manager m)
         {
             this.control = new UI_Pane(m);
@@ -289,12 +355,20 @@ namespace AutomaticClassification_Add_in
             UI_pane();
         }
 
+
+        /// <summary>
+        ///  A method that brings up to display thw mainly pane.
+        /// </summary>
         public void UI_paneShow()
         {
             this.control = new UI_Pane(null);
             UI_pane();
         }
 
+
+        /// <summary>
+        ///  The method loads all the required delegates from the mainly pane
+        /// </summary>
         public void UI_pane()
         {
             (this.control as UI_Pane).AddNewCategory += AddNewCategory_paneShow;
@@ -307,6 +381,10 @@ namespace AutomaticClassification_Add_in
             this.taskpane.Visible = true;
         }
 
+
+        /// <summary>
+        /// The method arranges the display pane (size, title, etc.)
+        /// </summary>
         public void GUI()
         {
             this.CustomTaskPanes.Remove(this.taskpane);
@@ -314,6 +392,8 @@ namespace AutomaticClassification_Add_in
             this.taskpane.Width = 325;
             this.taskpane.Visible = true;
         }
+
+
 
 
 
@@ -350,15 +430,22 @@ namespace AutomaticClassification_Add_in
             UI_paneShow();
         }
 
+
+        /// <summary>
+        /// A function that is performed when closing the Outlook application
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
         {
             if (oInbox != null)
                 Marshal.ReleaseComObject(oInbox);
-            foreach (var folder in allFolders)
-                Marshal.ReleaseComObject(folder);
             if (allFolders != null)
+            {
+                foreach (var folder in allFolders)
+                    Marshal.ReleaseComObject(folder);
                 Marshal.ReleaseComObject(allFolders);
-
+            }
             // Note: Outlook no longer raises this event. If you have code that 
             //    must run when Outlook shuts down, see https://go.microsoft.com/fwlink/?LinkId=506785
         }

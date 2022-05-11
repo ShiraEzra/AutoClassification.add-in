@@ -42,13 +42,6 @@ namespace BLL.DTO
             return this.Name_category;
         }
 
-        public static Category GetCategoryByID(int id)
-        {
-
-
-            return null;
-        }
-
         public void Add()
         {
             db.Category_tbl.Add(this.DtoTODal());
