@@ -11,6 +11,7 @@ namespace BLL
     {
         const int numOfSimiliarWords = 5;
         static string[] notFoundResponses = new string[] { "<h1>האם התכוונת ל-</h1>", "<h1>לא נמצאו תוצאות</h1>" };
+        const string newSimWord = "data-word";
 
 
         /// <summary>
@@ -29,7 +30,7 @@ namespace BLL
                     return null;
             }
             List<string> similarWords = new List<string>();
-            int start = html_ans.IndexOf("data-word");
+            int start = html_ans.IndexOf(newSimWord);
             if (start < 0)
                 return null;
             html_ans = html_ans.Substring(start);
@@ -41,7 +42,7 @@ namespace BLL
                 end = html_ans.IndexOf("\"", start);
                 string sim_word = html_ans.Substring(start, end - start);
                 similarWords.Add(sim_word);
-                start = html_ans.IndexOf("data-word", end);
+                start = html_ans.IndexOf(newSimWord, end);
             }
             similarWords.RemoveAt(0);  //הראשון זה המילה בעצמה
             return similarWords;

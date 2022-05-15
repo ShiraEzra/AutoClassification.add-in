@@ -43,9 +43,9 @@ namespace BLL
             {
                 wpc = db.WordPerCategory_tbl.Single(w => w.ID_category == oldCategoryId && w.ID_word == wpr.Word_id);
                 if (wpr.IsSimilarWord)
-                    wpc.AmountOfUse -= 0.3f;
+                    wpc.AmountOfUse -= Conclusion.similarWordPercent;
                 else
-                    wpc.AmountOfUse--;
+                    wpc.AmountOfUse -= Conclusion.exsistWordPercent;
                 if (wpc.AmountOfUse == 0)
                     db.WordPerCategory_tbl.Remove(wpc);
                 db.SaveChanges();

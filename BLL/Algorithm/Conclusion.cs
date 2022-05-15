@@ -16,7 +16,7 @@ namespace BLL
         List<WordPerRequest_tbl> requestWord_lst;
         bool isFirstOrAutomat;  //If true: AutomatSend, else:FirstLearning;
         public static int notFromCategory = -1;
-        float exsistWordPercent = 1f, similarWordPercent = 0.3f;
+        public static float exsistWordPercent = 1f, similarWordPercent = 0.3f;
 
 
         /// <summary>

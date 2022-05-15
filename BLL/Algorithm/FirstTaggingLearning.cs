@@ -51,7 +51,7 @@ namespace BLL
                 }
             }
             UpdateTotalPrecision(numSucceededAssociations, tryingTwentyPercents);
-            float precision = numSucceededAssociations / tryingTwentyPercents * 100;
+            float precision = numSucceededAssociations / tryingTwentyPercents * (int)PercentPrecision.Hundred;
             return precision;
         }
 
@@ -109,7 +109,7 @@ namespace BLL
         {
             numSucceeded += numSucceededAssociations;
             numTryings += tryingTwentyPercents;
-            totalPrecision = numSucceeded / numTryings * 100;
+            totalPrecision = numSucceeded / numTryings * (int)PercentPrecision.Hundred;
         }
     }
 }

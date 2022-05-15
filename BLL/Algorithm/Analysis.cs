@@ -9,6 +9,7 @@ namespace BLL
 {
     public static class Analysis
     {
+        const string password = "3BGkxLKouDk3l7B";
 
         /// <summary>
         /// The function receives a sentence, activates the AnalyzeSentence function on it. And returns it analyzed without any irrelevant words.
@@ -43,7 +44,7 @@ namespace BLL
         {
             try
             {
-                HebrewNLP.HebrewNLP.Password = "3BGkxLKouDk3l7B";
+                HebrewNLP.HebrewNLP.Password = password;
                 List<string> bodySplitToSentences = HebrewNLP.Sentencer.Sentences(allBody);
                 return bodySplitToSentences;
             }
@@ -63,7 +64,7 @@ namespace BLL
         {
             try
             {
-                HebrewNLP.HebrewNLP.Password = "3BGkxLKouDk3l7B";
+                HebrewNLP.HebrewNLP.Password = password;
                 return HebrewMorphology.AnalyzeSentence(sentence);
             }
             catch (Exception)
@@ -82,7 +83,7 @@ namespace BLL
         {
             try
             {
-                HebrewNLP.HebrewNLP.Password = "3BGkxLKouDk3l7B";
+                HebrewNLP.HebrewNLP.Password = password;
                 return HebrewMorphology.AnalyzeWords(words);
             }
             catch (Exception)
@@ -250,11 +251,8 @@ namespace BLL
         public static string RemoveWords(string sentence, string[] wordsToRemove)
         {
             //sentence = Regex.Replace(sentence, @"[!-/,:-@, [-`, {-~]", " "); // delete every char that suitable to the condition.
-            //צריך לשלוח פונקציית השוואה למיון, איך עושים??
             if (wordsToRemove != null)
             {
-                //var wordsToRemove_lst = wordsToRemove.OrderBy(x => x.Length);
-                //var orderedWordsToRemove = wordsToRemove_lst.Reverse();
                 Array.Sort(wordsToRemove, Compare);
                 foreach (var item in wordsToRemove)
                 {
