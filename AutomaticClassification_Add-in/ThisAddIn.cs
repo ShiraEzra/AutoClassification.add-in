@@ -36,7 +36,10 @@ namespace AutomaticClassification_Add_in
                 Outlook.Items unReadItems = oItems.Restrict("[Unread]=true");
                 List<Outlook.MailItem> unReadMails = new List<Outlook.MailItem>();
                 foreach (var unRead in unReadItems)
+                {
                     unReadMails.Add((Outlook.MailItem)unRead);
+                    ((Outlook.MailItem)unRead).UnRead = false;
+                }
 
                 Marshal.ReleaseComObject(oItems);
                 Marshal.ReleaseComObject(unReadItems);   //צריכה לעבור ולשחרר אחד אחד? או שמספיק את כל הרשימה ביחד.
@@ -145,26 +148,26 @@ namespace AutomaticClassification_Add_in
         }
 
 
-        /// <summary>
-        /// A method that occurs when creating a new folder.
-        /// </summary>
-        /// <param name="newFolder"></param>
-        public void NewFolder(Outlook.MAPIFolder newFolder)
-        {
-            MessageBox.Show("hii - tryin notify when  new folder is openning");
+        ///// <summary>
+        ///// A method that occurs when creating a new folder.
+        ///// </summary>
+        ///// <param name="newFolder"></param>
+        //public void NewFolder(Outlook.MAPIFolder newFolder)
+        //{
+        //    MessageBox.Show("hii - tryin notify when  new folder is openning");
 
-        }
+        //}
 
 
-        /// <summary>
-        /// A method that occurs when deleting a folder.
-        /// </summary>
-        public void DeleteFolder()
-        {
-            //עובד רק כשזה הפעולה הראשונה בפתיחת האאוטלוק
-            MessageBox.Show("hii - tryin notify when  new folder is openning");
+        ///// <summary>
+        ///// A method that occurs when deleting a folder.
+        ///// </summary>
+        //public void DeleteFolder()
+        //{
+        //    //עובד רק כשזה הפעולה הראשונה בפתיחת האאוטלוק
+        //    MessageBox.Show("hii - tryin notify when  new folder is openning");
 
-        }
+        //}
 
 
         /// <summary>
@@ -228,6 +231,24 @@ namespace AutomaticClassification_Add_in
                     Marshal.ReleaseComObject(mail);
             }
             return preccisionArr;
+        }
+
+
+        /// <summary>
+        /// The method loads response methods for events that occur in the Outlook program.
+        /// Such as: entering a new email, dragging an email from folder to folder and more.
+        ///The method is performed after the initial labeling is performed by the user.
+        /// </summary>
+        public void LoadAdd_inMethods()
+        {
+            this.retrieval = new Retrieval();
+
+            //העמסת מתודה שתתבצע בכל פעם שיכנס מייל חדש
+            this.Application.NewMail += GetNewMail;
+
+            //העמסת מתושה שמתרחשת בעת הוספת מייל לתקייה מסוימת - שנוי סיווג ידני לפנייה
+            allFolders = new List<Outlook.MAPIFolder>();
+            LoadAddItemMethodToAllCategoryFolders();
         }
 
 
@@ -375,6 +396,7 @@ namespace AutomaticClassification_Add_in
             (this.control as UI_Pane).GeneralManager += GeneralManager_paneShow;
             (this.control as UI_Pane).WorkerDepartment += WorkerDepartment_paneShow;
             (this.control as UI_Pane).FirstTaggingLearning += FirstTaggingLearningFunc;
+            (this.control as UI_Pane).LoadMethods += LoadAdd_inMethods;
 
             this.taskpane = this.CustomTaskPanes.Add(this.control, "Auto classification");
             this.taskpane.Width = 325;
@@ -406,28 +428,23 @@ namespace AutomaticClassification_Add_in
         {
             oInbox = this.Application.GetNamespace("mapi").GetDefaultFolder(Outlook.OlDefaultFolders.olFolderInbox);
 
-            //העמסת מתודה שתתבצע בכל פעם שיכנס מייל חדש
-            this.Application.NewMail += GetNewMail;
+            //user interface
+            UI_paneShow();
 
 
-            retrieval = new Retrieval();
+            //Outlook-העמסת מתודות תגובה לאירועים שמתבצעים בתכנת ה
+            //למחוק - בעיקרון מתבצע לאחר ביצוע התיוג הראשוני.
+            LoadAdd_inMethods();
 
 
-            allFolders = new List<Outlook.MAPIFolder>();
-            LoadAddItemMethodToAllCategoryFolders();
 
             ////העמסת המתודה לאירוע שיתרחש בכל פעם שימחק מייל  מתקיה זו
             //destFolder.Items.ItemRemove += ChangeMailFromDirectory;
 
-
-
             //העמסת מתודה שתתבצע בכל פעם שיוסיפו תקייה חדשה= קטגוריה חדשה
-            oInbox.Folders.FolderAdd += NewFolder;
-            oInbox.Folders.FolderRemove += DeleteFolder;
-
-
-            //user interface
-            UI_paneShow();
+            //oInbox.Folders.FolderAdd += NewFolder;
+            //oInbox.Folders.FolderRemove += DeleteFolder;
+            //לראות אולי  לעשות שמחיקת תקייה אומרת מחיקת קטגוריה
         }
 
 

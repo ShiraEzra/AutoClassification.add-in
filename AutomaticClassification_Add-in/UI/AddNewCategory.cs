@@ -145,22 +145,25 @@ namespace AutomaticClassification_Add_in.Forms
         {
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                NaiveBaiseAlgorithm algorithm = new NaiveBaiseAlgorithm();
-                foreach (string pathToFile in openFileDialog1.FileNames)
+                Task task = Task.Run(() =>
                 {
-                    if (File.Exists(pathToFile))
+                    NaiveBaiseAlgorithm algorithm = new NaiveBaiseAlgorithm();
+                    foreach (string pathToFile in openFileDialog1.FileNames)
                     {
-                        string subject = "", body = "";
-                        if (Path.GetExtension(pathToFile) == ".msg")
-                            GetContentFromMsgFile?.Invoke(pathToFile, ref subject, ref body);
-                        else
-                            if (Path.GetExtension(pathToFile) == ".txt")
-                            getSubjectAndBodyFromTxtFile(pathToFile, ref subject, ref body);
-                        if (subject != "" || body != "")
-                            algorithm.InsertRequestToSystem(subject, body, category.ID_category);
+                        if (File.Exists(pathToFile))
+                        {
+                            string subject = "", body = "";
+                            if (Path.GetExtension(pathToFile) == ".msg")
+                                GetContentFromMsgFile?.Invoke(pathToFile, ref subject, ref body);
+                            else
+                                if (Path.GetExtension(pathToFile) == ".txt")
+                                getSubjectAndBodyFromTxtFile(pathToFile, ref subject, ref body);
+                            if (subject != "" || body != "")
+                                algorithm.InsertRequestToSystem(subject, body, category.ID_category);
+                        }
                     }
-                }
-                timerOn(KindTimer.AddingRequests);
+                    timerOn(KindTimer.AddingRequests);
+                });
             }
         }
 

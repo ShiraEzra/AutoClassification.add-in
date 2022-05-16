@@ -136,7 +136,7 @@ namespace BLL
         public void IncreasePercentageMatching(WordPerCategory_tbl wpc, bool isSimilarWord)
         {
             if (isSimilarWord)
-                wpc.AmountOfUse += this.similarWordPercent;
+                wpc.AmountOfUse += similarWordPercent;
             else
                 wpc.AmountOfUse += exsistWordPercent;
             db.SaveChanges();
@@ -197,9 +197,9 @@ namespace BLL
                 db.EmailRequest_tbl.Add(req);
                 db.SaveChanges();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                MessageBox.Show("error in updating EmailRequest_tbl table");
+                MessageBox.Show("error in updating EmailRequest_tbl table  " + ex);
             }
         }
 

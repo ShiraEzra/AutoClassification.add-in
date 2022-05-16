@@ -20,12 +20,12 @@
             <PropertyRef Name="ID_emailRequest" />
           </Key>
           <Property Name="ID_emailRequest" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="EmailSubject" Type="nvarchar" MaxLength="80" />
+          <Property Name="EmailSubject" Type="nvarchar(max)" />
           <Property Name="EmailContent" Type="nvarchar(max)" />
-          <Property Name="SenderEmail" Type="nvarchar" MaxLength="30" Nullable="false" />
-          <Property Name="Date" Type="date" Nullable="false" />
+          <Property Name="SenderEmail" Type="nvarchar" MaxLength="30" />
+          <Property Name="Date" Type="date" />
           <Property Name="ID_category" Type="int" />
-          <Property Name="EntryId" Type="nvarchar" MaxLength="200" Nullable="false" />
+          <Property Name="EntryId" Type="nvarchar" MaxLength="200" />
         </EntityType>
         <EntityType Name="Manager_tbl">
           <Key>
@@ -123,18 +123,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_SendingHistory_EmailRequest_tbl">
-          <End Role="EmailRequest_tbl" Type="Self.EmailRequest_tbl" Multiplicity="1" />
-          <End Role="SendingHistory_tbl" Type="Self.SendingHistory_tbl" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="EmailRequest_tbl">
-              <PropertyRef Name="ID_emailRequest" />
-            </Principal>
-            <Dependent Role="SendingHistory_tbl">
-              <PropertyRef Name="ID_emailRequest" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_SendingHistory_SendingAdjustmentStatus_tbl">
           <End Role="StatusSending_tbl" Type="Self.StatusSending_tbl" Multiplicity="1" />
           <End Role="SendingHistory_tbl" Type="Self.SendingHistory_tbl" Multiplicity="*" />
@@ -229,10 +217,6 @@
             <End Role="Category_tbl" EntitySet="Category_tbl" />
             <End Role="SendingHistory_tbl" EntitySet="SendingHistory_tbl" />
           </AssociationSet>
-          <AssociationSet Name="FK_SendingHistory_EmailRequest_tbl" Association="Self.FK_SendingHistory_EmailRequest_tbl">
-            <End Role="EmailRequest_tbl" EntitySet="EmailRequest_tbl" />
-            <End Role="SendingHistory_tbl" EntitySet="SendingHistory_tbl" />
-          </AssociationSet>
           <AssociationSet Name="FK_SendingHistory_SendingAdjustmentStatus_tbl" Association="Self.FK_SendingHistory_SendingAdjustmentStatus_tbl">
             <End Role="StatusSending_tbl" EntitySet="StatusSending_tbl" />
             <End Role="SendingHistory_tbl" EntitySet="SendingHistory_tbl" />
@@ -283,14 +267,13 @@
             <PropertyRef Name="ID_emailRequest" />
           </Key>
           <Property Name="ID_emailRequest" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="EmailSubject" Type="String" MaxLength="80" FixedLength="false" Unicode="true" />
+          <Property Name="EmailSubject" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="EmailContent" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="SenderEmail" Type="String" MaxLength="30" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Date" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="SenderEmail" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="Date" Type="DateTime" Precision="0" />
           <Property Name="ID_category" Type="Int32" />
-          <Property Name="EntryId" Type="String" MaxLength="200" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="EntryId" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="Category_tbl" Relationship="Self.FK_EmailRequest_tbl_Category_tbl" FromRole="EmailRequest_tbl" ToRole="Category_tbl" />
-          <NavigationProperty Name="SendingHistory_tbl" Relationship="Self.FK_SendingHistory_EmailRequest_tbl" FromRole="EmailRequest_tbl" ToRole="SendingHistory_tbl" />
           <NavigationProperty Name="WordPerRequest_tbl" Relationship="Self.FK_WordPerRequest_WordPerRequest" FromRole="EmailRequest_tbl" ToRole="WordPerRequest_tbl" />
         </EntityType>
         <EntityType Name="Manager_tbl">
@@ -314,7 +297,6 @@
           <Property Name="SentFrom" Type="Int32" />
           <NavigationProperty Name="Category_tbl" Relationship="Self.FK_SendingHistory_Category_tbl" FromRole="SendingHistory_tbl" ToRole="Category_tbl" />
           <NavigationProperty Name="Category_tbl1" Relationship="Self.FK_SendingHistory_Category_tbl1" FromRole="SendingHistory_tbl" ToRole="Category_tbl" />
-          <NavigationProperty Name="EmailRequest_tbl" Relationship="Self.FK_SendingHistory_EmailRequest_tbl" FromRole="SendingHistory_tbl" ToRole="EmailRequest_tbl" />
           <NavigationProperty Name="StatusSending_tbl" Relationship="Self.FK_SendingHistory_SendingAdjustmentStatus_tbl" FromRole="SendingHistory_tbl" ToRole="StatusSending_tbl" />
         </EntityType>
         <EntityType Name="StatusSending_tbl">
@@ -425,18 +407,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_SendingHistory_EmailRequest_tbl">
-          <End Role="EmailRequest_tbl" Type="Self.EmailRequest_tbl" Multiplicity="1" />
-          <End Role="SendingHistory_tbl" Type="Self.SendingHistory_tbl" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="EmailRequest_tbl">
-              <PropertyRef Name="ID_emailRequest" />
-            </Principal>
-            <Dependent Role="SendingHistory_tbl">
-              <PropertyRef Name="ID_emailRequest" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_WordPerRequest_WordPerRequest">
           <End Role="EmailRequest_tbl" Type="Self.EmailRequest_tbl" Multiplicity="1" />
           <End Role="WordPerRequest_tbl" Type="Self.WordPerRequest_tbl" Multiplicity="*" />
@@ -514,10 +484,6 @@
           <AssociationSet Name="FK_WordPerCategory_Category_tbl" Association="Self.FK_WordPerCategory_Category_tbl">
             <End Role="Category_tbl" EntitySet="Category_tbl" />
             <End Role="WordPerCategory_tbl" EntitySet="WordPerCategory_tbl" />
-          </AssociationSet>
-          <AssociationSet Name="FK_SendingHistory_EmailRequest_tbl" Association="Self.FK_SendingHistory_EmailRequest_tbl">
-            <End Role="EmailRequest_tbl" EntitySet="EmailRequest_tbl" />
-            <End Role="SendingHistory_tbl" EntitySet="SendingHistory_tbl" />
           </AssociationSet>
           <AssociationSet Name="FK_WordPerRequest_WordPerRequest" Association="Self.FK_WordPerRequest_WordPerRequest">
             <End Role="EmailRequest_tbl" EntitySet="EmailRequest_tbl" />

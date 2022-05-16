@@ -18,9 +18,9 @@ namespace AutomaticClassification_Add_in
 
     public partial class UI_Pane : UserControl
     {
-        Retrieval retrieval;
+        static Retrieval retrieval;
         Manager manager;
-     
+
         public delegate void EventHandler1(Manager m, bool isFirst = true);
         public event EventHandler1 GeneralManager;
 
@@ -32,15 +32,18 @@ namespace AutomaticClassification_Add_in
         public event EventHandler3 FirstTaggingLearning;
 
 
+        public delegate void EventHandler4();
+        public event EventHandler4 LoadMethods;
+
+
 
         public UI_Pane(Manager manager)
         {
             InitializeComponent();
-            this.retrieval = new Retrieval();
+            retrieval = new Retrieval();
             this.manager = manager;
-            bool isExsistUser = User.IsExsistUser();
-            bool isExsistCategory = retrieval.IsExsistCategories();
-            if (isExsistUser && isExsistCategory)
+            bool isExsistUser, isExsistCategory;
+            if (!IsFirstTimeState(out isExsistUser, out isExsistCategory))
             {
                 notFirstTimeState();
                 if (manager != null)
@@ -55,6 +58,16 @@ namespace AutomaticClassification_Add_in
                     firstTagging_rd.Enabled = false;
             }
         }
+
+        public static bool IsFirstTimeState(out bool isExsistUser, out bool isExsistCategory)
+        {
+            isExsistUser = User.IsExsistUser();
+            isExsistCategory = retrieval.IsExsistCategories();
+            if (isExsistUser && isExsistCategory)
+                return false;
+            return true;
+        }
+
 
         private void notFirstTimeState()
         {
@@ -146,6 +159,7 @@ namespace AutomaticClassification_Add_in
         {
             float[] precision = FirstTaggingLearning?.Invoke();  //  למידת המערכת = למידת הקטגוריות ותיוגם הראשוני
             CreateMyNotificationBox(precision);
+            LoadMethods?.Invoke();      //לאחר התיוג הראשוני, ניתן להפעיל את העמסת המתודה למייל חדש - קליטת פניות וסיווגן
         }
 
         public void CreateMyNotificationBox(float[] precision)

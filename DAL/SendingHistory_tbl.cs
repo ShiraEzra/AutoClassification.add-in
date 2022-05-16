@@ -23,7 +23,6 @@ namespace DAL
     
         public virtual Category_tbl Category_tbl { get; set; }
         public virtual Category_tbl Category_tbl1 { get; set; }
-        public virtual EmailRequest_tbl EmailRequest_tbl { get; set; }
         public virtual StatusSending_tbl StatusSending_tbl { get; set; }
     }
 }

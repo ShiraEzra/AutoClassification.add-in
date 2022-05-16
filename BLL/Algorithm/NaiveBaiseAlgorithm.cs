@@ -44,7 +44,7 @@ namespace BLL
             request = new EmailRequest_tbl { EmailSubject = subject, EmailContent = body, SenderEmail = sender, Date = date, EntryId = entryId };
             request.ID_category = AssociateRequestToCategory() + 1;
             InsertConclusionToDB(true);
-            return request.Category_tbl!=null?  request.Category_tbl.Name_category: Retrieval.GetCategory_tblByID((int)request.ID_category).Name_category; //נפל - אמר שקטגורי נאל
+            return request.Category_tbl != null ? request.Category_tbl.Name_category : Retrieval.GetCategory_tblByID((int)request.ID_category).Name_category; //נפל - אמר שקטגורי נאל
         }
 
 
@@ -455,7 +455,7 @@ namespace BLL
         public int AnalyzeAndAssociateRequest(EmailRequest_tbl req)
         {
             this.request = req;
-            int idCategoryassociated= AssociateRequestToCategory() + 1;
+            int idCategoryassociated = AssociateRequestToCategory() + 1;
             InsertConclusionToDB(false);
             return idCategoryassociated;
         }
