@@ -158,8 +158,8 @@ namespace AutomaticClassification_Add_in.Forms
                             else
                                 if (Path.GetExtension(pathToFile) == ".txt")
                                 getSubjectAndBodyFromTxtFile(pathToFile, ref subject, ref body);
-                            if (subject != "" || body != "")
-                                algorithm.InsertRequestToSystem(subject, body, category.ID_category);
+                           // if (subject != "" || body != "")
+                              //  algorithm.InsertRequestToSystem(subject, body, category.ID_category);
                         }
                     }
                     timerOn(KindTimer.AddingRequests);
@@ -198,14 +198,23 @@ namespace AutomaticClassification_Add_in.Forms
 
                 case KindTimer.NewCategory:
                     ok_lbl.Visible = true;
+                    timer1.Enabled = true;
                     break;
                 case KindTimer.AddingRequests:
-                    okAddingRequests_lbl.Visible = true;
+                    ChangeVisibilty();
                     break;
                 default:
                     break;
             }
-            timer1.Enabled = true;
+           
+        }
+
+
+        //מכיון שכשנמצאים בתוך תהליכון, שהוא אינו התהליכון הראשי א"א לשנות ממנו את תכונות הפקדים
+        //Invoke -לכן משתמשים במתודה מיוחזת זו
+        public void ChangeVisibilty()
+        {
+            this.Invoke(new MethodInvoker(delegate () { okAddingRequests_lbl.Visible = true; timer1.Enabled = true; }));
         }
 
         private void timer1_Tick(object sender, EventArgs e)
