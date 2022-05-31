@@ -162,7 +162,7 @@ namespace BLL
             return false;
         }
 
-        static string openningPathWindows = @"\..\..\Data\openningWords.txt"; //להוציא לאפפ קונפיג
+        static string openningPathWindows = @"\..\..\Data\openningWords.txt"; //להוציא מאפפ קונפיג- Properties.Settings.Default.openningPathWindows
         static string openningPath = @"\Data\openningWords.txt";
 
 
@@ -177,24 +177,17 @@ namespace BLL
             string[] openningWords = null;
             try
             {
-                openningWords = System.IO.File.ReadAllLines(Environment.CurrentDirectory + openningPathWindows);
+                openningWords = System.IO.File.ReadAllLines(Environment.CurrentDirectory + openningPath);
             }
             catch (Exception)
             {
                 try
                 {
-                    openningWords = System.IO.File.ReadAllLines(Environment.CurrentDirectory + openningPath);
+                    openningWords = System.IO.File.ReadAllLines(Environment.CurrentDirectory + openningPathWindows);
                 }
                 catch (Exception)
                 {
-                    try
-                    {
-                        openningWords = System.IO.File.ReadAllLines(Environment.CurrentDirectory + openningPath);
-                    }
-                    catch (Exception)
-                    {
-                        //MessageBox.Show("openning -File routing error project " + Environment.CurrentDirectory);
-                    }
+                    //MessageBox.Show("openning -File routing error project " + Environment.CurrentDirectory);
                 }
             }
             return RemoveWords(sentence, openningWords);
@@ -227,14 +220,7 @@ namespace BLL
                 }
                 catch (Exception)
                 {
-                    try
-                    {
-                        endingWords = File.ReadAllLines(Environment.CurrentDirectory + endingPath);
-                    }
-                    catch (Exception)
-                    {
                         //MessageBox.Show("ending -File routing error project " + Environment.CurrentDirectory);
-                    }
                 }
             }
             return RemoveWords(sentence, endingWords);

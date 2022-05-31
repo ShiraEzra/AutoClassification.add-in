@@ -18,7 +18,10 @@ namespace AutomaticClassification_Add_in
 
         static Outlook.MAPIFolder oInbox;
         Retrieval retrieval;
-        static List<Outlook.MAPIFolder> allFolders;
+        List<Outlook.MAPIFolder> allFolders;
+
+
+        List<Outlook.Items> foldersItems=new List<Outlook.Items>();
 
         private UserControl control;
         private Microsoft.Office.Tools.CustomTaskPane taskpane;
@@ -63,13 +66,6 @@ namespace AutomaticClassification_Add_in
                 }
 
             });
-
-            //Task t = Task.Run(() =>
-            // {
-            //     Thread.Sleep(12000);
-            //     UnLoadAddItemMethodToAllCategoryFolders();
-            //     LoadAddItemMethodToAllCategoryFolders();
-            // });
         }
 
 
@@ -84,92 +80,7 @@ namespace AutomaticClassification_Add_in
             Marshal.ReleaseComObject(destFolder);
         }
 
-
-        /// <summary>
-        /// A function that is performed whenever an email enters this folder.
-        /// </summary>
-        /// <param name="item">The email added</param>
-        void AddMailToDirectory(object item)
-        {
-            MessageBox.Show("hii - tryin notify when new mail arrived to this directory");
-            var p = ((Outlook.MailItem)item).Parent;
-            if (p is Outlook.MAPIFolder folder && item is Outlook.MailItem)
-            {
-                //int reqID = retrieval.GetIdEmailRequestByConversationID(((Outlook.MailItem)item).ConversationID);
-                //string categoryName = retrieval.GetCategoryNameOfEmailRequest(reqID);
-                //if (reqID != -1 && folder.Name != categoryName)
-                //    ReducingProbability.ChangeCategory(reqID, folder.Name);
-            }
-            Marshal.ReleaseComObject(p);
-        }
-
-
-        /// <summary>
-        /// A function that is performed each time an email is deleted from this folder.
-        /// </summary>
-        private void ChangeMailFromDirectory()
-        {
-            MessageBox.Show("hii - tryin notify when  mail is deleting from this directory");
-        }
-
-
-        /// <summary>
-        /// The function goes through the folders of the categories.
-        ///And loads  AddMailToDirectory method for each category.
-        ///To allow manual change of address to another category.
-        /// </summary>
-        private void LoadAddItemMethodToAllCategoryFolders()
-        {
-            var categoriesNames_lst = retrieval.GetAllCategoriesNames();
-            Outlook.MAPIFolder destFolder = null;
-            foreach (var categoryName in categoriesNames_lst)
-            {
-                destFolder = oInbox.Folders[categoryName];
-                //העמסת המתודה לאירוע שיתרחש בכל פעם שיתווסף מייל חדש לתקיה זו
-                destFolder.Items.ItemAdd += AddMailToDirectory;
-                allFolders.Add(destFolder);
-            }
-            //https://stackoverflow.com/questions/42663830/outlook-2016-vsto-folder-add-event-fires-only-once
-        }
-
-
-        /// <summary>
-        /// The function removes from the user's folders the loading method of entering a new email into the folder.
-        /// </summary>
-        private void UnLoadAddItemMethodToAllCategoryFolders()
-        {
-            var categoriesNames_lst = retrieval.GetAllCategoriesNames();
-            Outlook.MAPIFolder destFolder = null;
-            foreach (var categoryName in categoriesNames_lst)
-            {
-                destFolder = oInbox.Folders[categoryName];
-                destFolder.Items.ItemAdd -= AddMailToDirectory;
-            }
-        }
-
-
-        ///// <summary>
-        ///// A method that occurs when creating a new folder.
-        ///// </summary>
-        ///// <param name="newFolder"></param>
-        //public void NewFolder(Outlook.MAPIFolder newFolder)
-        //{
-        //    MessageBox.Show("hii - tryin notify when  new folder is openning");
-
-        //}
-
-
-        ///// <summary>
-        ///// A method that occurs when deleting a folder.
-        ///// </summary>
-        //public void DeleteFolder()
-        //{
-        //    //עובד רק כשזה הפעולה הראשונה בפתיחת האאוטלוק
-        //    MessageBox.Show("hii - tryin notify when  new folder is openning");
-
-        //}
-
-
+                           
         /// <summary>
         /// A method that creates a new folder.
         /// </summary>
@@ -242,13 +153,55 @@ namespace AutomaticClassification_Add_in
         public void LoadAdd_inMethods()
         {
             this.retrieval = new Retrieval();
+            this.Application.NewMail += GetNewMail;      //העמסת מתודה שתתבצע בכל פעם שיכנס מייל חדש
+            LoadAllFolders();
+            LoadAddItemMethodToAllCategoryFolders();   //העמסת מתודה שמתרחשת בעת הוספת מייל לתקייה מסוימת - שנוי סיווג ידני לפנייה
+        }
 
-            //העמסת מתודה שתתבצע בכל פעם שיכנס מייל חדש
-            this.Application.NewMail += GetNewMail;
 
-            //העמסת מתושה שמתרחשת בעת הוספת מייל לתקייה מסוימת - שנוי סיווג ידני לפנייה
+        /// <summary>
+        /// The function loads the user folder - the existing categories.
+        /// </summary>
+        private void LoadAllFolders()
+        {
             allFolders = new List<Outlook.MAPIFolder>();
-            LoadAddItemMethodToAllCategoryFolders();
+            var categoriesNames_lst = retrieval.GetAllCategoriesNames();
+            foreach (var categoryName in categoriesNames_lst)
+                allFolders.Add(oInbox.Folders[categoryName]);
+        }
+
+
+        /// <summary>
+        /// The function loads for each folder an event that will be performed when dragging an email to the folder.
+        /// </summary>
+        private void LoadAddItemMethodToAllCategoryFolders()
+        {
+            foreach (var folder in allFolders)
+            {         
+                foldersItems.Add(folder.Items);
+                foldersItems.Last().ItemAdd += AddMailToDirectory;
+            }
+        }
+        //https://stackoverflow.com/questions/47588868/vsto-itemadd-event-is-not-firing
+        //https://stackoverflow.com/questions/42663830/outlook-2016-vsto-folder-add-event-fires-only-once
+
+
+        /// <summary>
+        /// A function that is performed whenever an email enters this folder.
+        /// </summary>
+        /// <param name="item">The email added</param>
+        void AddMailToDirectory(object item)
+        {
+            MessageBox.Show("hii - tryin notify when new mail arrived to this directory");
+            var p = ((Outlook.MailItem)item).Parent;
+            if (p is Outlook.MAPIFolder folder && item is Outlook.MailItem)
+            {
+                //int reqID = retrieval.GetIdEmailRequestByConversationID(((Outlook.MailItem)item).ConversationID);
+                //string categoryName = retrieval.GetCategoryNameOfEmailRequest(reqID);
+                //if (reqID != -1 && folder.Name != categoryName)
+                //    ReducingProbability.ChangeCategory(reqID, folder.Name);
+            }
+            // Marshal.ReleaseComObject(p);
         }
 
 
@@ -275,7 +228,7 @@ namespace AutomaticClassification_Add_in
 
 
 
-
+     
 
 
         //GUI
@@ -416,7 +369,7 @@ namespace AutomaticClassification_Add_in
         }
 
 
-
+     
 
 
         /// <summary>
@@ -437,6 +390,7 @@ namespace AutomaticClassification_Add_in
             LoadAdd_inMethods();
 
 
+           
 
             ////העמסת המתודה לאירוע שיתרחש בכל פעם שימחק מייל  מתקיה זו
             //destFolder.Items.ItemRemove += ChangeMailFromDirectory;
@@ -444,6 +398,7 @@ namespace AutomaticClassification_Add_in
             //העמסת מתודה שתתבצע בכל פעם שיוסיפו תקייה חדשה= קטגוריה חדשה
             //oInbox.Folders.FolderAdd += NewFolder;
             //oInbox.Folders.FolderRemove += DeleteFolder;
+
             //לראות אולי  לעשות שמחיקת תקייה אומרת מחיקת קטגוריה
         }
 
@@ -480,5 +435,61 @@ namespace AutomaticClassification_Add_in
         }
 
         #endregion
+
+
+
+
+
+
+
+
+
+        //functions I don't need right now
+
+        /// <summary>
+        /// A method that occurs when deleting a folder.
+        /// </summary>
+        public void DeleteFolder()
+        {
+            //עובד רק כשזה הפעולה הראשונה בפתיחת האאוטלוק
+            MessageBox.Show("hii - tryin notify when  new folder is openning");
+
+        }
+
+
+        /// <summary>
+        /// A method that occurs when creating a new folder.
+        /// </summary>
+        /// <param name="newFolder"></param>
+        public void NewFolder(Outlook.MAPIFolder newFolder)
+        {
+            MessageBox.Show("hii - tryin notify when  new folder is openning");
+
+        }
+
+
+        /// <summary>
+        /// The function removes from the user's folders the loading method of entering a new email into the folder.
+        /// </summary>
+        private void UnLoadAddItemMethodToAllCategoryFolders()
+        {
+            var categoriesNames_lst = retrieval.GetAllCategoriesNames();
+            Outlook.MAPIFolder destFolder = null;
+            foreach (var categoryName in categoriesNames_lst)
+            {
+                destFolder = oInbox.Folders[categoryName];
+                destFolder.Items.ItemAdd -= AddMailToDirectory;
+            }
+        }
+
+
+        /// <summary>
+        /// A function that is performed each time an email is deleted from this folder.
+        /// </summary>
+        private void ChangeMailFromDirectory()
+        {
+            MessageBox.Show("hii - tryin notify when  mail is deleting from this directory");
+        }
+
     }
 }

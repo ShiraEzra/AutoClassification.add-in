@@ -7,18 +7,19 @@ using System.Windows.Forms;
 
 namespace BLL
 {
-    public enum PercentCalcProb { MaxProbability = 1, Subject_VS_Body = 2, NameOfCategoryManager = 20, Similiar = 30, Common = 70, EmailContent = 80, Hundred = 100 }
+    public enum PercentCalcProb { MaxProbability = 1, Subject_VS_Body = 2, NameOfCategoryManager = 15, Contacts = 15, Similiar = 30, Common = 70, EmailContent = 70, Hundred = 100 }
 
     public class NaiveBaiseAlgorithm
     {
         readonly AutomaticClassificationDBEntities db = AutomaticClassificationDBEntities.Instance;
         public static Dictionary<string, Word_tbl> allWords;   //All words from word_tbl as dictionary.
-        float[,] probability_mat;          //A matrix that contains in each cell the probability of a word to belong to a specific category.
+        public float[,] probability_mat;          //A matrix that contains in each cell the probability of a word to belong to a specific category.
         readonly float[] firstInit_arr;   //An initialized array with the number of email requests for each category.
         EmailRequest_tbl request;        //Object containing the request.
         RequestAnalysis req_Analysis;   //Object containing the request analysis.
         const int numOpenningSentence = 0, numEndingSentences = 3;
         const float justNotToReset = 0.00001f;
+        const string myEmail = "shira0556791045@gmail.com";  //Only for development period
 
         public NaiveBaiseAlgorithm()
         {
@@ -67,6 +68,7 @@ namespace BLL
         public void EmailRequestAnalysis()
         {
             HandlingNamesOfCategoryManagerName();
+            ContactsProbability();
             SubjetcAnalysis(request.EmailSubject);
             BodyAnalysis(request.EmailContent);
         }
@@ -90,6 +92,30 @@ namespace BLL
                 if (wordsSentence.Contains(user.Name))
                     req_Analysis.IsContainCategoryManagerID[(int)user.Categoty - 1] = true;
             }
+        }
+
+
+        /// <summary>
+        /// The function calculates the probability of sending the email for each category.
+        /// </summary>
+        public void ContactsProbability()
+        {
+            if (request.SenderEmail != myEmail)
+                for (int i = 0; i < req_Analysis.ContactsProb.Length; i++)
+                    req_Analysis.ContactsProb[i] = ProbContactPerCategory(request.SenderEmail, i + 1);
+        }
+
+
+        /// <summary>
+        /// The function returns the probability of sending the email to a specific category.
+        /// </summary>
+        /// <param name="emailSender">email sending</param>
+        /// <param name="categoryID">category ID</param>
+        /// <returns>probability of sending the email to a specific category</returns>
+        public float ProbContactPerCategory(string emailSender, int categoryID)
+        {
+            int numContactRequests = db.EmailRequest_tbl.Count(r => r.SenderEmail == emailSender && r.ID_category == categoryID);
+            return numContactRequests / this.firstInit_arr[categoryID - 1];
         }
 
 
@@ -166,6 +192,10 @@ namespace BLL
         {
             req_Analysis.Subject.ProbabilitybSubjectForCategory = CalcProbabilityForCategory(req_Analysis.Subject.NormalizedSubjectWords);
             int i = 0;
+            //foreach (var sentence in req_Analysis.Body)
+            //{
+            //    req_Analysis.Body[i++].ProbabilitybSentenceForCategory = CalcProbabilityForCategory(sentence.NormalizedBodyWords);
+            //}
             List<Task<double[]>> tasks = new List<Task<double[]>>();
             foreach (var sentence in req_Analysis.Body)
             {
@@ -188,8 +218,8 @@ namespace BLL
         /// <returns>An array that contains for each category its probability of belonging to this a category.</returns>
         public double[] CalcProbabilityForCategory(List<string> contentWords_lst)
         {
-            double[] categoryProbability_arr = InitProbability_arr();
             Task[] tasks = new Task[contentWords_lst.Count()];
+            double[] categoryProbability_arr = tasks.Length > 0 ? InitProbability_arr() : InitProbability_arr(true);
             int indexArr = 0;
             //בעבור כל מילה הקיימת בדטה בייס - מחשבים את ההסתברות שלה + ההסתברות של המילים הדומות לה הקיימות ב-דטה בייס
             foreach (var w in contentWords_lst)
@@ -201,13 +231,14 @@ namespace BLL
                     List<string> similarWords = GetAnalayzedSimWords(w);
                     for (int i = 0; i < categoryProbability_arr.Length; i++)
                     {
+                        prob = 0;
                         prob_similiarWords = SimiliarWords_probability(i, similarWords, w);
                         if (isExsist && probability_mat[word.ID_word - 1, i] != 0)
                             prob = probability_mat[word.ID_word - 1, i];
-                        else
-                            prob = justNotToReset;
                         //משקל של 70% להסתברות של המילה עצמה, ו-30% להסתברות של המילים הדומות.
                         prob = prob * ((float)PercentCalcProb.Common) / (int)PercentCalcProb.Hundred + prob_similiarWords * ((float)PercentCalcProb.Similiar) / (int)PercentCalcProb.Hundred;
+                        if (prob == 0)
+                            prob = justNotToReset;
                         lock (categoryProbability_arr)
                         {
                             categoryProbability_arr[i] *= prob;
@@ -225,10 +256,11 @@ namespace BLL
         /// Function initializes the array of categories - with copies values as firstInit_arr   (istead of calculate it few times)
         /// </summary>
         /// <returns>For each category the num of the email requests to belong to it</returns>
-        public double[] InitProbability_arr()
+        public double[] InitProbability_arr(bool isInitToZero = false)
         {
             double[] probability_arr = new double[firstInit_arr.Length];
-            firstInit_arr.CopyTo(probability_arr, 0); //לברר שזה העתקה ממש, ולא רק הפניות
+            if (!isInitToZero)
+                firstInit_arr.CopyTo(probability_arr, 0);
             return probability_arr;
         }
 
@@ -336,13 +368,16 @@ namespace BLL
                 {
                     if (sentence.NormalizedBodyWords.Count() != 0) //בעבור משפטים שנוטרלו בשלמותם
                         totalProbability[i] += sentence.ProbabilitybSentenceForCategory[i] * percentsEachSentence;
+
                 }
                 totalProbability[i] += req_Analysis.Subject.ProbabilitybSubjectForCategory[i] * percentsForSubject;
+
                 if (req_Analysis.IsContainCategoryManagerID[i])
                 {
-                    totalProbability[i] *= (float)PercentCalcProb.EmailContent / (int)PercentCalcProb.Hundred;
-                    totalProbability[i] += (float)PercentCalcProb.NameOfCategoryManager / (int)PercentCalcProb.Hundred;
+                    //    totalProbability[i] *= (float)PercentCalcProb.EmailContent / (int)PercentCalcProb.Hundred;
+                    totalProbability[i] *= (float)PercentCalcProb.NameOfCategoryManager + (int)PercentCalcProb.MaxProbability;
                 }
+                totalProbability[i] *= req_Analysis.ContactsProb[i] + (int)PercentCalcProb.MaxProbability;
             }
             return totalProbability;
         }
@@ -383,7 +418,7 @@ namespace BLL
                     percentsEachSentence = (float)PercentCalcProb.MaxProbability / realSizeBodySentences;
                 else
                 {
-                    percentsEachSentence = (float)PercentCalcProb.MaxProbability / realSizeBodySentences + (int)PercentCalcProb.Subject_VS_Body;
+                    percentsEachSentence = (float)PercentCalcProb.MaxProbability / (realSizeBodySentences + (int)PercentCalcProb.Subject_VS_Body);
                     percentsForSubject = percentsEachSentence * (int)PercentCalcProb.Subject_VS_Body;
                 }
             }

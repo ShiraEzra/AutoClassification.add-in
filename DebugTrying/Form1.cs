@@ -179,25 +179,58 @@ namespace DebugTrying
 
         private void button7_Click(object sender, EventArgs e)
         {
-            // EmailRequest_tbl req = db.EmailRequest_tbl.Single(e1 => e1.ID_emailRequest == 1056);
-            // int sentFrom = (int)req.ID_category;
+            EmailRequest_tbl req = db.EmailRequest_tbl.Single(e1 => e1.ID_emailRequest == 82);
+            //int sentFrom = (int)req.ID_category;
             //// req.ID_category = db.Category_tbl.Single(c => c.Name_category == newFolder).ID_category;
-            // List<WordPerRequest_tbl> requestWords = db.WordPerRequest_tbl.Where(w => w.Request_id == req.ID_emailRequest).ToList();
-            // ReducingProbability.ReduceProbability(sentFrom, requestWords);
 
 
-            var requests_lst = db.Word_tbl.ToList();
-            int i = 0;
-            foreach (var req in requests_lst)
+            ////מחיקת מיילים פר קטגוריה
+            //List<WordPerRequest_tbl> requestWords = db.WordPerRequest_tbl.Where(w => w.Request_id == req.ID_emailRequest).ToList();
+            //ReducingProbability.ReduceProbability(sentFrom, requestWords);
+
+
+            ////מחיקת מילים פר פנייה
+            //db.WordPerRequest_tbl.RemoveRange(requestWords);
+            //db.SaveChanges();
+
+            //מחיקת הפנייה
+            db.EmailRequest_tbl.Remove(req);
+            db.SaveChanges();
+
+
+
+            //var requests_lst = db.Word_tbl.ToList();
+            //int i = 0;
+            //foreach (var req in requests_lst)
+            //{
+            //    if (req.ID_word > 1370)
+            //    {
+            //        db.Word_tbl.Remove(req);
+            //        db.SaveChanges();
+            //        i++;
+            //    }
+            //}
+            //int c = i;
+        }
+
+        private void button8_Click(object sender, EventArgs e)
+        {
+            NaiveBaiseAlgorithm algorithm = new NaiveBaiseAlgorithm();
+            //   var mat = algorithm.BuildProbabilityMat();
+            Word_tbl w = db.Word_tbl.FirstOrDefault(wt => wt.Value_word == textBox1.Text);
+            if (w != null)
             {
-                if (req.ID_word > 1370)
-                {
-                    db.Word_tbl.Remove(req);
-                    db.SaveChanges();
-                    i++;
-                }
+
+                MessageBox.Show("קוד: "+ w.ID_word + "\n"+
+                    "שירות לקוחות:" + algorithm.probability_mat[w.ID_word-1, 0] + "\n" +
+                   "הנהלת חשבונות:" + algorithm.probability_mat[w.ID_word-1, 1] + "\n" +
+                   "ביצוע:" + algorithm.probability_mat[w.ID_word-1, 2] + "\n" +
+                   "הנדסה:" + algorithm.probability_mat[w.ID_word-1, 3] + "\n");
+
+
             }
-            int c = i;
+            else
+                MessageBox.Show("אין כזו מילה בDB");
         }
     }
 }

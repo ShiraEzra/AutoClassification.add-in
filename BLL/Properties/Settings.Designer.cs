@@ -23,39 +23,51 @@ namespace BLL.Properties {
             }
         }
         
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("@\"\\..\\..\\Data\\openningWords.txt\"")]
+        [global::System.Configuration.DefaultSettingValueAttribute("\"\\..\\..\\Data\\openningWords.txt\"")]
         public string openningPathWindows {
             get {
                 return ((string)(this["openningPathWindows"]));
             }
+            set {
+                this["openningPathWindows"] = value;
+            }
         }
         
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("@\"\\Data\\openningWords.txt\"")]
+        [global::System.Configuration.DefaultSettingValueAttribute("\"\\Data\\openningWords.txt\"")]
         public string openningPath {
             get {
                 return ((string)(this["openningPath"]));
             }
+            set {
+                this["openningPath"] = value;
+            }
         }
         
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("@\"\\..\\..\\Data\\endingWords.txt\"")]
+        [global::System.Configuration.DefaultSettingValueAttribute("\"\\..\\..\\Data\\endingWords.txt\"")]
         public string endingPathWindows {
             get {
                 return ((string)(this["endingPathWindows"]));
             }
+            set {
+                this["endingPathWindows"] = value;
+            }
         }
         
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("@\"\\Data\\endingWords.txt\"")]
+        [global::System.Configuration.DefaultSettingValueAttribute("\"\\Data\\endingWords.txt\"")]
         public string endingPath {
             get {
                 return ((string)(this["endingPath"]));
+            }
+            set {
+                this["endingPath"] = value;
             }
         }
     }
