@@ -17,9 +17,9 @@ namespace BLL
         readonly float[] firstInit_arr;   //An initialized array with the number of email requests for each category.
         EmailRequest_tbl request;        //Object containing the request.
         RequestAnalysis req_Analysis;   //Object containing the request analysis.
+        const string myEmail = "shira0556791045@gmail.com";  //Only for development period
         const int numOpenningSentence = 0, numEndingSentences = 3;
         const float justNotToReset = 0.00001f;
-        const string myEmail = "shira0556791045@gmail.com";  //Only for development period
 
         public NaiveBaiseAlgorithm()
         {

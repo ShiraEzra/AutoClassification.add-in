@@ -162,10 +162,10 @@ namespace BLL
             return false;
         }
 
-        static string openningPathWindows = @"\..\..\Data\openningWords.txt"; //להוציא מאפפ קונפיג- Properties.Settings.Default.openningPathWindows
+
+        //העברתי לאפפ קונפיג, אבל לא מצליח לקחת משם.
+        static string openningPathWindows = @"\..\..\Data\openningWords.txt";
         static string openningPath = @"\Data\openningWords.txt";
-
-
         /// <summary>
         /// The function takes a list of opening words from a file.
         /// And delivery from the sentence that received the opening words existing in it.
@@ -194,11 +194,8 @@ namespace BLL
         }
 
 
-        //העברתי לאפפ קונפיג, אבל לא מצליח לקחת משם.
         static string endingPathWindows = @"\..\..\Data\endingWords.txt";
         static string endingPath = @"\Data\endingWords.txt";
-
-
         /// <summary>
         /// The function takes a list of ending words from a file.
         /// And delivery from the sentence that received the ending words existing in it.
@@ -220,7 +217,7 @@ namespace BLL
                 }
                 catch (Exception)
                 {
-                        //MessageBox.Show("ending -File routing error project " + Environment.CurrentDirectory);
+                    //MessageBox.Show("ending -File routing error project " + Environment.CurrentDirectory);
                 }
             }
             return RemoveWords(sentence, endingWords);
@@ -236,7 +233,6 @@ namespace BLL
         /// <returns>A sentence without the words to be removed.</returns>
         public static string RemoveWords(string sentence, string[] wordsToRemove)
         {
-            //sentence = Regex.Replace(sentence, @"[!-/,:-@, [-`, {-~]", " "); // delete every char that suitable to the condition.
             if (wordsToRemove != null)
             {
                 Array.Sort(wordsToRemove, Compare);
@@ -263,6 +259,5 @@ namespace BLL
         {
             return y.Length - x.Length;
         }
-
     }
 }

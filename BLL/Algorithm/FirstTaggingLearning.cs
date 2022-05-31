@@ -13,7 +13,7 @@ namespace BLL
     public class FirstTaggingLearning
     {
         readonly AutomaticClassificationDBEntities db = AutomaticClassificationDBEntities.Instance;
-        public static int numSucceeded = 0, numTryings = 0;
+        public static int numSucceeded, numTryings;
         public static float totalPrecision;
 
 
