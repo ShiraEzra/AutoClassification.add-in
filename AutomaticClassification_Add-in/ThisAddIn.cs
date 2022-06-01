@@ -19,9 +19,7 @@ namespace AutomaticClassification_Add_in
         static Outlook.MAPIFolder oInbox;
         Retrieval retrieval;
         List<Outlook.MAPIFolder> allFolders;
-
-
-        List<Outlook.Items> foldersItems=new List<Outlook.Items>();
+        List<Outlook.Items> foldersItems = new List<Outlook.Items>();
 
         private UserControl control;
         private Microsoft.Office.Tools.CustomTaskPane taskpane;
@@ -76,11 +74,12 @@ namespace AutomaticClassification_Add_in
         private void MoveDirectory(Outlook.MailItem mail, string nameFolder)
         {
             Outlook.MAPIFolder destFolder = oInbox.Folders[nameFolder];
+            mail.UnRead = true;
             mail.Move(destFolder);
             Marshal.ReleaseComObject(destFolder);
         }
 
-                           
+
         /// <summary>
         /// A method that creates a new folder.
         /// </summary>
@@ -177,7 +176,7 @@ namespace AutomaticClassification_Add_in
         private void LoadAddItemMethodToAllCategoryFolders()
         {
             foreach (var folder in allFolders)
-            {         
+            {
                 foldersItems.Add(folder.Items);
                 foldersItems.Last().ItemAdd += AddMailToDirectory;
             }
@@ -192,16 +191,18 @@ namespace AutomaticClassification_Add_in
         /// <param name="item">The email added</param>
         void AddMailToDirectory(object item)
         {
-            MessageBox.Show("hii - tryin notify when new mail arrived to this directory");
             var p = ((Outlook.MailItem)item).Parent;
             if (p is Outlook.MAPIFolder folder && item is Outlook.MailItem)
             {
-                //int reqID = retrieval.GetIdEmailRequestByConversationID(((Outlook.MailItem)item).ConversationID);
-                //string categoryName = retrieval.GetCategoryNameOfEmailRequest(reqID);
-                //if (reqID != -1 && folder.Name != categoryName)
-                //    ReducingProbability.ChangeCategory(reqID, folder.Name);
+                int? reqID = retrieval.GetIdEmailRequestByConversationID(((Outlook.MailItem)item).ConversationID);
+                if (reqID != null)
+                {
+                    string categoryName = retrieval.GetCategoryNameOfEmailRequest((int)reqID);
+                    if (folder.Name != categoryName)
+                        ReducingProbability.ChangeCategory((int)reqID, folder.Name);
+                }
             }
-            // Marshal.ReleaseComObject(p);
+            Marshal.ReleaseComObject(p);
         }
 
 
@@ -228,7 +229,7 @@ namespace AutomaticClassification_Add_in
 
 
 
-     
+
 
 
         //GUI
@@ -369,7 +370,7 @@ namespace AutomaticClassification_Add_in
         }
 
 
-     
+
 
 
         /// <summary>
@@ -390,7 +391,7 @@ namespace AutomaticClassification_Add_in
             LoadAdd_inMethods();
 
 
-           
+
 
             ////העמסת המתודה לאירוע שיתרחש בכל פעם שימחק מייל  מתקיה זו
             //destFolder.Items.ItemRemove += ChangeMailFromDirectory;

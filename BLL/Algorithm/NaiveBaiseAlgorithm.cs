@@ -7,7 +7,7 @@ using System.Windows.Forms;
 
 namespace BLL
 {
-    public enum PercentCalcProb { MaxProbability = 1, Subject_VS_Body = 2, NameOfCategoryManager = 15, Contacts = 15, Similiar = 30, Common = 70, EmailContent = 70, Hundred = 100 }
+    public enum PercentCalcProb { MaxProbability = 1, Subject_VS_Body = 2, Contacts = 15, NameOfCategoryManager = 20, Similiar = 30, Common = 70, EmailContent = 70, Hundred = 100 }
 
     public class NaiveBaiseAlgorithm
     {
@@ -115,7 +115,15 @@ namespace BLL
         public float ProbContactPerCategory(string emailSender, int categoryID)
         {
             int numContactRequests = db.EmailRequest_tbl.Count(r => r.SenderEmail == emailSender && r.ID_category == categoryID);
-            return numContactRequests / this.firstInit_arr[categoryID - 1];
+            float prob=0;
+            try
+            {
+                prob = numContactRequests / this.firstInit_arr[categoryID - 1];  //ע"מ שלא יעוף במקרה ותתרחש חלוקה ב0
+            }
+            catch(Exception ex)
+            {
+            }
+            return prob;
         }
 
 
@@ -375,7 +383,7 @@ namespace BLL
                 if (req_Analysis.IsContainCategoryManagerID[i])
                 {
                     //    totalProbability[i] *= (float)PercentCalcProb.EmailContent / (int)PercentCalcProb.Hundred;
-                    totalProbability[i] *= (float)PercentCalcProb.NameOfCategoryManager + (int)PercentCalcProb.MaxProbability;
+                    totalProbability[i] *= ((float)PercentCalcProb.NameOfCategoryManager / (int)PercentCalcProb.Hundred) + (int)PercentCalcProb.MaxProbability;
                 }
                 totalProbability[i] *= req_Analysis.ContactsProb[i] + (int)PercentCalcProb.MaxProbability;
             }

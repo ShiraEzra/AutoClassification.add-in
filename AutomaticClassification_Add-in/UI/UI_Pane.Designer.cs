@@ -101,12 +101,12 @@ namespace AutomaticClassification_Add_in
             this.GeneralManager_gb.Controls.Add(this.addNewCategory_rb);
             this.GeneralManager_gb.Controls.Add(this.addNewDM_rd);
             this.GeneralManager_gb.Controls.Add(this.exit_btn);
-            this.GeneralManager_gb.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+            this.GeneralManager_gb.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
             this.GeneralManager_gb.ForeColor = System.Drawing.Color.Black;
-            this.GeneralManager_gb.Location = new System.Drawing.Point(15, 313);
+            this.GeneralManager_gb.Location = new System.Drawing.Point(15, 300);
             this.GeneralManager_gb.Name = "GeneralManager_gb";
             this.GeneralManager_gb.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.GeneralManager_gb.Size = new System.Drawing.Size(274, 251);
+            this.GeneralManager_gb.Size = new System.Drawing.Size(274, 254);
             this.GeneralManager_gb.TabIndex = 6;
             this.GeneralManager_gb.TabStop = false;
             this.GeneralManager_gb.Text = " פעולות מנהל";
@@ -115,72 +115,84 @@ namespace AutomaticClassification_Add_in
             // addTaggingToDepartment_rd
             // 
             this.addTaggingToDepartment_rd.AutoSize = true;
-            this.addTaggingToDepartment_rd.Location = new System.Drawing.Point(65, 128);
+            this.addTaggingToDepartment_rd.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+            this.addTaggingToDepartment_rd.Location = new System.Drawing.Point(41, 127);
             this.addTaggingToDepartment_rd.Name = "addTaggingToDepartment_rd";
-            this.addTaggingToDepartment_rd.Size = new System.Drawing.Size(194, 22);
+            this.addTaggingToDepartment_rd.Size = new System.Drawing.Size(214, 24);
             this.addTaggingToDepartment_rd.TabIndex = 13;
             this.addTaggingToDepartment_rd.TabStop = true;
             this.addTaggingToDepartment_rd.Text = "הוספת נתוני אימון למחלקה";
+            this.addTaggingToDepartment_rd.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.addTaggingToDepartment_rd.UseVisualStyleBackColor = true;
             this.addTaggingToDepartment_rd.CheckedChanged += new System.EventHandler(this.addTaggingToDepartment_rd_CheckedChanged);
             // 
             // AddNewManager_rd
             // 
             this.AddNewManager_rd.AutoSize = true;
-            this.AddNewManager_rd.Location = new System.Drawing.Point(123, 70);
+            this.AddNewManager_rd.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+            this.AddNewManager_rd.Location = new System.Drawing.Point(111, 70);
             this.AddNewManager_rd.Name = "AddNewManager_rd";
-            this.AddNewManager_rd.Size = new System.Drawing.Size(136, 22);
+            this.AddNewManager_rd.Size = new System.Drawing.Size(148, 24);
             this.AddNewManager_rd.TabIndex = 12;
             this.AddNewManager_rd.TabStop = true;
             this.AddNewManager_rd.Text = "הוספת מנהל חדש";
+            this.AddNewManager_rd.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.AddNewManager_rd.UseVisualStyleBackColor = true;
             this.AddNewManager_rd.CheckedChanged += new System.EventHandler(this.AddNewManager_rd_CheckedChanged);
             // 
             // updateDetails_rb
             // 
             this.updateDetails_rb.AutoSize = true;
-            this.updateDetails_rb.Location = new System.Drawing.Point(77, 156);
+            this.updateDetails_rb.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+            this.updateDetails_rb.Location = new System.Drawing.Point(55, 156);
             this.updateDetails_rb.Name = "updateDetails_rb";
-            this.updateDetails_rb.Size = new System.Drawing.Size(182, 22);
+            this.updateDetails_rb.Size = new System.Drawing.Size(205, 24);
             this.updateDetails_rb.TabIndex = 11;
             this.updateDetails_rb.TabStop = true;
             this.updateDetails_rb.Text = "עדכון / מחיקת עובד קיים";
+            this.updateDetails_rb.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.updateDetails_rb.UseVisualStyleBackColor = true;
             this.updateDetails_rb.CheckedChanged += new System.EventHandler(this.updateDetails_rb_CheckedChanged);
             // 
             // updateYourDetails_rb
             // 
             this.updateYourDetails_rb.AutoSize = true;
-            this.updateYourDetails_rb.Location = new System.Drawing.Point(153, 186);
+            this.updateYourDetails_rb.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+            this.updateYourDetails_rb.Location = new System.Drawing.Point(143, 186);
             this.updateYourDetails_rb.Name = "updateYourDetails_rb";
-            this.updateYourDetails_rb.Size = new System.Drawing.Size(106, 22);
+            this.updateYourDetails_rb.Size = new System.Drawing.Size(119, 24);
             this.updateYourDetails_rb.TabIndex = 10;
             this.updateYourDetails_rb.TabStop = true;
             this.updateYourDetails_rb.Text = "עדכון פרטיך";
+            this.updateYourDetails_rb.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.updateYourDetails_rb.UseVisualStyleBackColor = true;
             this.updateYourDetails_rb.CheckedChanged += new System.EventHandler(this.updateYourDetails_rb_CheckedChanged);
             // 
             // addNewCategory_rb
             // 
             this.addNewCategory_rb.AutoSize = true;
-            this.addNewCategory_rb.Location = new System.Drawing.Point(102, 100);
+            this.addNewCategory_rb.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+            this.addNewCategory_rb.Location = new System.Drawing.Point(87, 100);
             this.addNewCategory_rb.Name = "addNewCategory_rb";
-            this.addNewCategory_rb.Size = new System.Drawing.Size(157, 22);
+            this.addNewCategory_rb.Size = new System.Drawing.Size(170, 24);
             this.addNewCategory_rb.TabIndex = 9;
             this.addNewCategory_rb.TabStop = true;
             this.addNewCategory_rb.Text = "הוספת מחלקה חדשה";
+            this.addNewCategory_rb.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.addNewCategory_rb.UseVisualStyleBackColor = true;
             this.addNewCategory_rb.CheckedChanged += new System.EventHandler(this.addNewCategory_rb_CheckedChanged);
             // 
             // addNewDM_rd
             // 
             this.addNewDM_rd.AutoSize = true;
-            this.addNewDM_rd.Location = new System.Drawing.Point(99, 40);
+            this.addNewDM_rd.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+            this.addNewDM_rd.Location = new System.Drawing.Point(84, 40);
             this.addNewDM_rd.Name = "addNewDM_rd";
-            this.addNewDM_rd.Size = new System.Drawing.Size(160, 22);
+            this.addNewDM_rd.Size = new System.Drawing.Size(173, 24);
             this.addNewDM_rd.TabIndex = 8;
             this.addNewDM_rd.TabStop = true;
             this.addNewDM_rd.Text = "הוספת אחראי מחלקה";
+            this.addNewDM_rd.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.addNewDM_rd.UseVisualStyleBackColor = true;
             this.addNewDM_rd.CheckedChanged += new System.EventHandler(this.addNewDM_rd_CheckedChanged);
             // 
@@ -188,9 +200,9 @@ namespace AutomaticClassification_Add_in
             // 
             this.exit_btn.BackColor = System.Drawing.SystemColors.ButtonHighlight;
             this.exit_btn.Image = ((System.Drawing.Image)(resources.GetObject("exit_btn.Image")));
-            this.exit_btn.Location = new System.Drawing.Point(12, 210);
+            this.exit_btn.Location = new System.Drawing.Point(12, 212);
             this.exit_btn.Name = "exit_btn";
-            this.exit_btn.Size = new System.Drawing.Size(52, 27);
+            this.exit_btn.Size = new System.Drawing.Size(60, 31);
             this.exit_btn.TabIndex = 7;
             this.exit_btn.Text = "יציאה";
             this.exit_btn.UseVisualStyleBackColor = false;

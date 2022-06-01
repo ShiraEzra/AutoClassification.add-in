@@ -127,5 +127,30 @@ namespace BLL
             userTbl_lst.ForEach(u => user_lst.Add(User.DalToDto(u)));
             return user_lst;
         }
+
+
+        /// <summary>
+        /// The function returns the email request code that has a conversationID as we received as a parameter in the function.
+        ///conversationID is a code for element in Outlook.
+        /// </summary>
+        /// <param name="conversationID">conversation ID</param>
+        /// <returns>code of email request</returns>
+        public int? GetIdEmailRequestByConversationID(string conversationID)
+        {
+            int? reqID = db.EmailRequest_tbl.FirstOrDefault(r => r.EntryId == conversationID)?.ID_emailRequest;
+            return reqID;
+        }
+
+
+        /// <summary>
+        /// The function returns the name of the category to which the e-mail request has a code as of the code we
+        /// received in the function parameter is classified.
+        /// </summary>
+        /// <param name="reqID">email request ID</param>
+        /// <returns>name of the category</returns>
+        public string GetCategoryNameOfEmailRequest(int reqID)
+        {
+            return db.EmailRequest_tbl.Single(r => r.ID_emailRequest == reqID).Category_tbl.Name_category;
+        }
     }
 }

@@ -41,10 +41,10 @@ namespace AutomaticClassification_Add_in.Forms
             this.nameCategory_txt = new System.Windows.Forms.TextBox();
             this.nameCategory_lbl = new System.Windows.Forms.Label();
             this.afterCreate_pl = new System.Windows.Forms.Panel();
+            this.requestsForExample_lnkLbl = new System.Windows.Forms.LinkLabel();
             this.okAddingRequests_lbl = new System.Windows.Forms.Label();
             this.associateDM_lnkLbl = new System.Windows.Forms.LinkLabel();
             this.noteBold_lbl = new System.Windows.Forms.Label();
-            this.requestsForExample_lnkLbl = new System.Windows.Forms.LinkLabel();
             this.note_lbl = new System.Windows.Forms.Label();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
@@ -148,10 +148,10 @@ namespace AutomaticClassification_Add_in.Forms
             // 
             this.afterCreate_pl.BackColor = System.Drawing.Color.Transparent;
             this.afterCreate_pl.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.afterCreate_pl.Controls.Add(this.requestsForExample_lnkLbl);
             this.afterCreate_pl.Controls.Add(this.okAddingRequests_lbl);
             this.afterCreate_pl.Controls.Add(this.associateDM_lnkLbl);
             this.afterCreate_pl.Controls.Add(this.noteBold_lbl);
-            this.afterCreate_pl.Controls.Add(this.requestsForExample_lnkLbl);
             this.afterCreate_pl.Controls.Add(this.note_lbl);
             this.afterCreate_pl.Location = new System.Drawing.Point(32, 383);
             this.afterCreate_pl.Name = "afterCreate_pl";
@@ -159,10 +159,25 @@ namespace AutomaticClassification_Add_in.Forms
             this.afterCreate_pl.TabIndex = 5;
             this.afterCreate_pl.Visible = false;
             // 
+            // requestsForExample_lnkLbl
+            // 
+            this.requestsForExample_lnkLbl.AutoSize = true;
+            this.requestsForExample_lnkLbl.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+            this.requestsForExample_lnkLbl.LinkBehavior = System.Windows.Forms.LinkBehavior.HoverUnderline;
+            this.requestsForExample_lnkLbl.LinkColor = System.Drawing.Color.White;
+            this.requestsForExample_lnkLbl.Location = new System.Drawing.Point(30, 46);
+            this.requestsForExample_lnkLbl.Name = "requestsForExample_lnkLbl";
+            this.requestsForExample_lnkLbl.Size = new System.Drawing.Size(212, 24);
+            this.requestsForExample_lnkLbl.TabIndex = 19;
+            this.requestsForExample_lnkLbl.TabStop = true;
+            this.requestsForExample_lnkLbl.Text = "להוספה כעת פניות לדוגמא";
+            this.requestsForExample_lnkLbl.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.requestsForExample_lnkLbl_LinkClicked);
+            // 
             // okAddingRequests_lbl
             // 
             this.okAddingRequests_lbl.AutoSize = true;
             this.okAddingRequests_lbl.Font = new System.Drawing.Font("Microsoft Yi Baiti", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.okAddingRequests_lbl.ForeColor = System.Drawing.SystemColors.ControlLightLight;
             this.okAddingRequests_lbl.Location = new System.Drawing.Point(40, 258);
             this.okAddingRequests_lbl.Name = "okAddingRequests_lbl";
             this.okAddingRequests_lbl.Size = new System.Drawing.Size(128, 17);
@@ -173,10 +188,12 @@ namespace AutomaticClassification_Add_in.Forms
             // associateDM_lnkLbl
             // 
             this.associateDM_lnkLbl.AutoSize = true;
-            this.associateDM_lnkLbl.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-            this.associateDM_lnkLbl.Location = new System.Drawing.Point(95, 15);
+            this.associateDM_lnkLbl.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+            this.associateDM_lnkLbl.LinkBehavior = System.Windows.Forms.LinkBehavior.HoverUnderline;
+            this.associateDM_lnkLbl.LinkColor = System.Drawing.Color.White;
+            this.associateDM_lnkLbl.Location = new System.Drawing.Point(84, 12);
             this.associateDM_lnkLbl.Name = "associateDM_lnkLbl";
-            this.associateDM_lnkLbl.Size = new System.Drawing.Size(143, 18);
+            this.associateDM_lnkLbl.Size = new System.Drawing.Size(158, 24);
             this.associateDM_lnkLbl.TabIndex = 17;
             this.associateDM_lnkLbl.TabStop = true;
             this.associateDM_lnkLbl.Text = "לשיוך מנהל מחלקה";
@@ -186,30 +203,18 @@ namespace AutomaticClassification_Add_in.Forms
             // 
             this.noteBold_lbl.AutoSize = true;
             this.noteBold_lbl.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-            this.noteBold_lbl.Location = new System.Drawing.Point(127, 62);
+            this.noteBold_lbl.Location = new System.Drawing.Point(133, 93);
             this.noteBold_lbl.Name = "noteBold_lbl";
             this.noteBold_lbl.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.noteBold_lbl.Size = new System.Drawing.Size(110, 20);
             this.noteBold_lbl.TabIndex = 16;
             this.noteBold_lbl.Text = "לתשומת לב: ";
             // 
-            // requestsForExample_lnkLbl
-            // 
-            this.requestsForExample_lnkLbl.AutoSize = true;
-            this.requestsForExample_lnkLbl.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-            this.requestsForExample_lnkLbl.Location = new System.Drawing.Point(47, 221);
-            this.requestsForExample_lnkLbl.Name = "requestsForExample_lnkLbl";
-            this.requestsForExample_lnkLbl.Size = new System.Drawing.Size(194, 18);
-            this.requestsForExample_lnkLbl.TabIndex = 15;
-            this.requestsForExample_lnkLbl.TabStop = true;
-            this.requestsForExample_lnkLbl.Text = "להוספה כעת פניות לדוגמא";
-            this.requestsForExample_lnkLbl.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.requestsForExample_lnkLbl_LinkClicked);
-            // 
             // note_lbl
             // 
             this.note_lbl.AutoSize = true;
             this.note_lbl.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-            this.note_lbl.Location = new System.Drawing.Point(3, 85);
+            this.note_lbl.Location = new System.Drawing.Point(3, 122);
             this.note_lbl.Name = "note_lbl";
             this.note_lbl.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.note_lbl.Size = new System.Drawing.Size(233, 136);
@@ -299,12 +304,12 @@ namespace AutomaticClassification_Add_in.Forms
         private System.Windows.Forms.Panel afterCreate_pl;
         private System.Windows.Forms.LinkLabel associateDM_lnkLbl;
         private System.Windows.Forms.Label noteBold_lbl;
-        private System.Windows.Forms.LinkLabel requestsForExample_lnkLbl;
         private System.Windows.Forms.Label note_lbl;
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.Label ok_lbl;
         private System.Windows.Forms.Label okAddingRequests_lbl;
         private System.Windows.Forms.ComboBox exsistsCategory_cmb;
         private System.Windows.Forms.Label exsistsCategory_lbl;
+        private System.Windows.Forms.LinkLabel requestsForExample_lnkLbl;
     }
 }

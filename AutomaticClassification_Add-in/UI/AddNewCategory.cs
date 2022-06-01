@@ -66,6 +66,7 @@ namespace AutomaticClassification_Add_in.Forms
             exsistsCategory_cmb.Visible = true;
             exsistsCategory_cmb.Items.AddRange(retrieval.GetAllCategories().ToArray());
             this.LocationOfAfterCreate_pl = afterCreate_pl.Location.Y;
+            associateDM_lnkLbl.Visible = false;
         }
 
         private void createCategory_btn_Click(object sender, EventArgs e)
@@ -158,8 +159,8 @@ namespace AutomaticClassification_Add_in.Forms
                             else
                                 if (Path.GetExtension(pathToFile) == ".txt")
                                 getSubjectAndBodyFromTxtFile(pathToFile, ref subject, ref body);
-                           // if (subject != "" || body != "")
-                              //  algorithm.InsertRequestToSystem(subject, body, category.ID_category);
+                            if (subject != "" || body != "")
+                                algorithm.InsertRequestToSystem(subject, body, category.ID_category);
                         }
                     }
                     timerOn(KindTimer.AddingRequests);
