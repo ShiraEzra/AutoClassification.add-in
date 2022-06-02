@@ -39,7 +39,7 @@ namespace AutomaticClassification_Add_in
                 foreach (var unRead in unReadItems)
                 {
                     unReadMails.Add((Outlook.MailItem)unRead);
-                    ((Outlook.MailItem)unRead).UnRead = false;
+                   // ((Outlook.MailItem)unRead).UnRead = false;
                 }
 
                 Marshal.ReleaseComObject(oItems);
@@ -75,6 +75,7 @@ namespace AutomaticClassification_Add_in
         {
             Outlook.MAPIFolder destFolder = oInbox.Folders[nameFolder];
             mail.UnRead = true;
+            //Thread.Sleep(3000);
             mail.Move(destFolder);
             Marshal.ReleaseComObject(destFolder);
         }

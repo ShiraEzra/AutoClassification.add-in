@@ -179,19 +179,19 @@ namespace DebugTrying
 
         private void button7_Click(object sender, EventArgs e)
         {
-            EmailRequest_tbl req = db.EmailRequest_tbl.Single(e1 => e1.ID_emailRequest == 82);
+            EmailRequest_tbl req = db.EmailRequest_tbl.Single(e1 => e1.ID_emailRequest == 124);
             //int sentFrom = (int)req.ID_category;
             //// req.ID_category = db.Category_tbl.Single(c => c.Name_category == newFolder).ID_category;
 
 
-            ////מחיקת מיילים פר קטגוריה
-            //List<WordPerRequest_tbl> requestWords = db.WordPerRequest_tbl.Where(w => w.Request_id == req.ID_emailRequest).ToList();
-            //ReducingProbability.ReduceProbability(sentFrom, requestWords);
+            //מחיקת מיילים פר קטגוריה
+            List<WordPerRequest_tbl> requestWords = db.WordPerRequest_tbl.Where(w => w.Request_id == req.ID_emailRequest).ToList();
+            ReducingProbability.ReduceProbability((int)req.ID_category, requestWords);
 
 
-            ////מחיקת מילים פר פנייה
-            //db.WordPerRequest_tbl.RemoveRange(requestWords);
-            //db.SaveChanges();
+            //מחיקת מילים פר פנייה
+            db.WordPerRequest_tbl.RemoveRange(requestWords);
+            db.SaveChanges();
 
             //מחיקת הפנייה
             db.EmailRequest_tbl.Remove(req);
