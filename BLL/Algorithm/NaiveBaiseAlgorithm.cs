@@ -115,12 +115,12 @@ namespace BLL
         public float ProbContactPerCategory(string emailSender, int categoryID)
         {
             int numContactRequests = db.EmailRequest_tbl.Count(r => r.SenderEmail == emailSender && r.ID_category == categoryID);
-            float prob=0;
+            float prob = 0;
             try
             {
                 prob = numContactRequests / this.firstInit_arr[categoryID - 1];  //ע"מ שלא יעוף במקרה ותתרחש חלוקה ב0
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
             }
             return prob;
@@ -168,6 +168,8 @@ namespace BLL
             if (body != "")
             {
                 List<string> bodySplitToSentences = body.SplitToSentences();
+                if (bodySplitToSentences.Count()==0)   //Another chance
+                    bodySplitToSentences = body.SplitToSentences();
                 bodySplitToSentences.RemoveAll(x => x.Length < 2);
                 if (bodySplitToSentences.Count() == 0)   //In a case that fails to access the Hebrew NLP library
                     return;

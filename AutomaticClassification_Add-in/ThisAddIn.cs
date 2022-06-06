@@ -18,6 +18,7 @@ namespace AutomaticClassification_Add_in
 
         static Outlook.MAPIFolder oInbox;
         Retrieval retrieval;
+
         List<Outlook.MAPIFolder> allFolders;
         List<Outlook.Items> foldersItems = new List<Outlook.Items>();
 
@@ -37,32 +38,19 @@ namespace AutomaticClassification_Add_in
                 Outlook.Items unReadItems = oItems.Restrict("[Unread]=true");
                 List<Outlook.MailItem> unReadMails = new List<Outlook.MailItem>();
                 foreach (var unRead in unReadItems)
-                {
                     unReadMails.Add((Outlook.MailItem)unRead);
-                   // ((Outlook.MailItem)unRead).UnRead = false;
-                }
 
                 Marshal.ReleaseComObject(oItems);
-                Marshal.ReleaseComObject(unReadItems);   //צריכה לעבור ולשחרר אחד אחד? או שמספיק את כל הרשימה ביחד.
+                Marshal.ReleaseComObject(unReadItems);   
 
-                try
+                foreach (var mail in unReadMails)
                 {
-                    foreach (var mail in unReadMails)
-                    {
-                        NaiveBaiseAlgorithm algorithm = new NaiveBaiseAlgorithm();
-                        string nameFolder = algorithm.NewEmailRequest(mail.ConversationTopic, retrieval.RelevantBodyOnly(mail.Body), mail.SenderEmailAddress, mail.CreationTime, mail.ConversationID);
-                        MoveDirectory(mail, nameFolder);
-                    }
+                    NaiveBaiseAlgorithm algorithm = new NaiveBaiseAlgorithm();
+                    string nameFolder = algorithm.NewEmailRequest(mail.ConversationTopic, retrieval.RelevantBodyOnly(mail.Body), mail.SenderEmailAddress, mail.CreationTime, mail.ConversationID);
+                    MoveDirectory(mail, nameFolder);
                 }
-                catch (System.Exception)
-                {
-                    MessageBox.Show("error!!  " + unReadMails);
-                }
-                finally
-                {
-                    Marshal.ReleaseComObject(unReadMails);
-                }
-
+                //Marshal.ReleaseComObject(unReadMails);
+                ReleaseComList(unReadMails);
             });
         }
 
@@ -74,10 +62,18 @@ namespace AutomaticClassification_Add_in
         private void MoveDirectory(Outlook.MailItem mail, string nameFolder)
         {
             Outlook.MAPIFolder destFolder = oInbox.Folders[nameFolder];
-            mail.UnRead = true;
-            //Thread.Sleep(3000);
-            mail.Move(destFolder);
-            Marshal.ReleaseComObject(destFolder);
+            try
+            {
+                mail.Move(destFolder);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("error in moving mail!!  " + ex.Message);
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(destFolder);
+            }
         }
 
 
@@ -228,6 +224,16 @@ namespace AutomaticClassification_Add_in
             }
         }
 
+        /// <summary>
+        /// The function deletes the list of emails from the location in the memory of the program.
+        /// </summary>
+        /// <param name="lst">list of emails</param>
+        private void ReleaseComList(List<Outlook.MailItem> lst)
+        {
+            foreach (var item in lst)
+                Marshal.ReleaseComObject(item);
+            Marshal.ReleaseComObject(lst);
+        }
 
 
 
@@ -392,7 +398,11 @@ namespace AutomaticClassification_Add_in
             LoadAdd_inMethods();
 
 
-
+            //בעבור מיילים שנכנסו למערכת כאשר האוטלוק היה סגור
+            Task task = Task.Run(() =>
+            {
+                GetNewMail();
+            });
 
             ////העמסת המתודה לאירוע שיתרחש בכל פעם שימחק מייל  מתקיה זו
             //destFolder.Items.ItemRemove += ChangeMailFromDirectory;
