@@ -71,7 +71,7 @@ namespace AutomaticClassification_Add_in
             this.managerPwd_lbl.AutoSize = true;
             this.managerPwd_lbl.BackColor = System.Drawing.Color.Transparent;
             this.managerPwd_lbl.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-            this.managerPwd_lbl.Location = new System.Drawing.Point(136, 19);
+            this.managerPwd_lbl.Location = new System.Drawing.Point(142, 19);
             this.managerPwd_lbl.Name = "managerPwd_lbl";
             this.managerPwd_lbl.Size = new System.Drawing.Size(131, 20);
             this.managerPwd_lbl.TabIndex = 4;

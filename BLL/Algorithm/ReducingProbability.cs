@@ -1,9 +1,6 @@
 ﻿using DAL;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BLL
 {
@@ -46,7 +43,7 @@ namespace BLL
                     wpc.AmountOfUse -= Conclusion.similarWordPercent;
                 else
                     wpc.AmountOfUse -= Conclusion.exsistWordPercent;
-                if (wpc.AmountOfUse == 0)
+                if (wpc.AmountOfUse == (int)PercentCalcProb.Zero)
                     db.WordPerCategory_tbl.Remove(wpc);
                 db.SaveChanges();
             }

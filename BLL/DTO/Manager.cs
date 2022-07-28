@@ -1,11 +1,6 @@
 ﻿using AutoMapper;
 using DAL;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace BLL.DTO
 {
     public class Manager
@@ -17,6 +12,10 @@ namespace BLL.DTO
 
         static AutomaticClassificationDBEntities db = AutomaticClassificationDBEntities.Instance;
 
+        public override string ToString()
+        {
+            return this.Name_user;
+        }
 
         public Manager_tbl DtoTODal()
         {

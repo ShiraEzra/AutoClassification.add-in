@@ -101,17 +101,12 @@ namespace BLL
         public static List<string> RemoveIrrelevantWords(List<List<MorphInfo>> analyzedSentence)
         {
             List<string> rellevantWords = new List<string>();
+            MorphInfo word = null;
             foreach (var item in analyzedSentence)
             {
-                if (IsRrelavantPartOfSpeach(item.FirstOrDefault()))
-                {
-                    MorphInfo word = CheckParticle(item);   //מילת הקריאה אם קיימת באופציות, אחרת - נאל
-                    if (!ParticleWords(word))   //אם לא קיימת אופציה של מילת קריאה, או שהמילה אינה באמת מילת קריאה - ניקח באופן שרירותי את האופציה הראשונה ברשימה
-                    {
-                        word = item.FirstOrDefault();
-                        rellevantWords.Add(word.BaseWordMenukad != null ? word.BaseWordMenukad : word.BaseWord);
-                    }
-                }
+                word = item.FirstOrDefault();
+                if (word!=null && IsRrelavantPartOfSpeach(word))   
+                    rellevantWords.Add(word.BaseWordMenukad != null ? word.BaseWordMenukad : word.BaseWord);
             }
             return rellevantWords;
         }
@@ -129,41 +124,7 @@ namespace BLL
         }
 
 
-        /// <summary>
-        /// The function receives a list of options of analyzed words and returns the object of MorphInfo if one of all the options is a particle word, otherwise NULL.
-        /// </summary>
-        /// <param name="wordsOptions">a list of options of analyzed words</param>
-        /// <returns>word / null</returns>
-        public static MorphInfo CheckParticle(List<MorphInfo> wordsOptions)
-        {
-            foreach (var word in wordsOptions)
-            {
-                if (word.PartOfSpeech == PartOfSpeech.PARTICLE || word.PartOfSpeech == PartOfSpeech.INTERJECTION || word.PartOfSpeech == PartOfSpeech.PROPER_NOUN)
-                    return word;
-            }
-            return null;
-        }
-
-
-        /// <summary>
-        /// The function builds a list of particle words.
-        ///Returns whether the word it received is a particle word or not.
-        /// </summary>
-        /// <param name="word">word (as MorphInfo)</param>
-        /// <returns>whether the word it received is a particle word or not.</returns>
-        public static bool ParticleWords(MorphInfo word)
-        {
-            if (word != null)
-            {
-                List<string> commonWords = new List<string>() { "בבקשה" };  //לראות אלו מילים יש להוסיף לכאן
-                if (commonWords.Contains(word.BaseWord))
-                    return true;
-            }
-            return false;
-        }
-
-
-        //העברתי לאפפ קונפיג, אבל לא מצליח לקחת משם.
+     
         static string openningPathWindows = @"\..\..\Data\openningWords.txt";
         static string openningPath = @"\Data\openningWords.txt";
         /// <summary>
@@ -187,7 +148,6 @@ namespace BLL
                 }
                 catch (Exception)
                 {
-                    //MessageBox.Show("openning -File routing error project " + Environment.CurrentDirectory);
                 }
             }
             return RemoveWords(sentence, openningWords);
@@ -217,7 +177,6 @@ namespace BLL
                 }
                 catch (Exception)
                 {
-                    //MessageBox.Show("ending -File routing error project " + Environment.CurrentDirectory);
                 }
             }
             return RemoveWords(sentence, endingWords);

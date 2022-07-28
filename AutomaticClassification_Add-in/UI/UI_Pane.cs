@@ -2,13 +2,7 @@
 using BLL;
 using BLL.DTO;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 
@@ -30,11 +24,6 @@ namespace AutomaticClassification_Add_in
 
         public delegate float[] EventHandler3();
         public event EventHandler3 FirstTaggingLearning;
-
-
-        public delegate void EventHandler4();
-        public event EventHandler4 LoadMethods;
-
 
 
         public UI_Pane(Manager manager)
@@ -87,19 +76,11 @@ namespace AutomaticClassification_Add_in
         private void ok_btn_Click(object sender, EventArgs e)
         {
             errorProvider1.Clear();
-            manager = Manager.DalToDto(retrieval.GetManagerByPassword("Efi325013019"));
+            manager = Manager.DalToDto(retrieval.GetManagerByPassword(managerPwd_txt.Text));
             if (manager != null)
                 LogInState();
             else
                 errorProvider1.SetError(managerPwd_txt, "סיסמא שגויה");
-
-            //להחזיר לזה
-            //errorProvider1.Clear();
-            //manager = Manager.DalToDto(retrieval.GetManagerByPassword(managerPwd_txt.Text));
-            //if (manager != null)
-            //    LogInState();
-            //else
-            //    errorProvider1.SetError(managerPwd_txt, "סיסמא שגויה");
         }
 
         private void exit_btn_Click(object sender, EventArgs e)
@@ -159,7 +140,6 @@ namespace AutomaticClassification_Add_in
         {
             float[] precision = FirstTaggingLearning?.Invoke();  //  למידת המערכת = למידת הקטגוריות ותיוגם הראשוני
             CreateMyNotificationBox(precision);
-            LoadMethods?.Invoke();      //לאחר התיוג הראשוני, ניתן להפעיל את העמסת המתודה למייל חדש - קליטת פניות וסיווגן
         }
 
         public void CreateMyNotificationBox(float[] precision)

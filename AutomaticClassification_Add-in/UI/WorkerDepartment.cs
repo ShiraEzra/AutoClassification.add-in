@@ -1,13 +1,7 @@
 ﻿using BLL;
 using BLL.DTO;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace AutomaticClassification_Add_in.UI
@@ -36,6 +30,8 @@ namespace AutomaticClassification_Add_in.UI
             if (!this.isAdd)
                 updateState();
         }
+
+
         public WorkerDepartment(Manager m, Category c)
         {
             //מצב הוספת אחראי מחלקה לקטגוריה מסוימת
@@ -72,6 +68,7 @@ namespace AutomaticClassification_Add_in.UI
         {
             BackToNewCategoty?.Invoke(this.manager, category);
         }
+
         private void exsistWorkers_cmb_SelectedIndexChanged(object sender, EventArgs e)
         {
             user = (User)exsistWorkers_cmb.SelectedItem;

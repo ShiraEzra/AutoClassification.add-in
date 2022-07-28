@@ -1,10 +1,6 @@
 ﻿using AutoMapper;
 using DAL;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BLL.DTO
 {
@@ -29,6 +25,10 @@ namespace BLL.DTO
             this.Categoty = user_tbl.Categoty;
         }
 
+        public override string ToString()
+        {
+            return this.Name;
+        }
 
         public User_tbl DtoTODal()
         {
@@ -39,7 +39,6 @@ namespace BLL.DTO
             return mapper.Map<User_tbl>(this);
         }
 
-
         public static User DalToDto(User_tbl u)
         {
             var config = new MapperConfiguration(cfg =>
@@ -49,7 +48,6 @@ namespace BLL.DTO
             return mapper.Map<User>(u);
         }
 
-
         public static bool IsExsistUser()
         {
             if (db.User_tbl.Count() > 0)
@@ -57,7 +55,6 @@ namespace BLL.DTO
             return false;
         }
              
-
         public void Add()
         {
             db.User_tbl.Add(this.DtoTODal());

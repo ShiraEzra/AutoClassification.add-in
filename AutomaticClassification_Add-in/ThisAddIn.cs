@@ -41,7 +41,7 @@ namespace AutomaticClassification_Add_in
                     unReadMails.Add((Outlook.MailItem)unRead);
 
                 Marshal.ReleaseComObject(oItems);
-                Marshal.ReleaseComObject(unReadItems);   
+                Marshal.ReleaseComObject(unReadItems);
 
                 foreach (var mail in unReadMails)
                 {
@@ -49,7 +49,6 @@ namespace AutomaticClassification_Add_in
                     string nameFolder = algorithm.NewEmailRequest(mail.ConversationTopic, retrieval.RelevantBodyOnly(mail.Body), mail.SenderEmailAddress, mail.CreationTime, mail.ConversationID);
                     MoveDirectory(mail, nameFolder);
                 }
-                //Marshal.ReleaseComObject(unReadMails);
                 ReleaseComList(unReadMails);
             });
         }
@@ -61,9 +60,13 @@ namespace AutomaticClassification_Add_in
         /// <param name="nameFolder">The directory to which the email should be forwarded</param>
         private void MoveDirectory(Outlook.MailItem mail, string nameFolder)
         {
-            Outlook.MAPIFolder destFolder = oInbox.Folders[nameFolder];
+            if (nameFolder == null)
+                MessageBox.Show("You don't have categories yet");
+
+            Outlook.MAPIFolder destFolder = null;
             try
             {
+                destFolder = oInbox.Folders[nameFolder];
                 mail.Move(destFolder);
             }
             catch (Exception ex)
@@ -72,7 +75,8 @@ namespace AutomaticClassification_Add_in
             }
             finally
             {
-                Marshal.ReleaseComObject(destFolder);
+                if (destFolder != null)
+                    Marshal.ReleaseComObject(destFolder);
             }
         }
 
@@ -178,8 +182,6 @@ namespace AutomaticClassification_Add_in
                 foldersItems.Last().ItemAdd += AddMailToDirectory;
             }
         }
-        //https://stackoverflow.com/questions/47588868/vsto-itemadd-event-is-not-firing
-        //https://stackoverflow.com/questions/42663830/outlook-2016-vsto-folder-add-event-fires-only-once
 
 
         /// <summary>
@@ -189,9 +191,9 @@ namespace AutomaticClassification_Add_in
         void AddMailToDirectory(object item)
         {
             var p = ((Outlook.MailItem)item).Parent;
-            if (p is Outlook.MAPIFolder folder && item is Outlook.MailItem)
+            if (p is Outlook.MAPIFolder folder && item is Outlook.MailItem mail)
             {
-                int? reqID = retrieval.GetIdEmailRequestByConversationID(((Outlook.MailItem)item).ConversationID);
+                int? reqID = retrieval.GetIdEmailRequestByConversationID(mail.ConversationID);
                 if (reqID != null)
                 {
                     string categoryName = retrieval.GetCategoryNameOfEmailRequest((int)reqID);
@@ -224,6 +226,7 @@ namespace AutomaticClassification_Add_in
             }
         }
 
+
         /// <summary>
         /// The function deletes the list of emails from the location in the memory of the program.
         /// </summary>
@@ -240,7 +243,6 @@ namespace AutomaticClassification_Add_in
 
 
         //GUI
-
 
         /// <summary>
         /// A method that brings up the AddNewCategory display pane.
@@ -357,7 +359,6 @@ namespace AutomaticClassification_Add_in
             (this.control as UI_Pane).GeneralManager += GeneralManager_paneShow;
             (this.control as UI_Pane).WorkerDepartment += WorkerDepartment_paneShow;
             (this.control as UI_Pane).FirstTaggingLearning += FirstTaggingLearningFunc;
-            (this.control as UI_Pane).LoadMethods += LoadAdd_inMethods;
 
             this.taskpane = this.CustomTaskPanes.Add(this.control, "Auto classification");
             this.taskpane.Width = 325;
@@ -403,15 +404,6 @@ namespace AutomaticClassification_Add_in
             {
                 GetNewMail();
             });
-
-            ////העמסת המתודה לאירוע שיתרחש בכל פעם שימחק מייל  מתקיה זו
-            //destFolder.Items.ItemRemove += ChangeMailFromDirectory;
-
-            //העמסת מתודה שתתבצע בכל פעם שיוסיפו תקייה חדשה= קטגוריה חדשה
-            //oInbox.Folders.FolderAdd += NewFolder;
-            //oInbox.Folders.FolderRemove += DeleteFolder;
-
-            //לראות אולי  לעשות שמחיקת תקייה אומרת מחיקת קטגוריה
         }
 
 

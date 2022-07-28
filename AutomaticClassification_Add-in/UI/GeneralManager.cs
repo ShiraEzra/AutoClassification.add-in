@@ -1,13 +1,5 @@
-﻿using BLL;
-using BLL.DTO;
+﻿using BLL.DTO;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace AutomaticClassification_Add_in.UI
@@ -38,8 +30,6 @@ namespace AutomaticClassification_Add_in.UI
                 this.LoggedInM = m;
                 this.isAdd = true;
             }
-
-
         }
 
         private void updateState()
@@ -105,7 +95,6 @@ namespace AutomaticClassification_Add_in.UI
                 return true;
             return false;
         }
-
 
         private bool checkValidate()
         {

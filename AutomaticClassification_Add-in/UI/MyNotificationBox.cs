@@ -1,12 +1,5 @@
 ﻿using BLL;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace AutomaticClassification_Add_in.UI
@@ -34,7 +27,6 @@ namespace AutomaticClassification_Add_in.UI
                     notification_richTxt.Text += Environment.NewLine + "";
                     notification_richTxt.Text += Environment.NewLine + "לסיכום כללי,";
                     notification_richTxt.Text += Environment.NewLine + "המערכת עומדת כעת על: " + precision[i] + " אחוזי הדיוק.";
-
                 }
                 else
                 {

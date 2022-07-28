@@ -158,7 +158,7 @@ namespace BLL
             }
             catch (Exception ex)
             {
-                MessageBox.Show("error in adding item to Word_tbl" + ex.Message);
+               // MessageBox.Show("error in adding item to Word_tbl" + ex.Message);
             }
             return word;
         }
@@ -180,7 +180,7 @@ namespace BLL
             }
             catch (Exception ex)
             {
-                MessageBox.Show("error in adding item to WordPerCategory_tbl" + ex.Message);
+               // MessageBox.Show("error in adding item to WordPerCategory_tbl" + ex.Message);
             }
             return wordPerCategory;
         }
@@ -219,7 +219,7 @@ namespace BLL
             }
             catch (Exception)
             {
-                MessageBox.Show("error in updating AddWordPerRequest table");
+                //MessageBox.Show("error in updating AddWordPerRequest table");
             }
         }
 

@@ -3,11 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace BLL
 {
-    public enum PercentCalcProb { MaxProbability = 1, Subject_VS_Body = 2, Contacts = 15, NameOfCategoryManager = 20, Similiar = 30, Common = 70, EmailContent = 70, Hundred = 100 }
+    public enum PercentCalcProb { Zero=0, MaxProbability = 1, Subject_VS_Body = 2, Contacts = 15, NameOfCategoryManager = 20, Similiar = 30, Common = 70, EmailContent = 70, Hundred = 100 }
 
     public class NaiveBaiseAlgorithm
     {
@@ -45,7 +44,7 @@ namespace BLL
             request = new EmailRequest_tbl { EmailSubject = subject, EmailContent = body, SenderEmail = sender, Date = date, EntryId = entryId };
             request.ID_category = AssociateRequestToCategory() + 1;
             InsertConclusionToDB(true);
-            return request.Category_tbl != null ? request.Category_tbl.Name_category : Retrieval.GetCategory_tblByID((int)request.ID_category).Name_category; //נפל - אמר שקטגורי נאל
+            return request.Category_tbl != null? request.Category_tbl.Name_category: Retrieval.GetCategory_tblByID((int)request.ID_category)?.Name_category; 
         }
 
 
@@ -202,10 +201,6 @@ namespace BLL
         {
             req_Analysis.Subject.ProbabilitybSubjectForCategory = CalcProbabilityForCategory(req_Analysis.Subject.NormalizedSubjectWords);
             int i = 0;
-            //foreach (var sentence in req_Analysis.Body)
-            //{
-            //    req_Analysis.Body[i++].ProbabilitybSentenceForCategory = CalcProbabilityForCategory(sentence.NormalizedBodyWords);
-            //}
             List<Task<double[]>> tasks = new List<Task<double[]>>();
             foreach (var sentence in req_Analysis.Body)
             {
@@ -378,13 +373,11 @@ namespace BLL
                 {
                     if (sentence.NormalizedBodyWords.Count() != 0) //בעבור משפטים שנוטרלו בשלמותם
                         totalProbability[i] += sentence.ProbabilitybSentenceForCategory[i] * percentsEachSentence;
-
                 }
                 totalProbability[i] += req_Analysis.Subject.ProbabilitybSubjectForCategory[i] * percentsForSubject;
 
                 if (req_Analysis.IsContainCategoryManagerID[i])
                 {
-                    //    totalProbability[i] *= (float)PercentCalcProb.EmailContent / (int)PercentCalcProb.Hundred;
                     totalProbability[i] *= ((float)PercentCalcProb.NameOfCategoryManager / (int)PercentCalcProb.Hundred) + (int)PercentCalcProb.MaxProbability;
                 }
                 totalProbability[i] *= req_Analysis.ContactsProb[i] + (int)PercentCalcProb.MaxProbability;
@@ -392,7 +385,7 @@ namespace BLL
             return totalProbability;
         }
 
-
+       
         /// <summary>
         /// The function counts how many (non-empty) sentences have content in the body of the email.
         /// </summary>
@@ -420,11 +413,11 @@ namespace BLL
         /// <param name="percentsEachSentence">The weight given to each sentence from the body of the email out of the complete probability</param>
         public void PercentageOfSubjectAndBody(int realSizeBodySentences, ref float percentsForSubject, ref float percentsEachSentence)
         {
-            if (realSizeBodySentences == 0)
+            if (realSizeBodySentences == (int)PercentCalcProb.Zero)
                 percentsForSubject = (float)PercentCalcProb.MaxProbability;
             else
             {
-                if (req_Analysis.Subject.NormalizedSubjectWords.Count() == 0)
+                if (req_Analysis.Subject.NormalizedSubjectWords.Count() == (int)PercentCalcProb.Zero)
                     percentsEachSentence = (float)PercentCalcProb.MaxProbability / realSizeBodySentences;
                 else
                 {
@@ -446,7 +439,7 @@ namespace BLL
             for (int i = 0; i < probability_arr.Length; i++)
                 if (probability_arr[i] == maxValue)
                     return i;
-            return 0;
+            return (int)PercentCalcProb.Zero;
         }
 
 
